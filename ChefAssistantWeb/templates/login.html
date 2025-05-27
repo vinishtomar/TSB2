@@ -1,34 +1,41 @@
-{% extends "base.html" %}
-{% block title %}Connexion{% endblock %}
-{% block body %}
-<div class="login-container">
-    <form class="login-box" method="post" action="{{ url_for('login') }}">
-        <div class="logo">LOGO</div>
-        <h1>Suivi de Chantier</h1>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-        <div class="form-group">
-            <label for="username">Nom d'utilisateur</label>
-            <input type="text" name="username" id="username" placeholder="Entrez votre nom" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Mot de passe</label>
-            <input type="password" name="password" id="password" placeholder="Entrez votre mot de passe" required>
-        </div>
-        <div class="form-group">
-            <label for="chantier_type">Type de chantier</label>
-            <select name="chantier_type" id="chantierType">
-                <option value="centrale-sol">Centrale au Sol</option>
-                <option value="ombriere">Ombrière</option>
-                <option value="toiture">Toiture</option>
-            </select>
-        </div>
-        <button class="login-btn" type="submit">Se connecter</button>
-    </form>
-</div>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi de Chantier</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <form class="login-box" method="post" action="{{ url_for('login') }}">
+            <div class="logo">LOGO</div>
+            <h1>Suivi de Chantier</h1>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+            <div class="form-group">
+                <label for="username">Nom d'utilisateur</label>
+                <input type="text" name="username" id="username" placeholder="Entrez votre nom" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" name="password" id="password" placeholder="Entrez votre mot de passe" required>
+            </div>
+            <div class="form-group">
+                <label for="chantier_type">Type de chantier</label>
+                <select name="chantier_type" id="chantierType">
+                    <option value="centrale-sol">Centrale au Sol</option>
+                    <option value="ombriere">Ombrière</option>
+                    <option value="toiture">Toiture</option>
+                </select>
+            </div>
+            <button class="login-btn" type="submit">Se connecter</button>
+        </form>
+    </div>
+</body>
+</html>
