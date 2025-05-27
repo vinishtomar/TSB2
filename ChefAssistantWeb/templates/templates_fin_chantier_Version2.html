@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Fin du Chantier{% endblock %}
+{% block body %}
+<div class="main-app" style="display:block;">
+    <div class="header">
+        <h1>Fin du Chantier</h1>
+        <a href="{{ url_for('logout') }}">
+            <button class="logout-btn">Déconnexion</button>
+        </a>
+    </div>
+    <div class="content">
+        <div class="card active">
+            <h3>Tableau des Tensions Finales</h3>
+            <p style="margin-bottom: 20px; color: #666;">Relevé final des tensions prises sur le chantier</p>
+            <form method="post">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Zone</th>
+                                <th>String</th>
+                                <th>Tension DC (V)</th>
+                                <th>Courant DC (A)</th>
+                                <th>Tension AC (V)</th>
+                                <th>Puissance (W)</th>
+                                <th>Date</th>
+                                <th>Technicien</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in tensions %}
+                            <tr>
+                                <td><input type="text" name="zone[]" value="{{ row.zone }}"></td>
+                                <td><input type="text" name="string[]" value="{{ row.string }}"></td>
+                                <td><input type="number" name="tension_dc[]" value="{{ row.tension_dc }}"></td>
+                                <td><input type="number" name="courant_dc[]" value="{{ row.courant_dc }}"></td>
+                                <td><input type="number" name="tension_ac[]" value="{{ row.tension_ac }}"></td>
+                                <td><input type="number" name="puissance[]" value="{{ row.puissance }}"></td>
+                                <td><input type="date" name="date[]" value="{{ row.date }}"></td>
+                                <td><input type="text" name="technicien[]" value="{{ row.technicien }}"></td>
+                                <td>
+                                    <select name="status[]">
+                                        <option {% if row.status == 'Validé' %}selected{% endif %}>Validé</option>
+                                        <option {% if row.status == 'À vérifier' %}selected{% endif %}>À vérifier</option>
+                                        <option {% if row.status == 'Anomalie' %}selected{% endif %}>Anomalie</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td><input type="text" name="zone[]"></td>
+                                <td><input type="text" name="string[]"></td>
+                                <td><input type="number" name="tension_dc[]"></td>
+                                <td><input type="number" name="courant_dc[]"></td>
+                                <td><input type="number" name="tension_ac[]"></td>
+                                <td><input type="number" name="puissance[]"></td>
+                                <td><input type="date" name="date[]"></td>
+                                <td><input type="text" name="technicien[]"></td>
+                                <td>
+                                    <select name="status[]">
+                                        <option>Validé</option>
+                                        <option>À vérifier</option>
+                                        <option>Anomalie</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="btn" type="submit">Enregistrer</button>
+                    <a href="{{ url_for('export_pdf') }}"><button class="btn" style="background: #28a745;" type="button">Exporter PDF</button></a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
