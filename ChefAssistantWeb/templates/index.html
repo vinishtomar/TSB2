@@ -1,38 +1,141 @@
-{% extends "base.html" %}
-{% block title %}Tableau de bord{% endblock %}
-{% block body %}
-<div class="main-app" style="display:block;">
-    <div class="header">
-        <h1>
-            Suivi de Chantier - Système de Gestion
-        </h1>
-        <div style="position: absolute; top: 15px; left: 20px; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; color: white; font-weight: 500;">
-            <span>
-                {% if session.get('chantier_type') == 'centrale-sol' %}
-                    🌞 Centrale au Sol
-                {% elif session.get('chantier_type') == 'ombriere' %}
-                    🚗 Ombrière
-                {% elif session.get('chantier_type') == 'toiture' %}
-                    🏠 Toiture
-                {% else %}
-                    Type de chantier
-                {% endif %}
-            </span>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Suivi de Chantier - Centrale au Sol</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f6f8fa; }
+        .main-header {
+            background: linear-gradient(90deg, #4a90e2, #357abd);
+            color: white;
+            padding: 1.5rem 2rem;
+            font-size: 2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .nav-tabs .nav-link.active {
+            background: #eaf1fb;
+            color: #357abd;
+            font-weight: 600;
+            border-bottom: 3px solid #357abd;
+        }
+        .nav-tabs .nav-link {
+            border: none;
+            color: #357abd;
+        }
+        .rounded-card {
+            border-radius: 1rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        }
+        .subnav {
+            margin-bottom: 1rem;
+        }
+        .subnav .btn {
+            border-radius: 2rem;
+            margin-right: .5rem;
+        }
+        .subnav .btn.active {
+            background: #357abd;
+            color: white;
+            border-color: #357abd;
+        }
+        .logout-btn {
+            background: #eaf1fb;
+            color: #357abd;
+            border: none;
+            border-radius: 0.6rem;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: background .2s;
+        }
+        .logout-btn:hover {
+            background: #357abd;
+            color: white;
+        }
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-title">
+           <span style="font-size:1.5rem;">🌞</span>
+           Suivi de Chantier - Centrale au Sol
         </div>
-        <a href="{{ url_for('logout') }}">
-            <button class="logout-btn">Déconnexion</button>
-        </a>
+        <a href="{{ url_for('logout') }}"><button class="logout-btn">Déconnexion</button></a>
+    </header>
+    <nav>
+      <ul class="nav nav-tabs px-4 pt-3">
+        <li class="nav-item">
+          <a class="nav-link active" href="#">Réception du Chantier</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Avancement du Chantier</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Fin du Chantier</a>
+        </li>
+      </ul>
+    </nav>
+    <div class="container-fluid pt-4">
+      <div class="subnav">
+        <button class="btn btn-outline-primary active">Équipements</button>
+        <button class="btn btn-outline-primary">Connecteur</button>
+        <button class="btn btn-outline-primary">Chemin de Câble</button>
+        <button class="btn btn-outline-primary">Terre</button>
+        <button class="btn btn-outline-primary">Câble AC</button>
+        <button class="btn btn-outline-primary">Câble DC</button>
+      </div>
+      <div class="card rounded-card mb-3">
+        <div class="card-body">
+          <div class="card-title mb-4">Équipements</div>
+          <form class="row g-3 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label">Type de machine</label>
+              <select class="form-select">
+                <option>Nacelle ciseau</option>
+                <option>Nacelle à bras</option>
+                <option>Manitou</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Référence</label>
+              <input type="text" class="form-control" placeholder="Numéro de série">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">État</label>
+              <select class="form-select">
+                <option>Bon état</option>
+                <option>À vérifier</option>
+                <option>Défaillant</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Date de réception</label>
+              <input type="date" class="form-control" placeholder="jj/mm/aaaa">
+            </div>
+            <div class="col-12 pt-3">
+              <button class="btn btn-primary">Enregistrer</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-    <div class="nav-tabs">
-        <a href="{{ url_for('suivi_journalier') }}"><button class="nav-tab{% if request.endpoint == 'suivi_journalier' %} active{% endif %}">Réception du Chantier</button></a>
-        <a href="{{ url_for('historique') }}"><button class="nav-tab{% if request.endpoint == 'historique' %} active{% endif %}">Historique</button></a>
-        {% if current_user.role == "admin" %}
-        <a href="{{ url_for('admin_panel') }}"><button class="nav-tab{% if request.endpoint == 'admin_panel' %} active{% endif %}">Admin</button></a>
-        {% endif %}
-    </div>
-    <div class="content">
-        <h2>Bienvenue, {{ current_user.id }} !</h2>
-        <p>Utilisez les onglets ci-dessus pour accéder aux différentes fonctionnalités de gestion de chantier.</p>
-    </div>
-</div>
-{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
