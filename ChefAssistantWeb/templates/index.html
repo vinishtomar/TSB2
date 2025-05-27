@@ -26,32 +26,6 @@
             font-size: 2rem;
             font-weight: 700;
         }
-        .nav-tabs .nav-link.active {
-            background: #eaf1fb;
-            color: #357abd;
-            font-weight: 600;
-            border-bottom: 3px solid #357abd;
-        }
-        .nav-tabs .nav-link {
-            border: none;
-            color: #357abd;
-        }
-        .rounded-card {
-            border-radius: 1rem;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
-        }
-        .subnav {
-            margin-bottom: 1rem;
-        }
-        .subnav .btn {
-            border-radius: 2rem;
-            margin-right: .5rem;
-        }
-        .subnav .btn.active {
-            background: #357abd;
-            color: white;
-            border-color: #357abd;
-        }
         .logout-btn {
             background: #eaf1fb;
             color: #357abd;
@@ -65,9 +39,22 @@
             background: #357abd;
             color: white;
         }
+        .rounded-card {
+            border-radius: 1rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        }
         .card-title {
             font-size: 1.3rem;
             font-weight: 700;
+        }
+        .subnav .nav-link {
+            border-radius: 2rem !important;
+            margin-right: .5rem;
+            color: #357abd;
+        }
+        .subnav .nav-link.active {
+            background: #357abd !important;
+            color: white !important;
         }
     </style>
 </head>
@@ -79,63 +66,141 @@
         </div>
         <a href="{{ url_for('logout') }}"><button class="logout-btn">Déconnexion</button></a>
     </header>
-    <nav>
-      <ul class="nav nav-tabs px-4 pt-3">
-        <li class="nav-item">
-          <a class="nav-link active" href="#">Réception du Chantier</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Avancement du Chantier</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Fin du Chantier</a>
-        </li>
-      </ul>
-    </nav>
-    <div class="container-fluid pt-4">
-      <div class="subnav">
-        <button class="btn btn-outline-primary active">Équipements</button>
-        <button class="btn btn-outline-primary">Connecteur</button>
-        <button class="btn btn-outline-primary">Chemin de Câble</button>
-        <button class="btn btn-outline-primary">Terre</button>
-        <button class="btn btn-outline-primary">Câble AC</button>
-        <button class="btn btn-outline-primary">Câble DC</button>
+    <!-- Main Tabs -->
+    <ul class="nav nav-tabs px-4 pt-3" id="mainTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="reception-tab" data-bs-toggle="tab" data-bs-target="#reception" type="button" role="tab" aria-controls="reception" aria-selected="true">Réception du Chantier</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="avancement-tab" data-bs-toggle="tab" data-bs-target="#avancement" type="button" role="tab" aria-controls="avancement" aria-selected="false">Avancement du Chantier</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="fin-tab" data-bs-toggle="tab" data-bs-target="#fin" type="button" role="tab" aria-controls="fin" aria-selected="false">Fin du Chantier</button>
+      </li>
+    </ul>
+    <div class="tab-content container-fluid pt-4" id="mainTabContent">
+      <!-- Réception Section -->
+      <div class="tab-pane fade show active" id="reception" role="tabpanel" aria-labelledby="reception-tab">
+        <!-- Subnav Tabs -->
+        <ul class="nav subnav mb-3" id="receptionSubTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="equipements-tab" data-bs-toggle="tab" data-bs-target="#equipements" type="button" role="tab" aria-controls="equipements" aria-selected="true">Équipements</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="connecteur-tab" data-bs-toggle="tab" data-bs-target="#connecteur" type="button" role="tab" aria-controls="connecteur" aria-selected="false">Connecteur</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="chemin-tab" data-bs-toggle="tab" data-bs-target="#chemin" type="button" role="tab" aria-controls="chemin" aria-selected="false">Chemin de Câble</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="terre-tab" data-bs-toggle="tab" data-bs-target="#terre" type="button" role="tab" aria-controls="terre" aria-selected="false">Terre</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="cableac-tab" data-bs-toggle="tab" data-bs-target="#cableac" type="button" role="tab" aria-controls="cableac" aria-selected="false">Câble AC</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="cabledc-tab" data-bs-toggle="tab" data-bs-target="#cabledc" type="button" role="tab" aria-controls="cabledc" aria-selected="false">Câble DC</button>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="equipements" role="tabpanel" aria-labelledby="equipements-tab">
+            <div class="card rounded-card mb-3">
+              <div class="card-body">
+                <div class="card-title mb-4">Équipements</div>
+                <form class="row g-3 align-items-end">
+                  <div class="col-md-3">
+                    <label class="form-label">Type de machine</label>
+                    <select class="form-select">
+                      <option>Nacelle ciseau</option>
+                      <option>Nacelle à bras</option>
+                      <option>Manitou</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Référence</label>
+                    <input type="text" class="form-control" placeholder="Numéro de série">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">État</label>
+                    <select class="form-select">
+                      <option>Bon état</option>
+                      <option>À vérifier</option>
+                      <option>Défaillant</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Date de réception</label>
+                    <input type="date" class="form-control" placeholder="jj/mm/aaaa">
+                  </div>
+                  <div class="col-12 pt-3">
+                    <button class="btn btn-primary">Enregistrer</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="connecteur" role="tabpanel" aria-labelledby="connecteur-tab">
+            <div class="card rounded-card mb-3">
+              <div class="card-body">
+                <div class="card-title mb-4">Connecteur</div>
+                <!-- Add Connecteur form here -->
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="chemin" role="tabpanel" aria-labelledby="chemin-tab">
+            <div class="card rounded-card mb-3">
+              <div class="card-body">
+                <div class="card-title mb-4">Chemin de Câble</div>
+                <!-- Add Chemin de Câble form here -->
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="terre" role="tabpanel" aria-labelledby="terre-tab">
+            <div class="card rounded-card mb-3">
+              <div class="card-body">
+                <div class="card-title mb-4">Terre</div>
+                <!-- Add Terre form here -->
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="cableac" role="tabpanel" aria-labelledby="cableac-tab">
+            <div class="card rounded-card mb-3">
+              <div class="card-body">
+                <div class="card-title mb-4">Câble AC</div>
+                <!-- Add Câble AC form here -->
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="cabledc" role="tabpanel" aria-labelledby="cabledc-tab">
+            <div class="card rounded-card mb-3">
+              <div class="card-body">
+                <div class="card-title mb-4">Câble DC</div>
+                <!-- Add Câble DC form here -->
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="card rounded-card mb-3">
-        <div class="card-body">
-          <div class="card-title mb-4">Équipements</div>
-          <form class="row g-3 align-items-end">
-            <div class="col-md-3">
-              <label class="form-label">Type de machine</label>
-              <select class="form-select">
-                <option>Nacelle ciseau</option>
-                <option>Nacelle à bras</option>
-                <option>Manitou</option>
-              </select>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Référence</label>
-              <input type="text" class="form-control" placeholder="Numéro de série">
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">État</label>
-              <select class="form-select">
-                <option>Bon état</option>
-                <option>À vérifier</option>
-                <option>Défaillant</option>
-              </select>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Date de réception</label>
-              <input type="date" class="form-control" placeholder="jj/mm/aaaa">
-            </div>
-            <div class="col-12 pt-3">
-              <button class="btn btn-primary">Enregistrer</button>
-            </div>
-          </form>
+      <!-- Avancement Section -->
+      <div class="tab-pane fade" id="avancement" role="tabpanel" aria-labelledby="avancement-tab">
+        <div class="card rounded-card mb-3">
+          <div class="card-body">
+            <div class="card-title mb-4">Avancement du Chantier</div>
+            <!-- Add Avancement du Chantier content here -->
+          </div>
+        </div>
+      </div>
+      <!-- Fin Section -->
+      <div class="tab-pane fade" id="fin" role="tabpanel" aria-labelledby="fin-tab">
+        <div class="card rounded-card mb-3">
+          <div class="card-body">
+            <div class="card-title mb-4">Fin du Chantier</div>
+            <!-- Add Fin du Chantier content here -->
+          </div>
         </div>
       </div>
     </div>
+    <!-- Bootstrap JS Bundle (enables tab switching) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
