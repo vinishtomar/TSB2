@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Historique{% endblock %}
+{% block body %}
+<div class="main-app" style="display:block;">
+    <div class="header">
+        <h1>Historique</h1>
+        <a href="{{ url_for('logout') }}">
+            <button class="logout-btn">Déconnexion</button>
+        </a>
+    </div>
+    <div class="content">
+        <a href="{{ url_for('telecharger_historique') }}"><button class="btn">Télécharger CSV</button></a>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Chantier</th>
+                        <th>Equipe</th>
+                        <th>Travaux</th>
+                        <th>Problèmes</th>
+                        <th>Avancement</th>
+                        <th>Rails</th>
+                        <th>DC</th>
+                        <th>AC</th>
+                        <th>Images</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in lignes %}
+                    <tr>
+                        <td>{{ row.date }}</td>
+                        <td>{{ row.chantier_du_jour }}</td>
+                        <td>{{ row.equipe_presente }}</td>
+                        <td>{{ row.travaux_realises }}</td>
+                        <td>{{ row.problemes }}</td>
+                        <td>{{ row.avancement }}</td>
+                        <td>{{ row.nombre_rail }}</td>
+                        <td>{{ row.cable_dc }}</td>
+                        <td>{{ row.cable_ac }}</td>
+                        <td>
+                            {% for image_id in row.image_ids %}
+                                <a href="{{ url_for('get_image', image_id=image_id) }}" target="_blank">📷</a>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('modify_history', entry_id=row.id) }}"><button class="btn">Modifier</button></a>
+                            {% if current_user.role == "admin" %}
+                            <form action="{{ url_for('delete_history', entry_id=row.id) }}" method="post" style="display:inline;">
+                                <button class="btn" style="background:#dc3545;" type="submit">Supprimer</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

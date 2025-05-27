@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord{% endblock %}
+{% block body %}
+<div class="main-app" style="display:block;">
+    <div class="header">
+        <h1>
+            Suivi de Chantier - Système de Gestion
+        </h1>
+        <div style="position: absolute; top: 15px; left: 20px; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; color: white; font-weight: 500;">
+            <span>
+                {% if session.get('chantier_type') == 'centrale-sol' %}
+                    🌞 Centrale au Sol
+                {% elif session.get('chantier_type') == 'ombriere' %}
+                    🚗 Ombrière
+                {% elif session.get('chantier_type') == 'toiture' %}
+                    🏠 Toiture
+                {% else %}
+                    Type de chantier
+                {% endif %}
+            </span>
+        </div>
+        <a href="{{ url_for('logout') }}">
+            <button class="logout-btn">Déconnexion</button>
+        </a>
+    </div>
+    <div class="nav-tabs">
+        <a href="{{ url_for('suivi_journalier') }}"><button class="nav-tab{% if request.endpoint == 'suivi_journalier' %} active{% endif %}">Réception du Chantier</button></a>
+        <a href="{{ url_for('historique') }}"><button class="nav-tab{% if request.endpoint == 'historique' %} active{% endif %}">Historique</button></a>
+        {% if current_user.role == "admin" %}
+        <a href="{{ url_for('admin_panel') }}"><button class="nav-tab{% if request.endpoint == 'admin_panel' %} active{% endif %}">Admin</button></a>
+        {% endif %}
+    </div>
+    <div class="content">
+        <h2>Bienvenue, {{ current_user.id }} !</h2>
+        <p>Utilisez les onglets ci-dessus pour accéder aux différentes fonctionnalités de gestion de chantier.</p>
+    </div>
+</div>
+{% endblock %}
