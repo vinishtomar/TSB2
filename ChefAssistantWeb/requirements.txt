@@ -1,5 +1,0 @@
-Flask>=2.0
-flask-login
-flask-bcrypt
-flask-sqlalchemy
-gunicorn
