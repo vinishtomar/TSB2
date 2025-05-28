@@ -13,7 +13,6 @@ login_manager = LoginManager(app)
 login_manager.login_view = "login"
 app.secret_key = os.urandom(24)
 
-# PostgreSQL config (replace with your own DB URI if needed)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -77,10 +76,11 @@ with app.app_context():
 @app.route('/')
 @login_required
 def index():
-    # For admin, get all lines for history tab
-    all_lignes = []
+    # Show all entries for admin, only user's entries for normal users
     if current_user.role == "admin":
         all_lignes = SuiviJournalier.query.all()
+    else:
+        all_lignes = SuiviJournalier.query.filter_by(utilisateur=current_user.id).all()
     return render_template('index.html', all_lignes=all_lignes)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -158,9 +158,7 @@ def historique():
         if current_user.role == "admin":
             lignes_utilisateur = SuiviJournalier.query.all()
         else:
-            lignes_utilisateur = SuiviJournalier.query.filter_by(
-                utilisateur=current_user.id
-            ).all()
+            lignes_utilisateur = SuiviJournalier.query.filter_by(utilisateur=current_user.id).all()
         def parse_date_safe(date_str):
             try:
                 return datetime.strptime(date_str, "%Y-%m-%d %H:%M")
