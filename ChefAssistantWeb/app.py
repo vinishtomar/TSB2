@@ -77,7 +77,11 @@ with app.app_context():
 @app.route('/')
 @login_required
 def index():
-    return render_template('index.html')
+    # For admin, get all lines for history tab
+    all_lignes = []
+    if current_user.role == "admin":
+        all_lignes = SuiviJournalier.query.all()
+    return render_template('index.html', all_lignes=all_lignes)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -219,6 +223,45 @@ def telecharger_historique():
         mimetype='text/csv',
         headers={"Content-Disposition": f"attachment;filename={current_user.id}_historique.csv"}
     )
+
+# Example PDF export (for demonstration, returns a simple text PDF)
+@app.route('/telecharger-historique-pdf')
+@login_required
+def telecharger_historique_pdf():
+    from reportlab.lib.pagesizes import letter
+    from reportlab.pdfgen import canvas
+    from io import BytesIO
+
+    if current_user.role != "admin":
+        return "Unauthorized", 403
+    rows = SuiviJournalier.query.all()
+    pdf_buffer = BytesIO()
+    c = canvas.Canvas(pdf_buffer, pagesize=letter)
+    width, height = letter
+    y = height - 40
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(40, y, "Historique des Suivi Journaliers")
+    y -= 25
+    c.setFont("Helvetica", 8)
+    fieldnames = [
+        "date", "chantier_du_jour", "equipe_presente", "heures_travail", "materiel_livre",
+        "travaux_realises", "problemes", "avancement", "objectif_special",
+        "cable_dc", "cable_ac", "nombre_rail", "pose_onduleur", "cable_terre",
+        "utilisateur"
+    ]
+    c.drawString(40, y, "; ".join(fieldnames))
+    y -= 15
+    for row in rows:
+        row_dict = {field: getattr(row, field, "") for field in fieldnames}
+        text = "; ".join(str(row_dict.get(field, "")) for field in fieldnames)
+        c.drawString(40, y, text[:1100])  # fit on page
+        y -= 12
+        if y < 40:
+            c.showPage()
+            y = height - 40
+    c.save()
+    pdf_buffer.seek(0)
+    return send_file(pdf_buffer, mimetype='application/pdf', as_attachment=True, download_name="historique.pdf")
 
 @app.route('/admin', methods=['GET', 'POST'])
 @login_required
