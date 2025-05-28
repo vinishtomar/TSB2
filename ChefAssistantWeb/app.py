@@ -191,9 +191,9 @@ def historique():
             row['total_cable_dc'] = chantier_totals[chantier]['dc']
             row['total_cable_ac'] = chantier_totals[chantier]['ac']
             row['total_rails'] = chantier_totals[chantier]['rail']
-            row['image_ids'] = [img.id for img in getattr(obj, "images", [])]
+            row['images'] = getattr(obj, "images", [])
             lignes_dicts.append(row)
-        return render_template('historique.html', lignes=lignes_dicts)
+        return render_template('index.html', all_lignes=lignes_dicts)
     except Exception as e:
         return f"Server Error in /historique: {str(e)}", 500
 
@@ -224,7 +224,6 @@ def telecharger_historique():
         headers={"Content-Disposition": f"attachment;filename={current_user.id}_historique.csv"}
     )
 
-# Example PDF export (for demonstration, returns a simple text PDF)
 @app.route('/telecharger-historique-pdf')
 @login_required
 def telecharger_historique_pdf():
