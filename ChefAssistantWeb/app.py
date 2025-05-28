@@ -43,20 +43,52 @@ def load_user(user_id):
 class SuiviJournalier(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.String(50))
-    chantier_du_jour = db.Column(db.String(255))
-    equipe_presente = db.Column(db.String(255))
-    heures_travail = db.Column(db.String(255))
-    materiel_livre = db.Column(db.String(255))
-    travaux_realises = db.Column(db.String(255))
-    problemes = db.Column(db.String(255))
-    avancement = db.Column(db.String(255))
-    objectif_special = db.Column(db.String(255))
-    cable_dc = db.Column(db.String(255))
-    cable_ac = db.Column(db.String(255))
-    nombre_rail = db.Column(db.String(255))
-    pose_onduleur = db.Column(db.String(255))
-    cable_terre = db.Column(db.String(255))
     utilisateur = db.Column(db.String(255))
+
+    # Réception du Chantier: Equipements
+    equipement_type = db.Column(db.String(255))
+    equipement_reference = db.Column(db.String(255))
+    equipement_etat = db.Column(db.String(255))
+    equipement_date_reception = db.Column(db.String(255))
+
+    # Réception du Chantier: Connecteur
+    connecteur_type = db.Column(db.String(255))
+    connecteur_quantite = db.Column(db.String(255))
+    connecteur_etat = db.Column(db.String(255))
+
+    # Réception du Chantier: Chemin de câble
+    chemin_cable_longueur = db.Column(db.String(255))
+    chemin_cable_type = db.Column(db.String(255))
+
+    # Réception du Chantier: Terre
+    terre_type_raccord = db.Column(db.String(255))
+    terre_valeur_resistance = db.Column(db.String(255))
+
+    # Réception du Chantier: Câble AC
+    cableac_section = db.Column(db.String(255))
+    cableac_longueur = db.Column(db.String(255))
+
+    # Réception du Chantier: Câble DC
+    cabledc_section = db.Column(db.String(255))
+    cabledc_longueur = db.Column(db.String(255))
+
+    # Avancement du Chantier
+    cables_dctires = db.Column(db.String(255))
+    cables_actires = db.Column(db.String(255))
+    cables_terretires = db.Column(db.String(255))
+
+    # Fin du Chantier
+    fin_zone = db.Column(db.String(255))
+    fin_string = db.Column(db.String(255))
+    fin_tension_dc = db.Column(db.String(255))
+    fin_courant_dc = db.Column(db.String(255))
+    fin_tension_ac = db.Column(db.String(255))
+    fin_puissance = db.Column(db.String(255))
+    fin_date = db.Column(db.String(255))
+    fin_technicien = db.Column(db.String(255))
+    fin_status = db.Column(db.String(255))
+
+    # Images
     images = db.relationship('SuiviJournalierImage', backref='suivi', lazy=True)
 
 class SuiviJournalierImage(db.Model):
@@ -76,7 +108,6 @@ with app.app_context():
 @app.route('/')
 @login_required
 def index():
-    # Show all entries for admin, only user's entries for normal users
     if current_user.role == "admin":
         all_lignes = SuiviJournalier.query.all()
     else:
@@ -112,9 +143,15 @@ def suivi_journalier():
     if request.method == 'POST':
         try:
             data = {k: request.form.get(k, "") for k in [
-                "chantier_du_jour", "equipe_presente", "heures_travail", "materiel_livre",
-                "travaux_realises", "problemes", "avancement", "objectif_special",
-                "cable_dc", "cable_ac", "nombre_rail", "pose_onduleur", "cable_terre"]}
+                "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception",
+                "connecteur_type", "connecteur_quantite", "connecteur_etat",
+                "chemin_cable_longueur", "chemin_cable_type",
+                "terre_type_raccord", "terre_valeur_resistance",
+                "cableac_section", "cableac_longueur",
+                "cabledc_section", "cabledc_longueur",
+                "cables_dctires", "cables_actires", "cables_terretires",
+                "fin_zone", "fin_string", "fin_tension_dc", "fin_courant_dc", "fin_tension_ac", "fin_puissance", "fin_date", "fin_technicien", "fin_status"
+            ]}
             entry = SuiviJournalier(
                 date=datetime.now().strftime('%Y-%m-%d %H:%M'),
                 utilisateur=current_user.id,
@@ -135,9 +172,9 @@ def suivi_journalier():
             db.session.commit()
             save_to_csv({
                 "date": entry.date,
+                "utilisateur": current_user.id,
                 **data,
-                "photo_chantier": ";".join([p.filename for p in photos if p and p.filename]),
-                "utilisateur": current_user.id
+                "photo_chantier": ";".join([p.filename for p in photos if p and p.filename])
             })
             return redirect(url_for('index'))
         except Exception as e:
@@ -151,50 +188,6 @@ def get_image(image_id):
     image = SuiviJournalierImage.query.get_or_404(image_id)
     return send_file(BytesIO(image.data), mimetype=image.content_type, as_attachment=False, download_name=image.filename)
 
-@app.route('/historique')
-@login_required
-def historique():
-    try:
-        if current_user.role == "admin":
-            lignes_utilisateur = SuiviJournalier.query.all()
-        else:
-            lignes_utilisateur = SuiviJournalier.query.filter_by(utilisateur=current_user.id).all()
-        def parse_date_safe(date_str):
-            try:
-                return datetime.strptime(date_str, "%Y-%m-%d %H:%M")
-            except Exception:
-                return datetime(1900, 1, 1)
-        rows = sorted(
-            lignes_utilisateur,
-            key=lambda r: (r.chantier_du_jour or "", parse_date_safe(r.date or ""))
-        )
-        lignes_dicts = []
-        chantier_totals = {}
-        for obj in rows:
-            row = {c.name: getattr(obj, c.name) for c in obj.__table__.columns}
-            chantier = row.get('chantier_du_jour') or ""
-            def safe_float(val):
-                try:
-                    return float(val)
-                except (ValueError, TypeError):
-                    return 0.0
-            dc = safe_float(row.get('cable_dc'))
-            ac = safe_float(row.get('cable_ac'))
-            rail = safe_float(row.get('nombre_rail'))
-            if chantier not in chantier_totals:
-                chantier_totals[chantier] = {'dc': 0, 'ac': 0, 'rail': 0}
-            chantier_totals[chantier]['dc'] += dc
-            chantier_totals[chantier]['ac'] += ac
-            chantier_totals[chantier]['rail'] += rail
-            row['total_cable_dc'] = chantier_totals[chantier]['dc']
-            row['total_cable_ac'] = chantier_totals[chantier]['ac']
-            row['total_rails'] = chantier_totals[chantier]['rail']
-            row['images'] = getattr(obj, "images", [])
-            lignes_dicts.append(row)
-        return render_template('index.html', all_lignes=lignes_dicts)
-    except Exception as e:
-        return f"Server Error in /historique: {str(e)}", 500
-
 @app.route('/telecharger-historique')
 @login_required
 def telecharger_historique():
@@ -203,17 +196,23 @@ def telecharger_historique():
     else:
         rows = SuiviJournalier.query.filter_by(utilisateur=current_user.id).all()
     fieldnames = [
-        "id", "date", "chantier_du_jour", "equipe_presente", "heures_travail", "materiel_livre",
-        "travaux_realises", "problemes", "avancement", "objectif_special",
-        "cable_dc", "cable_ac", "nombre_rail", "pose_onduleur", "cable_terre",
-        "photo_chantier", "utilisateur"
+        "date", "utilisateur",
+        "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception",
+        "connecteur_type", "connecteur_quantite", "connecteur_etat",
+        "chemin_cable_longueur", "chemin_cable_type",
+        "terre_type_raccord", "terre_valeur_resistance",
+        "cableac_section", "cableac_longueur",
+        "cabledc_section", "cabledc_longueur",
+        "cables_dctires", "cables_actires", "cables_terretires",
+        "fin_zone", "fin_string", "fin_tension_dc", "fin_courant_dc", "fin_tension_ac", "fin_puissance", "fin_date", "fin_technicien", "fin_status",
+        "photo_chantier"
     ]
     csv_buffer = StringIO()
     writer = csv.writer(csv_buffer, delimiter=';')
     writer.writerow(fieldnames)
     for row in rows:
         photo_chantier = ";".join([img.filename for img in row.images])
-        row_dict = {field: getattr(row, field, "") for field in fieldnames}
+        row_dict = {field: getattr(row, field, "") for field in fieldnames if field != "photo_chantier"}
         row_dict["photo_chantier"] = photo_chantier
         writer.writerow([row_dict.get(field, "") for field in fieldnames])
     return Response(
@@ -239,20 +238,25 @@ def telecharger_historique_pdf():
     c.setFont("Helvetica-Bold", 12)
     c.drawString(40, y, "Historique des Suivi Journaliers")
     y -= 25
-    c.setFont("Helvetica", 8)
+    c.setFont("Helvetica", 7)
     fieldnames = [
-        "date", "chantier_du_jour", "equipe_presente", "heures_travail", "materiel_livre",
-        "travaux_realises", "problemes", "avancement", "objectif_special",
-        "cable_dc", "cable_ac", "nombre_rail", "pose_onduleur", "cable_terre",
-        "utilisateur"
+        "date", "utilisateur",
+        "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception",
+        "connecteur_type", "connecteur_quantite", "connecteur_etat",
+        "chemin_cable_longueur", "chemin_cable_type",
+        "terre_type_raccord", "terre_valeur_resistance",
+        "cableac_section", "cableac_longueur",
+        "cabledc_section", "cabledc_longueur",
+        "cables_dctires", "cables_actires", "cables_terretires",
+        "fin_zone", "fin_string", "fin_tension_dc", "fin_courant_dc", "fin_tension_ac", "fin_puissance", "fin_date", "fin_technicien", "fin_status"
     ]
     c.drawString(40, y, "; ".join(fieldnames))
     y -= 15
     for row in rows:
         row_dict = {field: getattr(row, field, "") for field in fieldnames}
         text = "; ".join(str(row_dict.get(field, "")) for field in fieldnames)
-        c.drawString(40, y, text[:1100])  # fit on page
-        y -= 12
+        c.drawString(40, y, text[:1000])  # fit on page
+        y -= 10
         if y < 40:
             c.showPage()
             y = height - 40
@@ -298,7 +302,7 @@ def admin_panel():
 def delete_history(entry_id):
     if current_user.role != "admin":
         flash("Access denied: Admin only", "danger")
-        return redirect(url_for('historique'))
+        return redirect(url_for('index'))
     try:
         entry = SuiviJournalier.query.get(entry_id)
         if entry:
@@ -312,7 +316,7 @@ def delete_history(entry_id):
     except Exception as e:
         db.session.rollback()
         flash(f"Error deleting entry: {str(e)}", "danger")
-    return redirect(url_for('historique'))
+    return redirect(url_for('index'))
 
 @app.route('/modify-history/<int:entry_id>', methods=['GET', 'POST'])
 @login_required
@@ -320,24 +324,22 @@ def modify_history(entry_id):
     entry = SuiviJournalier.query.get(entry_id)
     if not entry:
         flash("Entrée non trouvée.", "danger")
-        return redirect(url_for('historique'))
+        return redirect(url_for('index'))
     if current_user.role != "admin" and entry.utilisateur != current_user.id:
         flash("Droits insuffisants pour modifier cette entrée.", "danger")
-        return redirect(url_for('historique'))
+        return redirect(url_for('index'))
     if request.method == 'POST':
-        entry.chantier_du_jour = request.form.get('chantier_du_jour', entry.chantier_du_jour)
-        entry.equipe_presente = request.form.get('equipe_presente', entry.equipe_presente)
-        entry.heures_travail = request.form.get('heures_travail', entry.heures_travail)
-        entry.materiel_livre = request.form.get('materiel_livre', entry.materiel_livre)
-        entry.travaux_realises = request.form.get('travaux_realises', entry.travaux_realises)
-        entry.problemes = request.form.get('problemes', entry.problemes)
-        entry.avancement = request.form.get('avancement', entry.avancement)
-        entry.objectif_special = request.form.get('objectif_special', entry.objectif_special)
-        entry.cable_dc = request.form.get('cable_dc', entry.cable_dc)
-        entry.cable_ac = request.form.get('cable_ac', entry.cable_ac)
-        entry.nombre_rail = request.form.get('nombre_rail', entry.nombre_rail)
-        entry.pose_onduleur = request.form.get('pose_onduleur', entry.pose_onduleur)
-        entry.cable_terre = request.form.get('cable_terre', entry.cable_terre)
+        for field in [
+            "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception",
+            "connecteur_type", "connecteur_quantite", "connecteur_etat",
+            "chemin_cable_longueur", "chemin_cable_type",
+            "terre_type_raccord", "terre_valeur_resistance",
+            "cableac_section", "cableac_longueur",
+            "cabledc_section", "cabledc_longueur",
+            "cables_dctires", "cables_actires", "cables_terretires",
+            "fin_zone", "fin_string", "fin_tension_dc", "fin_courant_dc", "fin_tension_ac", "fin_puissance", "fin_date", "fin_technicien", "fin_status"
+        ]:
+            setattr(entry, field, request.form.get(field, getattr(entry, field)))
         delete_ids = request.form.getlist('delete_images')
         for img in entry.images[:]:
             if str(img.id) in delete_ids:
@@ -354,17 +356,23 @@ def modify_history(entry_id):
                 db.session.add(img)
         db.session.commit()
         flash("Entrée modifiée avec succès.", "success")
-        return redirect(url_for('historique'))
+        return redirect(url_for('index'))
     return render_template('modify_history.html', entry=entry)
 
 def save_to_csv(data):
     filepath = os.path.join('uploads', 'suivi_journalier.csv')
     file_exists = os.path.isfile(filepath)
     fieldnames = [
-        "date", "chantier_du_jour", "equipe_presente", "heures_travail", "materiel_livre",
-        "travaux_realises", "problemes", "avancement", "objectif_special",
-        "cable_dc", "cable_ac", "nombre_rail", "pose_onduleur", "cable_terre",
-        "photo_chantier", "utilisateur"
+        "date", "utilisateur",
+        "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception",
+        "connecteur_type", "connecteur_quantite", "connecteur_etat",
+        "chemin_cable_longueur", "chemin_cable_type",
+        "terre_type_raccord", "terre_valeur_resistance",
+        "cableac_section", "cableac_longueur",
+        "cabledc_section", "cabledc_longueur",
+        "cables_dctires", "cables_actires", "cables_terretires",
+        "fin_zone", "fin_string", "fin_tension_dc", "fin_courant_dc", "fin_tension_ac", "fin_puissance", "fin_date", "fin_technicien", "fin_status",
+        "photo_chantier"
     ]
     try:
         with open(filepath, mode='a', newline='', encoding='utf-8') as file:
