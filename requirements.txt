@@ -4,3 +4,4 @@ flask-bcrypt
 flask-sqlalchemy
 gunicorn
 psycopg2-binary
+reportlab
