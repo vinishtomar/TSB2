@@ -124,7 +124,7 @@
               </li>
             </ul>
             <div class="tab-content" id="receptionSubTabContent">
-              <!-- Équipements Tab Content with three machines -->
+              <!-- Équipements Tab Content -->
               <div class="tab-pane fade show active" id="equipements" role="tabpanel" aria-labelledby="equipements-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}" enctype="multipart/form-data">
                   <div class="row mb-2 fw-bold text-center">
@@ -324,17 +324,13 @@
                   </div>
                 </form>
               </div>
-              <!-- Terre Tab Content -->
+              <!-- Terre Tab Content (NEW) -->
               <div class="tab-pane fade" id="terre" role="tabpanel" aria-labelledby="terre-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <div class="row mb-3">
                     <div class="col-md-6">
-                      <label class="form-label">Type de raccordement</label>
-                      <input type="text" class="form-control" name="terre_type_raccord">
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label">Valeur de résistance (Ω)</label>
-                      <input type="number" class="form-control" name="terre_valeur_resistance">
+                      <label class="form-label">Longueur (m)</label>
+                      <input type="number" class="form-control" name="terre_longueur" placeholder="Longueur en mètres">
                     </div>
                   </div>
                   <div class="mt-3">
