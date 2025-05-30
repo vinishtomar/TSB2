@@ -42,6 +42,7 @@ def load_user(user_id):
     return None
 
 class SuiviJournalier(db.Model):
+    __tablename__ = 'new_suivi_journalier'
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.String(50))
     utilisateur = db.Column(db.String(255))
@@ -93,8 +94,9 @@ class SuiviJournalier(db.Model):
     images = db.relationship('SuiviJournalierImage', backref='suivi', lazy=True)
 
 class SuiviJournalierImage(db.Model):
+    __tablename__ = 'new_suivi_journalier_image'
     id = db.Column(db.Integer, primary_key=True)
-    suivi_id = db.Column(db.Integer, db.ForeignKey('suivi_journalier.id'), nullable=False)
+    suivi_id = db.Column(db.Integer, db.ForeignKey('new_suivi_journalier.id'), nullable=False)
     filename = db.Column(db.String(255))
     content_type = db.Column(db.String(255))
     data = db.Column(db.LargeBinary)
