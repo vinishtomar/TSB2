@@ -377,13 +377,14 @@ def delete_history(entry_id):
 @app.route('/modify-history/<int:entry_id>', methods=['GET', 'POST'])
 @login_required
 def modify_history(entry_id):
-    entry = SuiviJournalier.query.get(entry_id)
+    entry = SuiviJournalier.query.get_or_404(entry_id)
     if not entry:
         flash("Entrée non trouvée.", "danger")
         return redirect(url_for('index'))
     if current_user.role != "admin" and entry.utilisateur != current_user.id:
         flash("Droits insuffisants pour modifier cette entrée.", "danger")
         return redirect(url_for('index'))
+    print(f"Debug - Entry data: {entry.__dict__}")  # Debug output to check field values
     if request.method == 'POST':
         for field in [
             "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception",
