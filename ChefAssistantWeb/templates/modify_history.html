@@ -1,80 +1,114 @@
 {% extends "base.html" %}
-{% block title %}Modifier une entrée{% endblock %}
 {% block body %}
 <div class="main-app" style="display:block;">
     <div class="header">
-        <h1>Modifier une entrée</h1>
-        <a href="{{ url_for('logout') }}">
-            <button class="logout-btn">Déconnexion</button>
+        <h1>Modifier l'Entrée</h1>
+        <a href="{{ url_for('index') }}">
+            <button class="logout-btn">Retour</button>
         </a>
     </div>
     <div class="content">
-        <form method="post" enctype="multipart/form-data">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Chantier du jour</label>
-                    <input name="chantier_du_jour" value="{{ entry.chantier_du_jour }}">
-                </div>
-                <div class="form-group">
-                    <label>Équipe présente</label>
-                    <input name="equipe_presente" value="{{ entry.equipe_presente }}">
-                </div>
-                <div class="form-group">
-                    <label>Heures de travail</label>
-                    <input name="heures_travail" value="{{ entry.heures_travail }}">
-                </div>
-                <div class="form-group">
-                    <label>Matériel livré</label>
-                    <input name="materiel_livre" value="{{ entry.materiel_livre }}">
-                </div>
-                <div class="form-group">
-                    <label>Travaux réalisés</label>
-                    <input name="travaux_realises" value="{{ entry.travaux_realises }}">
-                </div>
-                <div class="form-group">
-                    <label>Problèmes</label>
-                    <input name="problemes" value="{{ entry.problemes }}">
-                </div>
-                <div class="form-group">
-                    <label>Avancement</label>
-                    <input name="avancement" value="{{ entry.avancement }}">
-                </div>
-                <div class="form-group">
-                    <label>Objectif spécial</label>
-                    <input name="objectif_special" value="{{ entry.objectif_special }}">
-                </div>
-                <div class="form-group">
-                    <label>Câble DC</label>
-                    <input name="cable_dc" value="{{ entry.cable_dc }}">
-                </div>
-                <div class="form-group">
-                    <label>Câble AC</label>
-                    <input name="cable_ac" value="{{ entry.cable_ac }}">
-                </div>
-                <div class="form-group">
-                    <label>Nombre de rails</label>
-                    <input name="nombre_rail" value="{{ entry.nombre_rail }}">
-                </div>
-                <div class="form-group">
-                    <label>Pose onduleur</label>
-                    <input name="pose_onduleur" value="{{ entry.pose_onduleur }}">
-                </div>
-                <div class="form-group">
-                    <label>Câble Terre</label>
-                    <input name="cable_terre" value="{{ entry.cable_terre }}">
-                </div>
-                <div class="form-group">
-                    <label>Photos (cochez pour supprimer)</label>
-                    {% for img in entry.images %}
-                        <input type="checkbox" name="delete_images" value="{{ img.id }}"> 
-                        <a href="{{ url_for('get_image', image_id=img.id) }}" target="_blank">{{ img.filename }}</a><br>
-                    {% endfor %}
-                    <label>Ajouter des photos</label>
-                    <input type="file" name="photo_chantier" multiple>
-                </div>
+        <form method="POST" action="" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label class="form-label">Date</label>
+                <input type="text" class="form-control" name="date" value="{{ entry.date }}" readonly>
             </div>
-            <button class="btn" type="submit">Enregistrer</button>
+            <div class="mb-3">
+                <label class="form-label">Chantier du Jour</label>
+                <input type="text" class="form-control" name="chantier_du_jour" value="{{ entry.chantier_du_jour }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Équipe Présente</label>
+                <input type="text" class="form-control" name="equipe_presente" value="{{ entry.equipe_presente }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Travaux Réalisés</label>
+                <textarea class="form-control" name="travaux_realises">{{ entry.travaux_realises }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Problèmes</label>
+                <textarea class="form-control" name="problemes">{{ entry.problemes }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Avancement</label>
+                <input type="text" class="form-control" name="avancement" value="{{ entry.avancement }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Nombre de Rails</label>
+                <input type="number" class="form-control" name="nombre_rail" value="{{ entry.nombre_rail }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Câble DC</label>
+                <input type="text" class="form-control" name="cable_dc" value="{{ entry.cable_dc }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Câble AC</label>
+                <input type="text" class="form-control" name="cable_ac" value="{{ entry.cable_ac }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Images</label>
+                {% for image in entry.images %}
+                    <div class="input-group mb-2">
+                        <span class="form-control">{{ image.filename }}</span>
+                        <button type="button" class="btn btn-danger remove-image" data-image-id="{{ image.id }}">Supprimer</button>
+                    </div>
+                {% endfor %}
+                <div id="photos-container">
+                    <div class="input-group mb-2">
+                        <input type="file" class="form-control" name="photo_chantier[]" accept="image/*">
+                        <button class="btn btn-danger remove-photo-btn" type="button" style="display:none;">Supprimer</button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary" id="add-photo-btn">Ajouter une photo</button>
+            </div>
+            <input type="hidden" name="delete_images" id="delete_images" value="">
+            <button type="submit" class="btn btn-primary">Enregistrer les Modifications</button>
         </form>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const photosContainer = document.getElementById('photos-container');
+            const addPhotoBtn = document.getElementById('add-photo-btn');
+            const deleteImagesInput = document.getElementById('delete_images');
+
+            addPhotoBtn.addEventListener('click', function() {
+                const newInputGroup = document.createElement('div');
+                newInputGroup.className = 'input-group mb-2';
+
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.className = 'form-control';
+                fileInput.name = 'photo_chantier[]';
+                fileInput.accept = 'image/*';
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'btn btn-danger remove-photo-btn';
+                removeBtn.type = 'button';
+                removeBtn.textContent = 'Supprimer';
+
+                removeBtn.addEventListener('click', function() {
+                    newInputGroup.remove();
+                });
+
+                newInputGroup.appendChild(fileInput);
+                newInputGroup.appendChild(removeBtn);
+                photosContainer.appendChild(newInputGroup);
+
+                document.querySelectorAll('.remove-photo-btn').forEach(btn => btn.style.display = '');
+            });
+
+            document.querySelectorAll('.remove-image').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const imageId = this.getAttribute('data-image-id');
+                    let deleteIds = deleteImagesInput.value.split(',').filter(id => id);
+                    if (!deleteIds.includes(imageId)) {
+                        deleteIds.push(imageId);
+                    }
+                    deleteImagesInput.value = deleteIds.join(',');
+                    this.parentElement.remove();
+                });
+            });
+        });
+    </script>
 </div>
 {% endblock %}
