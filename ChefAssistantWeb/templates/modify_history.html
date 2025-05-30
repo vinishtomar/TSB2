@@ -11,39 +11,43 @@
         <form method="POST" action="" enctype="multipart/form-data">
             <div class="mb-3">
                 <label class="form-label">Date</label>
-                <input type="text" class="form-control" name="date" value="{{ entry.date }}" readonly>
+                <input type="text" class="form-control" name="date" value="{{ entry.date if entry.date else 'No date' }}" readonly>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Utilisateur</label>
+                <input type="text" class="form-control" name="utilisateur" value="{{ entry.utilisateur if entry.utilisateur else 'No user' }}" readonly>
             </div>
             <div class="mb-3">
                 <label class="form-label">Chantier du Jour</label>
-                <input type="text" class="form-control" name="chantier_du_jour" value="{{ entry.chantier_du_jour }}">
+                <input type="text" class="form-control" name="chantier_du_jour" value="{{ entry.chantier_du_jour if entry.chantier_du_jour else '' }}">
             </div>
             <div class="mb-3">
                 <label class="form-label">Équipe Présente</label>
-                <input type="text" class="form-control" name="equipe_presente" value="{{ entry.equipe_presente }}">
+                <input type="text" class="form-control" name="equipe_presente" value="{{ entry.equipe_presente if entry.equipe_presente else '' }}">
             </div>
             <div class="mb-3">
                 <label class="form-label">Travaux Réalisés</label>
-                <textarea class="form-control" name="travaux_realises">{{ entry.travaux_realises }}</textarea>
+                <textarea class="form-control" name="travaux_realises">{{ entry.travaux_realises if entry.travaux_realises else '' }}</textarea>
             </div>
             <div class="mb-3">
                 <label class="form-label">Problèmes</label>
-                <textarea class="form-control" name="problemes">{{ entry.problemes }}</textarea>
+                <textarea class="form-control" name="problemes">{{ entry.problemes if entry.problemes else '' }}</textarea>
             </div>
             <div class="mb-3">
                 <label class="form-label">Avancement</label>
-                <input type="text" class="form-control" name="avancement" value="{{ entry.avancement }}">
+                <input type="text" class="form-control" name="avancement" value="{{ entry.avancement if entry.avancement else '' }}">
             </div>
             <div class="mb-3">
                 <label class="form-label">Nombre de Rails</label>
-                <input type="number" class="form-control" name="nombre_rail" value="{{ entry.nombre_rail }}">
+                <input type="number" class="form-control" name="nombre_rail" value="{{ entry.nombre_rail if entry.nombre_rail else '' }}">
             </div>
             <div class="mb-3">
                 <label class="form-label">Câble DC</label>
-                <input type="text" class="form-control" name="cable_dc" value="{{ entry.cable_dc }}">
+                <input type="text" class="form-control" name="cable_dc" value="{{ entry.cable_dc if entry.cable_dc else '' }}">
             </div>
             <div class="mb-3">
                 <label class="form-label">Câble AC</label>
-                <input type="text" class="form-control" name="cable_ac" value="{{ entry.cable_ac }}">
+                <input type="text" class="form-control" name="cable_ac" value="{{ entry.cable_ac if entry.cable_ac else '' }}">
             </div>
             <div class="mb-3">
                 <label class="form-label">Images</label>
