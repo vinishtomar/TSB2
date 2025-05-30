@@ -124,13 +124,19 @@
               </li>
             </ul>
             <div class="tab-content" id="receptionSubTabContent">
-              <!-- Équipements Tab Content -->
+              <!-- Équipements Tab Content with three machines -->
               <div class="tab-pane fade show active" id="equipements" role="tabpanel" aria-labelledby="equipements-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}" enctype="multipart/form-data">
-                  <div class="row mb-3">
+                  <div class="row mb-2 fw-bold text-center">
+                    <div class="col-md-3">Type de machine</div>
+                    <div class="col-md-3">Référence</div>
+                    <div class="col-md-3">État</div>
+                    <div class="col-md-3">Date de réception</div>
+                  </div>
+                  <!-- Machine 1 -->
+                  <div class="row mb-2">
                     <div class="col-md-3">
-                      <label class="form-label">Type de machine</label>
-                      <select class="form-select" name="equipement_type" required>
+                      <select class="form-select" name="equipement_type_1" required>
                         <option value="">Sélectionner...</option>
                         <option value="Nacelle ciseau">Nacelle ciseau</option>
                         <option value="Nacelle à bras">Nacelle à bras</option>
@@ -138,20 +144,65 @@
                       </select>
                     </div>
                     <div class="col-md-3">
-                      <label class="form-label">Référence</label>
-                      <input type="text" class="form-control" name="equipement_reference" placeholder="Numéro de série" required>
+                      <input type="text" class="form-control" name="equipement_reference_1" placeholder="Numéro de série" required>
                     </div>
                     <div class="col-md-3">
-                      <label class="form-label">État</label>
-                      <select class="form-select" name="equipement_etat" required>
+                      <select class="form-select" name="equipement_etat_1" required>
                         <option value="Bon état">Bon état</option>
                         <option value="À vérifier">À vérifier</option>
                         <option value="Défaillant">Défaillant</option>
                       </select>
                     </div>
                     <div class="col-md-3">
-                      <label class="form-label">Date de réception</label>
-                      <input type="date" class="form-control" name="equipement_date_reception" required>
+                      <input type="date" class="form-control" name="equipement_date_reception_1" required>
+                    </div>
+                  </div>
+                  <!-- Machine 2 -->
+                  <div class="row mb-2">
+                    <div class="col-md-3">
+                      <select class="form-select" name="equipement_type_2" required>
+                        <option value="">Sélectionner...</option>
+                        <option value="Nacelle ciseau">Nacelle ciseau</option>
+                        <option value="Nacelle à bras">Nacelle à bras</option>
+                        <option value="Manitou">Manitou</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3">
+                      <input type="text" class="form-control" name="equipement_reference_2" placeholder="Numéro de série" required>
+                    </div>
+                    <div class="col-md-3">
+                      <select class="form-select" name="equipement_etat_2" required>
+                        <option value="Bon état">Bon état</option>
+                        <option value="À vérifier">À vérifier</option>
+                        <option value="Défaillant">Défaillant</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3">
+                      <input type="date" class="form-control" name="equipement_date_reception_2" required>
+                    </div>
+                  </div>
+                  <!-- Machine 3 -->
+                  <div class="row mb-3">
+                    <div class="col-md-3">
+                      <select class="form-select" name="equipement_type_3" required>
+                        <option value="">Sélectionner...</option>
+                        <option value="Nacelle ciseau">Nacelle ciseau</option>
+                        <option value="Nacelle à bras">Nacelle à bras</option>
+                        <option value="Manitou">Manitou</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3">
+                      <input type="text" class="form-control" name="equipement_reference_3" placeholder="Numéro de série" required>
+                    </div>
+                    <div class="col-md-3">
+                      <select class="form-select" name="equipement_etat_3" required>
+                        <option value="Bon état">Bon état</option>
+                        <option value="À vérifier">À vérifier</option>
+                        <option value="Défaillant">Défaillant</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3">
+                      <input type="date" class="form-control" name="equipement_date_reception_3" required>
                     </div>
                   </div>
                   <div class="mb-3">
