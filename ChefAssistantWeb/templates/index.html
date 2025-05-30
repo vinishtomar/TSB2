@@ -130,8 +130,9 @@
                   <div class="row mb-2 fw-bold text-center">
                     <div class="col-md-3">Type de machine</div>
                     <div class="col-md-3">Référence</div>
-                    <div class="col-md-3">État</div>
-                    <div class="col-md-3">Date de réception</div>
+                    <div class="col-md-2">État</div>
+                    <div class="col-md-2">Date de réception</div>
+                    <div class="col-md-2">Nombre de Machines</div>
                   </div>
                   <!-- Machine 1 -->
                   <div class="row mb-2">
@@ -146,15 +147,18 @@
                     <div class="col-md-3">
                       <input type="text" class="form-control" name="equipement_reference_1" placeholder="Numéro de série" required>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                       <select class="form-select" name="equipement_etat_1" required>
                         <option value="Bon état">Bon état</option>
                         <option value="À vérifier">À vérifier</option>
                         <option value="Défaillant">Défaillant</option>
                       </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                       <input type="date" class="form-control" name="equipement_date_reception_1" required>
+                    </div>
+                    <div class="col-md-2">
+                      <input type="number" class="form-control" name="equipement_nombre_1" min="1" value="1" required>
                     </div>
                   </div>
                   <!-- Machine 2 -->
@@ -170,15 +174,18 @@
                     <div class="col-md-3">
                       <input type="text" class="form-control" name="equipement_reference_2" placeholder="Numéro de série" required>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                       <select class="form-select" name="equipement_etat_2" required>
                         <option value="Bon état">Bon état</option>
                         <option value="À vérifier">À vérifier</option>
                         <option value="Défaillant">Défaillant</option>
                       </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                       <input type="date" class="form-control" name="equipement_date_reception_2" required>
+                    </div>
+                    <div class="col-md-2">
+                      <input type="number" class="form-control" name="equipement_nombre_2" min="1" value="1" required>
                     </div>
                   </div>
                   <!-- Machine 3 -->
@@ -194,15 +201,18 @@
                     <div class="col-md-3">
                       <input type="text" class="form-control" name="equipement_reference_3" placeholder="Numéro de série" required>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                       <select class="form-select" name="equipement_etat_3" required>
                         <option value="Bon état">Bon état</option>
                         <option value="À vérifier">À vérifier</option>
                         <option value="Défaillant">Défaillant</option>
                       </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                       <input type="date" class="form-control" name="equipement_date_reception_3" required>
+                    </div>
+                    <div class="col-md-2">
+                      <input type="number" class="form-control" name="equipement_nombre_3" min="1" value="1" required>
                     </div>
                   </div>
                   <!-- Dynamic Photos Upload -->
