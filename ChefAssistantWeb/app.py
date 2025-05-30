@@ -6,6 +6,8 @@ from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 from io import StringIO, BytesIO
 from datetime import datetime
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -67,12 +69,8 @@ class SuiviJournalier(db.Model):
     chemin_cable_section = db.Column(db.String(255))
     chemin_cable_profondeur = db.Column(db.String(255))
 
-    # Réception du Chantier: Terre (NEW: only longueur)
+    # Réception du Chantier: Terre
     terre_longueur = db.Column(db.String(255))
-
-    # Remove or comment out these fields if you want to fully drop them from backend and DB:
-    # terre_type_raccord = db.Column(db.String(255))
-    # terre_valeur_resistance = db.Column(db.String(255))
 
     # Réception du Chantier: Câble AC
     cableac_section = db.Column(db.String(255))
@@ -164,27 +162,49 @@ def suivi_journalier():
                     "nombre": request.form.get(f"equipement_nombre_{i}", "")
                 })
 
-            # Compose data dict (adapt for new terre field)
-            data = {k: request.form.get(k, "") for k in [
-                "connecteur_type", "connecteur_quantite", "connecteur_etat",
-                "chemin_cable_longueur", "chemin_cable_type", "chemin_cable_section", "chemin_cable_profondeur",
-                "terre_longueur",  # new field only
-                "cableac_section", "cableac_longueur",
-                "cabledc_section", "cabledc_longueur",
-                "cables_dctires", "cables_actires", "cables_terretires",
-                "fin_zone", "fin_string", "fin_tension_dc", "fin_courant_dc",
-                "fin_tension_ac", "fin_puissance", "fin_date", "fin_technicien", "fin_status"
-            ]}
-            # Store the first machine in the main fields for legacy
-            data.update({
-                "equipement_type": equipements[0]["type"],
-                "equipement_reference": equipements[0]["reference"],
-                "equipement_etat": equipements[0]["etat"],
-                "equipement_date_reception": equipements[0]["date_reception"],
-                "equipement_nombre_1": equipements[0]["nombre"],
-                "equipement_nombre_2": equipements[1]["nombre"],
-                "equipement_nombre_3": equipements[2]["nombre"],
-            })
+            # Determine the active section based on form data
+            data = {}
+            if any(f"equipement_type_{i}" in request.form for i in range(1, 4)) or "connecteur_type" in request.form or "chemin_cable_longueur" in request.form or "terre_longueur" in request.form or "cableac_section" in request.form or "cabledc_section" in request.form:
+                data.update({
+                    "equipement_type": equipements[0]["type"] if equipements[0]["type"] else None,
+                    "equipement_reference": equipements[0]["reference"] if equipements[0]["reference"] else None,
+                    "equipement_etat": equipements[0]["etat"] if equipements[0]["etat"] else None,
+                    "equipement_date_reception": equipements[0]["date_reception"] if equipements[0]["date_reception"] else None,
+                    "equipement_nombre_1": equipements[0]["nombre"] if equipements[0]["nombre"] else None,
+                    "equipement_nombre_2": equipements[1]["nombre"] if equipements[1]["nombre"] else None,
+                    "equipement_nombre_3": equipements[2]["nombre"] if equipements[2]["nombre"] else None,
+                    "connecteur_type": request.form.get("connecteur_type", ""),
+                    "connecteur_quantite": request.form.get("connecteur_quantite", ""),
+                    "connecteur_etat": request.form.get("connecteur_etat", ""),
+                    "chemin_cable_longueur": request.form.get("chemin_cable_longueur", ""),
+                    "chemin_cable_type": request.form.get("chemin_cable_type", ""),
+                    "chemin_cable_section": request.form.get("chemin_cable_section", ""),
+                    "chemin_cable_profondeur": request.form.get("chemin_cable_profondeur", ""),
+                    "terre_longueur": request.form.get("terre_longueur", ""),
+                    "cableac_section": request.form.get("cableac_section", ""),
+                    "cableac_longueur": request.form.get("cableac_longueur", ""),
+                    "cabledc_section": request.form.get("cabledc_section", ""),
+                    "cabledc_longueur": request.form.get("cabledc_longueur", "")
+                })
+            elif "cables_dctires" in request.form or "cables_actires" in request.form or "cables_terretires" in request.form:
+                data.update({
+                    "cables_dctires": request.form.get("cables_dctires", ""),
+                    "cables_actires": request.form.get("cables_actires", ""),
+                    "cables_terretires": request.form.get("cables_terretires", "")
+                })
+            elif any(f"fin_{field}" in request.form for field in ["zone", "string", "tension_dc", "courant_dc", "tension_ac", "puissance", "date", "technicien", "status"]):
+                data.update({
+                    "fin_zone": request.form.get("fin_zone", ""),
+                    "fin_string": request.form.get("fin_string", ""),
+                    "fin_tension_dc": request.form.get("fin_tension_dc", ""),
+                    "fin_courant_dc": request.form.get("fin_courant_dc", ""),
+                    "fin_tension_ac": request.form.get("fin_tension_ac", ""),
+                    "fin_puissance": request.form.get("fin_puissance", ""),
+                    "fin_date": request.form.get("fin_date", ""),
+                    "fin_technicien": request.form.get("fin_technicien", ""),
+                    "fin_status": request.form.get("fin_status", "")
+                })
+
             entry = SuiviJournalier(
                 date=datetime.now().strftime('%Y-%m-%d %H:%M'),
                 utilisateur=current_user.id,
@@ -208,14 +228,7 @@ def suivi_journalier():
             save_to_csv({
                 "date": entry.date,
                 "utilisateur": current_user.id,
-                "equipement_type": equipements[0]["type"],
-                "equipement_reference": equipements[0]["reference"],
-                "equipement_etat": equipements[0]["etat"],
-                "equipement_date_reception": equipements[0]["date_reception"],
-                "equipement_nombre_1": equipements[0]["nombre"],
-                "equipement_nombre_2": equipements[1]["nombre"],
-                "equipement_nombre_3": equipements[2]["nombre"],
-                **data,
+                **{k: v for k, v in data.items() if v},
                 "photo_chantier": ";".join([p.filename for p in photos if p and p.filename])
             })
             return redirect(url_for('index'))
@@ -267,10 +280,6 @@ def telecharger_historique():
 @app.route('/telecharger-historique-pdf')
 @login_required
 def telecharger_historique_pdf():
-    from reportlab.lib.pagesizes import letter
-    from reportlab.pdfgen import canvas
-    from io import BytesIO
-
     if current_user.role != "admin":
         return "Unauthorized", 403
     rows = SuiviJournalier.query.all()
@@ -299,11 +308,14 @@ def telecharger_historique_pdf():
     for row in rows:
         row_dict = {field: getattr(row, field, "") for field in fieldnames}
         text = "; ".join(str(row_dict.get(field, "")) for field in fieldnames)
-        c.drawString(40, y, text[:1000])  # fit on page
-        y -= 10
-        if y < 40:
-            c.showPage()
-            y = height - 40
+        lines = [text[i:i+100] for i in range(0, len(text), 100)]  # Split into 100-char lines
+        for line in lines:
+            if y < 40:
+                c.showPage()
+                y = height - 40
+            c.drawString(40, y, line)
+            y -= 10
+    c.showPage()
     c.save()
     pdf_buffer.seek(0)
     return send_file(pdf_buffer, mimetype='application/pdf', as_attachment=True, download_name="historique.pdf")
@@ -425,7 +437,7 @@ def save_to_csv(data):
             writer = csv.DictWriter(file, fieldnames=fieldnames, delimiter=';')
             if not file_exists:
                 writer.writeheader()
-            writer.writerow(data)
+            writer.writerow({k: v for k, v in data.items() if k in fieldnames})
     except Exception as e:
         print("❌ CSV save error:", e)
 
