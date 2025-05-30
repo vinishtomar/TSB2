@@ -64,12 +64,15 @@ class SuiviJournalier(db.Model):
     # Réception du Chantier: Chemin de câble
     chemin_cable_longueur = db.Column(db.String(255))
     chemin_cable_type = db.Column(db.String(255))
-    chemin_cable_section = db.Column(db.String(255))        # NEW FIELD
-    chemin_cable_profondeur = db.Column(db.String(255))      # NEW FIELD
+    chemin_cable_section = db.Column(db.String(255))
+    chemin_cable_profondeur = db.Column(db.String(255))
 
-    # Réception du Chantier: Terre
-    terre_type_raccord = db.Column(db.String(255))
-    terre_valeur_resistance = db.Column(db.String(255))
+    # Réception du Chantier: Terre (NEW: only longueur)
+    terre_longueur = db.Column(db.String(255))
+
+    # Remove or comment out these fields if you want to fully drop them from backend and DB:
+    # terre_type_raccord = db.Column(db.String(255))
+    # terre_valeur_resistance = db.Column(db.String(255))
 
     # Réception du Chantier: Câble AC
     cableac_section = db.Column(db.String(255))
@@ -160,11 +163,12 @@ def suivi_journalier():
                     "date_reception": request.form.get(f"equipement_date_reception_{i}", ""),
                     "nombre": request.form.get(f"equipement_nombre_{i}", "")
                 })
-            # For backward compatibility, store only the first machine's data in main fields
+
+            # Compose data dict (adapt for new terre field)
             data = {k: request.form.get(k, "") for k in [
                 "connecteur_type", "connecteur_quantite", "connecteur_etat",
                 "chemin_cable_longueur", "chemin_cable_type", "chemin_cable_section", "chemin_cable_profondeur",
-                "terre_type_raccord", "terre_valeur_resistance",
+                "terre_longueur",  # new field only
                 "cableac_section", "cableac_longueur",
                 "cabledc_section", "cabledc_longueur",
                 "cables_dctires", "cables_actires", "cables_terretires",
@@ -200,7 +204,7 @@ def suivi_journalier():
                     )
                     db.session.add(img)
             db.session.commit()
-            # Save CSV (store only the first machine's fields for now)
+            # Save CSV
             save_to_csv({
                 "date": entry.date,
                 "utilisateur": current_user.id,
@@ -239,7 +243,7 @@ def telecharger_historique():
         "equipement_nombre_1", "equipement_nombre_2", "equipement_nombre_3",
         "connecteur_type", "connecteur_quantite", "connecteur_etat",
         "chemin_cable_longueur", "chemin_cable_type", "chemin_cable_section", "chemin_cable_profondeur",
-        "terre_type_raccord", "terre_valeur_resistance",
+        "terre_longueur",
         "cableac_section", "cableac_longueur",
         "cabledc_section", "cabledc_longueur",
         "cables_dctires", "cables_actires", "cables_terretires",
@@ -284,7 +288,7 @@ def telecharger_historique_pdf():
         "equipement_nombre_1", "equipement_nombre_2", "equipement_nombre_3",
         "connecteur_type", "connecteur_quantite", "connecteur_etat",
         "chemin_cable_longueur", "chemin_cable_type", "chemin_cable_section", "chemin_cable_profondeur",
-        "terre_type_raccord", "terre_valeur_resistance",
+        "terre_longueur",
         "cableac_section", "cableac_longueur",
         "cabledc_section", "cabledc_longueur",
         "cables_dctires", "cables_actires", "cables_terretires",
@@ -374,7 +378,7 @@ def modify_history(entry_id):
             "equipement_nombre_1", "equipement_nombre_2", "equipement_nombre_3",
             "connecteur_type", "connecteur_quantite", "connecteur_etat",
             "chemin_cable_longueur", "chemin_cable_type", "chemin_cable_section", "chemin_cable_profondeur",
-            "terre_type_raccord", "terre_valeur_resistance",
+            "terre_longueur",
             "cableac_section", "cableac_longueur",
             "cabledc_section", "cabledc_longueur",
             "cables_dctires", "cables_actires", "cables_terretires",
@@ -409,7 +413,7 @@ def save_to_csv(data):
         "equipement_nombre_1", "equipement_nombre_2", "equipement_nombre_3",
         "connecteur_type", "connecteur_quantite", "connecteur_etat",
         "chemin_cable_longueur", "chemin_cable_type", "chemin_cable_section", "chemin_cable_profondeur",
-        "terre_type_raccord", "terre_valeur_resistance",
+        "terre_longueur",
         "cableac_section", "cableac_longueur",
         "cabledc_section", "cabledc_longueur",
         "cables_dctires", "cables_actires", "cables_terretires",
