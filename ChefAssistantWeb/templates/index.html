@@ -97,104 +97,172 @@
       {% endif %}
     </ul>
     <div class="tab-content container-fluid pt-4" id="mainTabContent">
-      <!-- Réception Section -->
+      <!-- Réception Section with Sub-Tabs -->
       <div class="tab-pane fade show active" id="reception" role="tabpanel" aria-labelledby="reception-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Réception du Chantier</div>
-            <form method="POST" action="{{ url_for('suivi_journalier') }}" enctype="multipart/form-data">
-              <div class="row mb-3">
-                <div class="col-md-3">
-                  <label class="form-label">Type de machine</label>
-                  <select class="form-select" name="equipement_type">
-                    <option value="Nacelle ciseau">Nacelle ciseau</option>
-                    <option value="Nacelle à bras">Nacelle à bras</option>
-                    <option value="Manitou">Manitou</option>
-                  </select>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Référence</label>
-                  <input type="text" class="form-control" name="equipement_reference" placeholder="Numéro de série">
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">État</label>
-                  <select class="form-select" name="equipement_etat">
-                    <option value="Bon état">Bon état</option>
-                    <option value="À vérifier">À vérifier</option>
-                    <option value="Défaillant">Défaillant</option>
-                  </select>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Date de réception</label>
-                  <input type="date" class="form-control" name="equipement_date_reception">
-                </div>
+            <!-- Subnav Tabs -->
+            <ul class="nav subnav nav-pills mb-4" id="receptionSubTab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="equipements-tab" data-bs-toggle="pill" data-bs-target="#equipements" type="button" role="tab" aria-controls="equipements" aria-selected="true">Équipements</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="connecteur-tab" data-bs-toggle="pill" data-bs-target="#connecteur" type="button" role="tab" aria-controls="connecteur" aria-selected="false">Connecteur</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="chemin-cable-tab" data-bs-toggle="pill" data-bs-target="#chemin-cable" type="button" role="tab" aria-controls="chemin-cable" aria-selected="false">Chemin de Câble</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="terre-tab" data-bs-toggle="pill" data-bs-target="#terre" type="button" role="tab" aria-controls="terre" aria-selected="false">Terre</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="cable-ac-tab" data-bs-toggle="pill" data-bs-target="#cable-ac" type="button" role="tab" aria-controls="cable-ac" aria-selected="false">Câble AC</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="cable-dc-tab" data-bs-toggle="pill" data-bs-target="#cable-dc" type="button" role="tab" aria-controls="cable-dc" aria-selected="false">Câble DC</button>
+              </li>
+            </ul>
+            <div class="tab-content" id="receptionSubTabContent">
+              <!-- Équipements Tab Content -->
+              <div class="tab-pane fade show active" id="equipements" role="tabpanel" aria-labelledby="equipements-tab">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}" enctype="multipart/form-data">
+                  <div class="row mb-3">
+                    <div class="col-md-3">
+                      <label class="form-label">Type de machine</label>
+                      <select class="form-select" name="equipement_type" required>
+                        <option value="">Sélectionner...</option>
+                        <option value="Nacelle ciseau">Nacelle ciseau</option>
+                        <option value="Nacelle à bras">Nacelle à bras</option>
+                        <option value="Manitou">Manitou</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label">Référence</label>
+                      <input type="text" class="form-control" name="equipement_reference" placeholder="Numéro de série" required>
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label">État</label>
+                      <select class="form-select" name="equipement_etat" required>
+                        <option value="Bon état">Bon état</option>
+                        <option value="À vérifier">À vérifier</option>
+                        <option value="Défaillant">Défaillant</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label">Date de réception</label>
+                      <input type="date" class="form-control" name="equipement_date_reception" required>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Photos du chantier</label>
+                    <input type="file" class="form-control" name="photo_chantier" multiple>
+                  </div>
+                  <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                  </div>
+                </form>
               </div>
-              <div class="row mb-3">
-                <div class="col-md-4">
-                  <label class="form-label">Type de connecteur</label>
-                  <input type="text" class="form-control" name="connecteur_type">
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Quantité</label>
-                  <input type="number" class="form-control" name="connecteur_quantite">
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">État</label>
-                  <select class="form-select" name="connecteur_etat">
-                    <option value="Bon état">Bon état</option>
-                    <option value="À vérifier">À vérifier</option>
-                    <option value="Défaillant">Défaillant</option>
-                  </select>
-                </div>
+              <!-- Connecteur Tab Content -->
+              <div class="tab-pane fade" id="connecteur" role="tabpanel" aria-labelledby="connecteur-tab">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}">
+                  <div class="row mb-3">
+                    <div class="col-md-4">
+                      <label class="form-label">Type de connecteur</label>
+                      <input type="text" class="form-control" name="connecteur_type">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Quantité</label>
+                      <input type="number" class="form-control" name="connecteur_quantite">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">État</label>
+                      <select class="form-select" name="connecteur_etat">
+                        <option value="Bon état">Bon état</option>
+                        <option value="À vérifier">À vérifier</option>
+                        <option value="Défaillant">Défaillant</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                  </div>
+                </form>
               </div>
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label class="form-label">Longueur de câble</label>
-                  <input type="number" class="form-control" name="chemin_cable_longueur">
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label">Type de câble</label>
-                  <input type="text" class="form-control" name="chemin_cable_type">
-                </div>
+              <!-- Chemin de Câble Tab Content -->
+              <div class="tab-pane fade" id="chemin-cable" role="tabpanel" aria-labelledby="chemin-cable-tab">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}">
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Longueur de câble</label>
+                      <input type="number" class="form-control" name="chemin_cable_longueur">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Type de câble</label>
+                      <input type="text" class="form-control" name="chemin_cable_type">
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                  </div>
+                </form>
               </div>
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label class="form-label">Type de raccordement</label>
-                  <input type="text" class="form-control" name="terre_type_raccord">
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label">Valeur de résistance (Ω)</label>
-                  <input type="number" class="form-control" name="terre_valeur_resistance">
-                </div>
+              <!-- Terre Tab Content -->
+              <div class="tab-pane fade" id="terre" role="tabpanel" aria-labelledby="terre-tab">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}">
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Type de raccordement</label>
+                      <input type="text" class="form-control" name="terre_type_raccord">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Valeur de résistance (Ω)</label>
+                      <input type="number" class="form-control" name="terre_valeur_resistance">
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                  </div>
+                </form>
               </div>
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label class="form-label">Section du câble AC</label>
-                  <input type="text" class="form-control" name="cableac_section">
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label">Longueur totale AC (m)</label>
-                  <input type="number" class="form-control" name="cableac_longueur">
-                </div>
+              <!-- Câble AC Tab Content -->
+              <div class="tab-pane fade" id="cable-ac" role="tabpanel" aria-labelledby="cable-ac-tab">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}">
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Section du câble AC</label>
+                      <input type="text" class="form-control" name="cableac_section">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Longueur totale AC (m)</label>
+                      <input type="number" class="form-control" name="cableac_longueur">
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                  </div>
+                </form>
               </div>
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label class="form-label">Section du câble DC</label>
-                  <input type="text" class="form-control" name="cabledc_section">
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label">Longueur totale DC (m)</label>
-                  <input type="number" class="form-control" name="cabledc_longueur">
-                </div>
+              <!-- Câble DC Tab Content -->
+              <div class="tab-pane fade" id="cable-dc" role="tabpanel" aria-labelledby="cable-dc-tab">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}">
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Section du câble DC</label>
+                      <input type="text" class="form-control" name="cabledc_section">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Longueur totale DC (m)</label>
+                      <input type="number" class="form-control" name="cabledc_longueur">
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                  </div>
+                </form>
               </div>
-              <div class="mb-3">
-                <label class="form-label">Photos du chantier</label>
-                <input type="file" class="form-control" name="photo_chantier" multiple>
-              </div>
-              <div class="mt-3">
-                <button type="submit" class="btn btn-primary">Enregistrer</button>
-              </div>
-            </form>
+            </div>
+            <!-- End Subnav Content -->
           </div>
         </div>
       </div>
