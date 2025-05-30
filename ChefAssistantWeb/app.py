@@ -47,7 +47,7 @@ class SuiviJournalier(db.Model):
     date = db.Column(db.String(50))
     utilisateur = db.Column(db.String(255))
 
-    # Réception du Chantier: Equipements
+    # Only the first machine's fields are stored in main table for legacy compatibility
     equipement_type = db.Column(db.String(255))
     equipement_reference = db.Column(db.String(255))
     equipement_etat = db.Column(db.String(255))
@@ -145,16 +145,33 @@ def logout():
 def suivi_journalier():
     if request.method == 'POST':
         try:
+            # Collect three machines' equipment data
+            equipements = []
+            for i in range(1, 4):
+                equipements.append({
+                    "type": request.form.get(f"equipement_type_{i}", ""),
+                    "reference": request.form.get(f"equipement_reference_{i}", ""),
+                    "etat": request.form.get(f"equipement_etat_{i}", ""),
+                    "date_reception": request.form.get(f"equipement_date_reception_{i}", "")
+                })
+            # For backward compatibility, store only the first machine's data in main fields
             data = {k: request.form.get(k, "") for k in [
-                "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception",
                 "connecteur_type", "connecteur_quantite", "connecteur_etat",
                 "chemin_cable_longueur", "chemin_cable_type",
                 "terre_type_raccord", "terre_valeur_resistance",
                 "cableac_section", "cableac_longueur",
                 "cabledc_section", "cabledc_longueur",
                 "cables_dctires", "cables_actires", "cables_terretires",
-                "fin_zone", "fin_string", "fin_tension_dc", "fin_courant_dc", "fin_tension_ac", "fin_puissance", "fin_date", "fin_technicien", "fin_status"
+                "fin_zone", "fin_string", "fin_tension_dc", "fin_courant_dc",
+                "fin_tension_ac", "fin_puissance", "fin_date", "fin_technicien", "fin_status"
             ]}
+            # Store the first machine in the main fields for legacy
+            data.update({
+                "equipement_type": equipements[0]["type"],
+                "equipement_reference": equipements[0]["reference"],
+                "equipement_etat": equipements[0]["etat"],
+                "equipement_date_reception": equipements[0]["date_reception"],
+            })
             entry = SuiviJournalier(
                 date=datetime.now().strftime('%Y-%m-%d %H:%M'),
                 utilisateur=current_user.id,
@@ -162,7 +179,8 @@ def suivi_journalier():
             )
             db.session.add(entry)
             db.session.flush()
-            photos = request.files.getlist('photo_chantier')
+            # Handle multiple images
+            photos = request.files.getlist('photo_chantier[]')
             for photo in photos:
                 if photo and photo.filename:
                     img = SuiviJournalierImage(
@@ -173,9 +191,14 @@ def suivi_journalier():
                     )
                     db.session.add(img)
             db.session.commit()
+            # Save CSV (store only the first machine's fields for now)
             save_to_csv({
                 "date": entry.date,
                 "utilisateur": current_user.id,
+                "equipement_type": equipements[0]["type"],
+                "equipement_reference": equipements[0]["reference"],
+                "equipement_etat": equipements[0]["etat"],
+                "equipement_date_reception": equipements[0]["date_reception"],
                 **data,
                 "photo_chantier": ";".join([p.filename for p in photos if p and p.filename])
             })
@@ -347,7 +370,7 @@ def modify_history(entry_id):
         for img in entry.images[:]:
             if str(img.id) in delete_ids:
                 db.session.delete(img)
-        photos = request.files.getlist('photo_chantier')
+        photos = request.files.getlist('photo_chantier[]')
         for photo in photos:
             if photo and photo.filename:
                 img = SuiviJournalierImage(
