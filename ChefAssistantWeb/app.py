@@ -52,9 +52,9 @@ class SuiviJournalier(db.Model):
     equipement_reference = db.Column(db.String(255))
     equipement_etat = db.Column(db.String(255))
     equipement_date_reception = db.Column(db.String(255))
-    equipement_nombre_1 = db.Column(db.String(10))  # NEW FIELD
-    equipement_nombre_2 = db.Column(db.String(10))  # NEW FIELD
-    equipement_nombre_3 = db.Column(db.String(10))  # NEW FIELD
+    equipement_nombre_1 = db.Column(db.String(10))
+    equipement_nombre_2 = db.Column(db.String(10))
+    equipement_nombre_3 = db.Column(db.String(10))
 
     # Réception du Chantier: Connecteur
     connecteur_type = db.Column(db.String(255))
@@ -64,6 +64,8 @@ class SuiviJournalier(db.Model):
     # Réception du Chantier: Chemin de câble
     chemin_cable_longueur = db.Column(db.String(255))
     chemin_cable_type = db.Column(db.String(255))
+    chemin_cable_section = db.Column(db.String(255))        # NEW FIELD
+    chemin_cable_profondeur = db.Column(db.String(255))      # NEW FIELD
 
     # Réception du Chantier: Terre
     terre_type_raccord = db.Column(db.String(255))
@@ -161,7 +163,7 @@ def suivi_journalier():
             # For backward compatibility, store only the first machine's data in main fields
             data = {k: request.form.get(k, "") for k in [
                 "connecteur_type", "connecteur_quantite", "connecteur_etat",
-                "chemin_cable_longueur", "chemin_cable_type",
+                "chemin_cable_longueur", "chemin_cable_type", "chemin_cable_section", "chemin_cable_profondeur",
                 "terre_type_raccord", "terre_valeur_resistance",
                 "cableac_section", "cableac_longueur",
                 "cabledc_section", "cabledc_longueur",
@@ -236,7 +238,7 @@ def telecharger_historique():
         "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception",
         "equipement_nombre_1", "equipement_nombre_2", "equipement_nombre_3",
         "connecteur_type", "connecteur_quantite", "connecteur_etat",
-        "chemin_cable_longueur", "chemin_cable_type",
+        "chemin_cable_longueur", "chemin_cable_type", "chemin_cable_section", "chemin_cable_profondeur",
         "terre_type_raccord", "terre_valeur_resistance",
         "cableac_section", "cableac_longueur",
         "cabledc_section", "cabledc_longueur",
@@ -281,7 +283,7 @@ def telecharger_historique_pdf():
         "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception",
         "equipement_nombre_1", "equipement_nombre_2", "equipement_nombre_3",
         "connecteur_type", "connecteur_quantite", "connecteur_etat",
-        "chemin_cable_longueur", "chemin_cable_type",
+        "chemin_cable_longueur", "chemin_cable_type", "chemin_cable_section", "chemin_cable_profondeur",
         "terre_type_raccord", "terre_valeur_resistance",
         "cableac_section", "cableac_longueur",
         "cabledc_section", "cabledc_longueur",
@@ -371,7 +373,7 @@ def modify_history(entry_id):
             "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception",
             "equipement_nombre_1", "equipement_nombre_2", "equipement_nombre_3",
             "connecteur_type", "connecteur_quantite", "connecteur_etat",
-            "chemin_cable_longueur", "chemin_cable_type",
+            "chemin_cable_longueur", "chemin_cable_type", "chemin_cable_section", "chemin_cable_profondeur",
             "terre_type_raccord", "terre_valeur_resistance",
             "cableac_section", "cableac_longueur",
             "cabledc_section", "cabledc_longueur",
@@ -406,7 +408,7 @@ def save_to_csv(data):
         "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception",
         "equipement_nombre_1", "equipement_nombre_2", "equipement_nombre_3",
         "connecteur_type", "connecteur_quantite", "connecteur_etat",
-        "chemin_cable_longueur", "chemin_cable_type",
+        "chemin_cable_longueur", "chemin_cable_type", "chemin_cable_section", "chemin_cable_profondeur",
         "terre_type_raccord", "terre_valeur_resistance",
         "cableac_section", "cableac_longueur",
         "cabledc_section", "cabledc_longueur",
