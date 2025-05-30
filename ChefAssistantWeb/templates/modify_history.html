@@ -12,150 +12,133 @@
             <!-- Réception du Chantier -->
             <h4 class="mt-4">Réception du Chantier</h4>
             <div class="row mb-3">
-                <div class="col-md-4">
-                    <label>Type Équipement</label>
-                    <input type="text" class="form-control" name="equipement_type" value="{{ entry.equipement_type or '' }}">
-                </div>
-                <div class="col-md-4">
-                    <label>Référence</label>
-                    <input type="text" class="form-control" name="equipement_reference" value="{{ entry.equipement_reference or '' }}">
-                </div>
-                <div class="col-md-4">
-                    <label>État</label>
-                    <input type="text" class="form-control" name="equipement_etat" value="{{ entry.equipement_etat or '' }}">
-                </div>
+                <div class="col-md-4"><label>Type Équipement</label><input type="text" class="form-control" name="equipement_type" value="{{ entry.equipement_type or '' }}"></div>
+                <div class="col-md-4"><label>Référence</label><input type="text" class="form-control" name="equipement_reference" value="{{ entry.equipement_reference or '' }}"></div>
+                <div class="col-md-4"><label>État</label><input type="text" class="form-control" name="equipement_etat" value="{{ entry.equipement_etat or '' }}"></div>
             </div>
             <div class="row mb-3">
-                <div class="col-md-4">
-                    <label>Date Réception</label>
-                    <input type="date" class="form-control" name="equipement_date_reception" value="{{ entry.equipement_date_reception or '' }}">
-                </div>
-                <div class="col-md-4">
-                    <label>Nombre 1</label>
-                    <input type="text" class="form-control" name="equipement_nombre_1" value="{{ entry.equipement_nombre_1 or '' }}">
-                </div>
-                <div class="col-md-4">
-                    <label>Nombre 2</label>
-                    <input type="text" class="form-control" name="equipement_nombre_2" value="{{ entry.equipement_nombre_2 or '' }}">
-                </div>
+                <div class="col-md-4"><label>Date Réception</label><input type="date" class="form-control" name="equipement_date_reception" value="{{ entry.equipement_date_reception or '' }}"></div>
+                <div class="col-md-4"><label>Nombre 1</label><input type="text" class="form-control" name="equipement_nombre_1" value="{{ entry.equipement_nombre_1 or '' }}"></div>
+                <div class="col-md-4"><label>Nombre 2</label><input type="text" class="form-control" name="equipement_nombre_2" value="{{ entry.equipement_nombre_2 or '' }}"></div>
             </div>
-            <div class="mb-3">
-                <label>Nombre 3</label>
-                <input type="text" class="form-control" name="equipement_nombre_3" value="{{ entry.equipement_nombre_3 or '' }}">
+            <div class="mb-3"><label>Nombre 3</label><input type="text" class="form-control" name="equipement_nombre_3" value="{{ entry.equipement_nombre_3 or '' }}"></div>
+            <div class="row mb-3">
+                <div class="col-md-4"><label>Type Connecteur</label><input type="text" class="form-control" name="connecteur_type" value="{{ entry.connecteur_type or '' }}"></div>
+                <div class="col-md-4"><label>Quantité</label><input type="text" class="form-control" name="connecteur_quantite" value="{{ entry.connecteur_quantite or '' }}"></div>
+                <div class="col-md-4"><label>État</label><input type="text" class="form-control" name="connecteur_etat" value="{{ entry.connecteur_etat or '' }}"></div>
             </div>
             <div class="row mb-3">
-                <div class="col-md-4">
-                    <label>Type Connecteur</label>
-                    <input type="text" class="form-control" name="connecteur_type" value="{{ entry.connecteur_type or '' }}">
-                </div>
-                <div class="col-md-4">
-                    <label>Quantité</label>
-                    <input type="text" class="form-control" name="connecteur_quantite" value="{{ entry.connecteur_quantite or '' }}">
-                </div>
-                <div class="col-md-4">
-                    <label>État</label>
-                    <input type="text" class="form-control" name="connecteur_etat" value="{{ entry.connecteur_etat or '' }}">
-                </div>
+                <div class="col-md-3"><label>Longueur Chemin Câble</label><input type="text" class="form-control" name="chemin_cable_longueur" value="{{ entry.chemin_cable_longueur or '' }}"></div>
+                <div class="col-md-3"><label>Type</label><input type="text" class="form-control" name="chemin_cable_type" value="{{ entry.chemin_cable_type or '' }}"></div>
+                <div class="col-md-3"><label>Section</label><input type="text" class="form-control" name="chemin_cable_section" value="{{ entry.chemin_cable_section or '' }}"></div>
+                <div class="col-md-3"><label>Profondeur</label><input type="text" class="form-control" name="chemin_cable_profondeur" value="{{ entry.chemin_cable_profondeur or '' }}"></div>
+            </div>
+            <div class="mb-3"><label>Longueur Terre</label><input type="text" class="form-control" name="terre_longueur" value="{{ entry.terre_longueur or '' }}"></div>
+            <div class="row mb-3">
+                <div class="col-md-6"><label>Section Câble AC</label><input type="text" class="form-control" name="cableac_section" value="{{ entry.cableac_section or '' }}"></div>
+                <div class="col-md-6"><label>Longueur Câble AC</label><input type="text" class="form-control" name="cableac_longueur" value="{{ entry.cableac_longueur or '' }}"></div>
             </div>
             <div class="row mb-3">
-                <div class="col-md-3">
-                    <label>Longueur Chemin Câble</label>
-                    <input type="text" class="form-control" name="chemin_cable_longueur" value="{{ entry.chemin_cable_longueur or '' }}">
-                </div>
-                <div class="col-md-3">
-                    <label>Type</label>
-                    <input type="text" class="form-control" name="chemin_cable_type" value="{{ entry.chemin_cable_type or '' }}">
-                </div>
-                <div class="col-md-3">
-                    <label>Section</label>
-                    <input type="text" class="form-control" name="chemin_cable_section" value="{{ entry.chemin_cable_section or '' }}">
-                </div>
-                <div class="col-md-3">
-                    <label>Profondeur</label>
-                    <input type="text" class="form-control" name="chemin_cable_profondeur" value="{{ entry.chemin_cable_profondeur or '' }}">
-                </div>
-            </div>
-            <div class="mb-3">
-                <label>Longueur Terre</label>
-                <input type="text" class="form-control" name="terre_longueur" value="{{ entry.terre_longueur or '' }}">
-            </div>
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label>Section Câble AC</label>
-                    <input type="text" class="form-control" name="cableac_section" value="{{ entry.cableac_section or '' }}">
-                </div>
-                <div class="col-md-6">
-                    <label>Longueur Câble AC</label>
-                    <input type="text" class="form-control" name="cableac_longueur" value="{{ entry.cableac_longueur or '' }}">
-                </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label>Section Câble DC</label>
-                    <input type="text" class="form-control" name="cabledc_section" value="{{ entry.cabledc_section or '' }}">
-                </div>
-                <div class="col-md-6">
-                    <label>Longueur Câble DC</label>
-                    <input type="text" class="form-control" name="cabledc_longueur" value="{{ entry.cabledc_longueur or '' }}">
-                </div>
+                <div class="col-md-6"><label>Section Câble DC</label><input type="text" class="form-control" name="cabledc_section" value="{{ entry.cabledc_section or '' }}"></div>
+                <div class="col-md-6"><label>Longueur Câble DC</label><input type="text" class="form-control" name="cabledc_longueur" value="{{ entry.cabledc_longueur or '' }}"></div>
             </div>
 
             <!-- Avancement du Chantier -->
             <h4 class="mt-4">Avancement du Chantier</h4>
             <div class="row mb-3">
-                <div class="col-md-4">
-                    <label>Câble DC tiré</label>
-                    <input type="text" class="form-control" name="cables_dctires" value="{{ entry.cables_dctires or '' }}">
-                </div>
-                <div class="col-md-4">
-                    <label>Câble AC tiré</label>
-                    <input type="text" class="form-control" name="cables_actires" value="{{ entry.cables_actires or '' }}">
-                </div>
-                <div class="col-md-4">
-                    <label>Câble Terre tiré</label>
-                    <input type="text" class="form-control" name="cables_terretires" value="{{ entry.cables_terretires or '' }}">
-                </div>
+                <div class="col-md-4"><label>Câble DC tiré</label><input type="text" class="form-control" name="cables_dctires" value="{{ entry.cables_dctires or '' }}"></div>
+                <div class="col-md-4"><label>Câble AC tiré</label><input type="text" class="form-control" name="cables_actires" value="{{ entry.cables_actires or '' }}"></div>
+                <div class="col-md-4"><label>Câble Terre tiré</label><input type="text" class="form-control" name="cables_terretires" value="{{ entry.cables_terretires or '' }}"></div>
             </div>
-
             <!-- Fin du Chantier -->
             <h4 class="mt-4">Fin du Chantier</h4>
             <div class="row mb-3">
-                <div class="col-md-3">
-                    <label>Zone</label>
-                    <input type="text" class="form-control" name="fin_zone" value="{{ entry.fin_zone or '' }}">
-                </div>
-                <div class="col-md-3">
-                    <label>String</label>
-                    <input type="text" class="form-control" name="fin_string" value="{{ entry.fin_string or '' }}">
-                </div>
-                <div class="col-md-3">
-                    <label>Tension DC</label>
-                    <input type="text" class="form-control" name="fin_tension_dc" value="{{ entry.fin_tension_dc or '' }}">
-                </div>
-                <div class="col-md-3">
-                    <label>Courant DC</label>
-                    <input type="text" class="form-control" name="fin_courant_dc" value="{{ entry.fin_courant_dc or '' }}">
-                </div>
+                <div class="col-md-3"><label>Zone</label><input type="text" class="form-control" name="fin_zone" value="{{ entry.fin_zone or '' }}"></div>
+                <div class="col-md-3"><label>String</label><input type="text" class="form-control" name="fin_string" value="{{ entry.fin_string or '' }}"></div>
+                <div class="col-md-3"><label>Tension DC</label><input type="text" class="form-control" name="fin_tension_dc" value="{{ entry.fin_tension_dc or '' }}"></div>
+                <div class="col-md-3"><label>Courant DC</label><input type="text" class="form-control" name="fin_courant_dc" value="{{ entry.fin_courant_dc or '' }}"></div>
             </div>
             <div class="row mb-3">
-                <div class="col-md-3">
-                    <label>Tension AC</label>
-                    <input type="text" class="form-control" name="fin_tension_ac" value="{{ entry.fin_tension_ac or '' }}">
-                </div>
-                <div class="col-md-3">
-                    <label>Puissance</label>
-                    <input type="text" class="form-control" name="fin_puissance" value="{{ entry.fin_puissance or '' }}">
-                </div>
-                <div class="col-md-3">
-                    <label>Date</label>
-                    <input type="date" class="form-control" name="fin_date" value="{{ entry.fin_date or '' }}">
-                </div>
-                <div class="col-md-3">
-                    <label>Technicien</label>
-                    <input type="text" class="form-control" name="fin_technicien" value="{{ entry.fin_technicien or '' }}">
-                </div>
+                <div class="col-md-3"><label>Tension AC</label><input type="text" class="form-control" name="fin_tension_ac" value="{{ entry.fin_tension_ac or '' }}"></div>
+                <div class="col-md-3"><label>Puissance</label><input type="text" class="form-control" name="fin_puissance" value="{{ entry.fin_puissance or '' }}"></div>
+                <div class="col-md-3"><label>Date</label><input type="date" class="form-control" name="fin_date" value="{{ entry.fin_date or '' }}"></div>
+                <div class="col-md-3"><label>Technicien</label><input type="text" class="form-control" name="fin_technicien" value="{{ entry.fin_technicien or '' }}"></div>
             </div>
             <div class="mb-3">
                 <label>Status</label>
                 <select class="form-select" name="fin_status">
-                    <option value="Validé" {% if entry.fin_status == "Validé" %}selected{% endif %}>
+                    <option value="Validé" {% if entry.fin_status == "Validé" %}selected{% endif %}>Validé</option>
+                    <option value="Non Validé" {% if entry.fin_status == "Non Validé" %}selected{% endif %}>Non Validé</option>
+                </select>
+            </div>
+
+            <!-- Images -->
+            <h4 class="mt-4">Images</h4>
+            {% for image in entry.images %}
+                <div class="input-group mb-2">
+                    <span class="form-control">{{ image.filename }}</span>
+                    <button type="button" class="btn btn-danger remove-image" data-image-id="{{ image.id }}">Supprimer</button>
+                </div>
+            {% endfor %}
+            <div id="photos-container">
+                <div class="input-group mb-2">
+                    <input type="file" class="form-control" name="photo_chantier[]" accept="image/*">
+                    <button class="btn btn-danger remove-photo-btn" type="button" style="display:none;">Supprimer</button>
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary" id="add-photo-btn">Ajouter une photo</button>
+
+            <input type="hidden" name="delete_images" id="delete_images" value="">
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Enregistrer les Modifications</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const photosContainer = document.getElementById('photos-container');
+            const addPhotoBtn = document.getElementById('add-photo-btn');
+            const deleteImagesInput = document.getElementById('delete_images');
+
+            addPhotoBtn.addEventListener('click', function() {
+                const newInputGroup = document.createElement('div');
+                newInputGroup.className = 'input-group mb-2';
+
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.className = 'form-control';
+                fileInput.name = 'photo_chantier[]';
+                fileInput.accept = 'image/*';
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'btn btn-danger remove-photo-btn';
+                removeBtn.type = 'button';
+                removeBtn.textContent = 'Supprimer';
+
+                removeBtn.addEventListener('click', function() {
+                    newInputGroup.remove();
+                });
+
+                newInputGroup.appendChild(fileInput);
+                newInputGroup.appendChild(removeBtn);
+                photosContainer.appendChild(newInputGroup);
+
+                document.querySelectorAll('.remove-photo-btn').forEach(btn => btn.style.display = '');
+            });
+
+            document.querySelectorAll('.remove-image').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const imageId = this.getAttribute('data-image-id');
+                    let deleteIds = deleteImagesInput.value.split(',').filter(id => id);
+                    if (!deleteIds.includes(imageId)) {
+                        deleteIds.push(imageId);
+                    }
+                    deleteImagesInput.value = deleteIds.join(',');
+                    this.parentElement.remove();
+                });
+            });
+        });
+    </script>
+</div>
+{% endblock %}
