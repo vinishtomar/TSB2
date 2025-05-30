@@ -205,14 +205,59 @@
                       <input type="date" class="form-control" name="equipement_date_reception_3" required>
                     </div>
                   </div>
+                  <!-- Dynamic Photos Upload -->
                   <div class="mb-3">
                     <label class="form-label">Photos du chantier</label>
-                    <input type="file" class="form-control" name="photo_chantier[]" multiple>
+                    <div id="photos-container">
+                      <div class="input-group mb-2">
+                        <input type="file" class="form-control" name="photo_chantier[]" accept="image/*">
+                        <button class="btn btn-danger remove-photo-btn" type="button" style="display:none;">Supprimer</button>
+                      </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="add-photo-btn">Ajouter une photo</button>
                   </div>
                   <div class="mt-3">
                     <button type="submit" class="btn btn-primary">Enregistrer</button>
                   </div>
                 </form>
+                <script>
+                  document.addEventListener('DOMContentLoaded', function() {
+                    const photosContainer = document.getElementById('photos-container');
+                    const addPhotoBtn = document.getElementById('add-photo-btn');
+
+                    addPhotoBtn.addEventListener('click', function() {
+                      const newInputGroup = document.createElement('div');
+                      newInputGroup.className = 'input-group mb-2';
+
+                      const fileInput = document.createElement('input');
+                      fileInput.type = 'file';
+                      fileInput.className = 'form-control';
+                      fileInput.name = 'photo_chantier[]';
+                      fileInput.accept = 'image/*';
+
+                      const removeBtn = document.createElement('button');
+                      removeBtn.className = 'btn btn-danger remove-photo-btn';
+                      removeBtn.type = 'button';
+                      removeBtn.textContent = 'Supprimer';
+
+                      removeBtn.addEventListener('click', function() {
+                        newInputGroup.remove();
+                      });
+
+                      newInputGroup.appendChild(fileInput);
+                      newInputGroup.appendChild(removeBtn);
+                      photosContainer.appendChild(newInputGroup);
+
+                      document.querySelectorAll('.remove-photo-btn').forEach(btn => btn.style.display = '');
+                    });
+
+                    document.querySelectorAll('.remove-photo-btn').forEach(btn => {
+                      btn.addEventListener('click', function() {
+                        btn.parentElement.remove();
+                      });
+                    });
+                  });
+                </script>
               </div>
               <!-- Connecteur Tab Content -->
               <div class="tab-pane fade" id="connecteur" role="tabpanel" aria-labelledby="connecteur-tab">
