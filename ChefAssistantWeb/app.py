@@ -52,6 +52,9 @@ class SuiviJournalier(db.Model):
     equipement_reference = db.Column(db.String(255))
     equipement_etat = db.Column(db.String(255))
     equipement_date_reception = db.Column(db.String(255))
+    equipement_nombre_1 = db.Column(db.String(10))  # NEW FIELD
+    equipement_nombre_2 = db.Column(db.String(10))  # NEW FIELD
+    equipement_nombre_3 = db.Column(db.String(10))  # NEW FIELD
 
     # Réception du Chantier: Connecteur
     connecteur_type = db.Column(db.String(255))
@@ -145,14 +148,15 @@ def logout():
 def suivi_journalier():
     if request.method == 'POST':
         try:
-            # Collect three machines' equipment data
+            # Collect three machines' equipment data, including nombre
             equipements = []
             for i in range(1, 4):
                 equipements.append({
                     "type": request.form.get(f"equipement_type_{i}", ""),
                     "reference": request.form.get(f"equipement_reference_{i}", ""),
                     "etat": request.form.get(f"equipement_etat_{i}", ""),
-                    "date_reception": request.form.get(f"equipement_date_reception_{i}", "")
+                    "date_reception": request.form.get(f"equipement_date_reception_{i}", ""),
+                    "nombre": request.form.get(f"equipement_nombre_{i}", "")
                 })
             # For backward compatibility, store only the first machine's data in main fields
             data = {k: request.form.get(k, "") for k in [
@@ -171,6 +175,9 @@ def suivi_journalier():
                 "equipement_reference": equipements[0]["reference"],
                 "equipement_etat": equipements[0]["etat"],
                 "equipement_date_reception": equipements[0]["date_reception"],
+                "equipement_nombre_1": equipements[0]["nombre"],
+                "equipement_nombre_2": equipements[1]["nombre"],
+                "equipement_nombre_3": equipements[2]["nombre"],
             })
             entry = SuiviJournalier(
                 date=datetime.now().strftime('%Y-%m-%d %H:%M'),
@@ -199,6 +206,9 @@ def suivi_journalier():
                 "equipement_reference": equipements[0]["reference"],
                 "equipement_etat": equipements[0]["etat"],
                 "equipement_date_reception": equipements[0]["date_reception"],
+                "equipement_nombre_1": equipements[0]["nombre"],
+                "equipement_nombre_2": equipements[1]["nombre"],
+                "equipement_nombre_3": equipements[2]["nombre"],
                 **data,
                 "photo_chantier": ";".join([p.filename for p in photos if p and p.filename])
             })
@@ -224,6 +234,7 @@ def telecharger_historique():
     fieldnames = [
         "date", "utilisateur",
         "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception",
+        "equipement_nombre_1", "equipement_nombre_2", "equipement_nombre_3",
         "connecteur_type", "connecteur_quantite", "connecteur_etat",
         "chemin_cable_longueur", "chemin_cable_type",
         "terre_type_raccord", "terre_valeur_resistance",
@@ -268,6 +279,7 @@ def telecharger_historique_pdf():
     fieldnames = [
         "date", "utilisateur",
         "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception",
+        "equipement_nombre_1", "equipement_nombre_2", "equipement_nombre_3",
         "connecteur_type", "connecteur_quantite", "connecteur_etat",
         "chemin_cable_longueur", "chemin_cable_type",
         "terre_type_raccord", "terre_valeur_resistance",
@@ -357,6 +369,7 @@ def modify_history(entry_id):
     if request.method == 'POST':
         for field in [
             "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception",
+            "equipement_nombre_1", "equipement_nombre_2", "equipement_nombre_3",
             "connecteur_type", "connecteur_quantite", "connecteur_etat",
             "chemin_cable_longueur", "chemin_cable_type",
             "terre_type_raccord", "terre_valeur_resistance",
@@ -391,6 +404,7 @@ def save_to_csv(data):
     fieldnames = [
         "date", "utilisateur",
         "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception",
+        "equipement_nombre_1", "equipement_nombre_2", "equipement_nombre_3",
         "connecteur_type", "connecteur_quantite", "connecteur_etat",
         "chemin_cable_longueur", "chemin_cable_type",
         "terre_type_raccord", "terre_valeur_resistance",
