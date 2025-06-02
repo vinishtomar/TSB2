@@ -383,6 +383,13 @@
                       <input type="number" class="form-control" name="cabledc_longueur">
                     </div>
                   </div>
+                  <!-- Shelter nombre field added here -->
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Shelter nombre</label>
+                      <input type="number" class="form-control" name="shelter_nombre" min="0">
+                    </div>
+                  </div>
                   <div class="mt-3">
                     <button type="submit" class="btn btn-primary">Enregistrer</button>
                   </div>
@@ -411,6 +418,13 @@
                 <div class="col-md-4">
                   <label class="form-label">Câble Terre tiré (m)</label>
                   <input type="text" class="form-control" name="cables_terretires">
+                </div>
+              </div>
+              <!-- Problems field added here -->
+              <div class="row mb-3">
+                <div class="col-md-12">
+                  <label class="form-label">Problems</label>
+                  <textarea class="form-control" name="problems" rows="2" placeholder="Décrivez les problèmes rencontrés (si applicable)"></textarea>
                 </div>
               </div>
               <div class="mt-3">
@@ -468,8 +482,6 @@
           </div>
         </div>
       </div>
-      <!-- Historique Section (Admins only), split into three tables -->
-      {% if current_user.role == "admin" %}
       <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
@@ -502,6 +514,7 @@
                     <th>Longueur Câble AC</th>
                     <th>Section Câble DC</th>
                     <th>Longueur Câble DC</th>
+                    <th>Shelter nombre</th>
                     <th>Images</th>
                     <th>Action</th>
                   </tr>
@@ -527,6 +540,7 @@
                     <td>{{ row.cableac_longueur }}</td>
                     <td>{{ row.cabledc_section }}</td>
                     <td>{{ row.cabledc_longueur }}</td>
+                    <td>{{ row.shelter_nombre }}</td>
                     <td>
                       {% if row.images %}
                         {% for img in row.images %}
@@ -551,18 +565,20 @@
                     <th>Câble DC tiré</th>
                     <th>Câble AC tiré</th>
                     <th>Câble Terre tiré</th>
+                    <th>Problems</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {% for row in all_lignes %}
-                  {% if row.cables_dctires or row.cables_actires or row.cables_terretires %}
+                  {% if row.cables_dctires or row.cables_actires or row.cables_terretires or row.problems %}
                   <tr>
                     <td>{{ row.date }}</td>
                     <td>{{ row.utilisateur }}</td>
                     <td>{{ row.cables_dctires }}</td>
                     <td>{{ row.cables_actires }}</td>
                     <td>{{ row.cables_terretires }}</td>
+                    <td>{{ row.problems }}</td>
                     <td><a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a></td>
                   </tr>
                   {% endif %}
