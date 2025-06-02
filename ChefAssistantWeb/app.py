@@ -80,10 +80,16 @@ class SuiviJournalier(db.Model):
     cabledc_section = db.Column(db.String(255))
     cabledc_longueur = db.Column(db.String(255))
 
+    # Réception du Chantier: Shelter nombre (NEW FIELD)
+    shelter_nombre = db.Column(db.Integer)
+
     # Avancement du Chantier
     cables_dctires = db.Column(db.String(255))
     cables_actires = db.Column(db.String(255))
     cables_terretires = db.Column(db.String(255))
+
+    # Avancement du Chantier: Problems (NEW FIELD)
+    problems = db.Column(db.String(255))
 
     # Fin du Chantier
     fin_zone = db.Column(db.String(255))
@@ -164,7 +170,10 @@ def suivi_journalier():
 
             # Determine the active section based on form data
             data = {}
-            if any(f"equipement_type_{i}" in request.form for i in range(1, 4)) or "connecteur_type" in request.form or "chemin_cable_longueur" in request.form or "terre_longueur" in request.form or "cableac_section" in request.form or "cabledc_section" in request.form:
+            if any(f"equipement_type_{i}" in request.form for i in range(1, 4)) or \
+                "connecteur_type" in request.form or "chemin_cable_longueur" in request.form or \
+                "terre_longueur" in request.form or "cableac_section" in request.form or \
+                "cabledc_section" in request.form or "shelter_nombre" in request.form:
                 data.update({
                     "equipement_type": equipements[0]["type"] if equipements[0]["type"] else None,
                     "equipement_reference": equipements[0]["reference"] if equipements[0]["reference"] else None,
@@ -184,13 +193,15 @@ def suivi_journalier():
                     "cableac_section": request.form.get("cableac_section", ""),
                     "cableac_longueur": request.form.get("cableac_longueur", ""),
                     "cabledc_section": request.form.get("cabledc_section", ""),
-                    "cabledc_longueur": request.form.get("cabledc_longueur", "")
+                    "cabledc_longueur": request.form.get("cabledc_longueur", ""),
+                    "shelter_nombre": request.form.get("shelter_nombre", None)
                 })
-            elif "cables_dctires" in request.form or "cables_actires" in request.form or "cables_terretires" in request.form:
+            elif "cables_dctires" in request.form or "cables_actires" in request.form or "cables_terretires" in request.form or "problems" in request.form:
                 data.update({
                     "cables_dctires": request.form.get("cables_dctires", ""),
                     "cables_actires": request.form.get("cables_actires", ""),
-                    "cables_terretires": request.form.get("cables_terretires", "")
+                    "cables_terretires": request.form.get("cables_terretires", ""),
+                    "problems": request.form.get("problems", "")
                 })
             elif any(f"fin_{field}" in request.form for field in ["zone", "string", "tension_dc", "courant_dc", "tension_ac", "puissance", "date", "technicien", "status"]):
                 data.update({
@@ -259,7 +270,9 @@ def telecharger_historique():
         "terre_longueur",
         "cableac_section", "cableac_longueur",
         "cabledc_section", "cabledc_longueur",
+        "shelter_nombre",   # NEW FIELD
         "cables_dctires", "cables_actires", "cables_terretires",
+        "problems",        # NEW FIELD
         "fin_zone", "fin_string", "fin_tension_dc", "fin_courant_dc", "fin_tension_ac", "fin_puissance", "fin_date", "fin_technicien", "fin_status",
         "photo_chantier"
     ]
@@ -300,7 +313,9 @@ def telecharger_historique_pdf():
         "terre_longueur",
         "cableac_section", "cableac_longueur",
         "cabledc_section", "cabledc_longueur",
+        "shelter_nombre",   # NEW FIELD
         "cables_dctires", "cables_actires", "cables_terretires",
+        "problems",        # NEW FIELD
         "fin_zone", "fin_string", "fin_tension_dc", "fin_courant_dc", "fin_tension_ac", "fin_puissance", "fin_date", "fin_technicien", "fin_status"
     ]
     c.drawString(40, y, "; ".join(fieldnames))
@@ -384,7 +399,7 @@ def modify_history(entry_id):
     if current_user.role != "admin" and entry.utilisateur != current_user.id:
         flash("Droits insuffisants pour modifier cette entrée.", "danger")
         return redirect(url_for('index'))
-    print(f"Debug - Entry data: {entry.__dict__}")  # Debug output to check field values
+    print(f"Debug - Entry data: {entry.__dict__}")
     if request.method == 'POST':
         for field in [
             "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception",
@@ -394,7 +409,9 @@ def modify_history(entry_id):
             "terre_longueur",
             "cableac_section", "cableac_longueur",
             "cabledc_section", "cabledc_longueur",
+            "shelter_nombre",   # NEW FIELD
             "cables_dctires", "cables_actires", "cables_terretires",
+            "problems",        # NEW FIELD
             "fin_zone", "fin_string", "fin_tension_dc", "fin_courant_dc", "fin_tension_ac", "fin_puissance", "fin_date", "fin_technicien", "fin_status"
         ]:
             setattr(entry, field, request.form.get(field, getattr(entry, field)))
@@ -429,7 +446,9 @@ def save_to_csv(data):
         "terre_longueur",
         "cableac_section", "cableac_longueur",
         "cabledc_section", "cabledc_longueur",
+        "shelter_nombre",   # NEW FIELD
         "cables_dctires", "cables_actires", "cables_terretires",
+        "problems",        # NEW FIELD
         "fin_zone", "fin_string", "fin_tension_dc", "fin_courant_dc", "fin_tension_ac", "fin_puissance", "fin_date", "fin_technicien", "fin_status",
         "photo_chantier"
     ]
