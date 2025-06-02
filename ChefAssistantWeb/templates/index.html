@@ -104,7 +104,7 @@
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="fin-tab" data-bs-toggle="tab" data-bs-target="#fin" type="button" role="tab" aria-controls="fin" aria-selected="false">Fin du Chantier</button>
       </li>
-      {% if current_user.role == "admin" %}
+      {% if current_user and current_user.role == "admin" %}
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">Historique</button>
       </li>
@@ -141,6 +141,8 @@
               <!-- Équipements Tab Content -->
               <div class="tab-pane fade show active" id="equipements" role="tabpanel" aria-labelledby="equipements-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}" enctype="multipart/form-data">
+                  <input type="hidden" name="section" value="equipements">
+                  {{ form.csrf_token if form.csrf_token }}
                   <div class="row mb-2 fw-bold text-center">
                     <div class="col-md-3">Type de machine</div>
                     <div class="col-md-3">Référence</div>
@@ -151,7 +153,8 @@
                   <!-- Machine 1 -->
                   <div class="row mb-2">
                     <div class="col-md-3">
-                      <select class="form-select" name="equipement_type_1" required>
+                      <label for="equipement_type_1" class="form-label visually-hidden">Type de machine 1</label>
+                      <select class="form-select" id="equipement_type_1" name="equipement_type_1" required>
                         <option value="">Sélectionner...</option>
                         <option value="Nacelle ciseau">Nacelle ciseau</option>
                         <option value="Nacelle à bras">Nacelle à bras</option>
@@ -159,26 +162,31 @@
                       </select>
                     </div>
                     <div class="col-md-3">
-                      <input type="text" class="form-control" name="equipement_reference_1" placeholder="Numéro de série" required>
+                      <label for="equipement_reference_1" class="form-label visually-hidden">Référence 1</label>
+                      <input type="text" class="form-control" id="equipement_reference_1" name="equipement_reference_1" placeholder="Numéro de série" required>
                     </div>
                     <div class="col-md-2">
-                      <select class="form-select" name="equipement_etat_1" required>
+                      <label for="equipement_etat_1" class="form-label visually-hidden">État 1</label>
+                      <select class="form-select" id="equipement_etat_1" name="equipement_etat_1" required>
                         <option value="Bon état">Bon état</option>
                         <option value="À vérifier">À vérifier</option>
                         <option value="Défaillant">Défaillant</option>
                       </select>
                     </div>
                     <div class="col-md-2">
-                      <input type="date" class="form-control" name="equipement_date_reception_1" required>
+                      <label for="equipement_date_reception_1" class="form-label visually-hidden">Date de réception 1</label>
+                      <input type="date" class="form-control" id="equipement_date_reception_1" name="equipement_date_reception_1" required>
                     </div>
                     <div class="col-md-2">
-                      <input type="number" class="form-control" name="equipement_nombre_1" min="1" value="1" required>
+                      <label for="equipement_nombre_1" class="form-label visually-hidden">Nombre de Machines 1</label>
+                      <input type="number" class="form-control" id="equipement_nombre_1" name="equipement_nombre_1" min="1" value="1" required>
                     </div>
                   </div>
-                  <!-- Machine 2 -->
+                  <!-- Machine 2 (Optional) -->
                   <div class="row mb-2">
                     <div class="col-md-3">
-                      <select class="form-select" name="equipement_type_2" required>
+                      <label for="equipement_type_2" class="form-label visually-hidden">Type de machine 2</label>
+                      <select class="form-select" id="equipement_type_2" name="equipement_type_2">
                         <option value="">Sélectionner...</option>
                         <option value="Nacelle ciseau">Nacelle ciseau</option>
                         <option value="Nacelle à bras">Nacelle à bras</option>
@@ -186,26 +194,31 @@
                       </select>
                     </div>
                     <div class="col-md-3">
-                      <input type="text" class="form-control" name="equipement_reference_2" placeholder="Numéro de série" required>
+                      <label for="equipement_reference_2" class="form-label visually-hidden">Référence 2</label>
+                      <input type="text" class="form-control" id="equipement_reference_2" name="equipement_reference_2" placeholder="Numéro de série">
                     </div>
                     <div class="col-md-2">
-                      <select class="form-select" name="equipement_etat_2" required>
+                      <label for="equipement_etat_2" class="form-label visually-hidden">État 2</label>
+                      <select class="form-select" id="equipement_etat_2" name="equipement_etat_2">
                         <option value="Bon état">Bon état</option>
                         <option value="À vérifier">À vérifier</option>
                         <option value="Défaillant">Défaillant</option>
                       </select>
                     </div>
                     <div class="col-md-2">
-                      <input type="date" class="form-control" name="equipement_date_reception_2" required>
+                      <label for="equipement_date_reception_2" class="form-label visually-hidden">Date de réception 2</label>
+                      <input type="date" class="form-control" id="equipement_date_reception_2" name="equipement_date_reception_2">
                     </div>
                     <div class="col-md-2">
-                      <input type="number" class="form-control" name="equipement_nombre_2" min="1" value="1" required>
+                      <label for="equipement_nombre_2" class="form-label visually-hidden">Nombre de Machines 2</label>
+                      <input type="number" class="form-control" id="equipement_nombre_2" name="equipement_nombre_2" min="1" value="1">
                     </div>
                   </div>
-                  <!-- Machine 3 -->
+                  <!-- Machine 3 (Optional) -->
                   <div class="row mb-3">
                     <div class="col-md-3">
-                      <select class="form-select" name="equipement_type_3" required>
+                      <label for="equipement_type_3" class="form-label visually-hidden">Type de machine 3</label>
+                      <select class="form-select" id="equipement_type_3" name="equipement_type_3">
                         <option value="">Sélectionner...</option>
                         <option value="Nacelle ciseau">Nacelle ciseau</option>
                         <option value="Nacelle à bras">Nacelle à bras</option>
@@ -213,20 +226,24 @@
                       </select>
                     </div>
                     <div class="col-md-3">
-                      <input type="text" class="form-control" name="equipement_reference_3" placeholder="Numéro de série" required>
+                      <label for="equipement_reference_3" class="form-label visually-hidden">Référence 3</label>
+                      <input type="text" class="form-control" id="equipement_reference_3" name="equipement_reference_3" placeholder="Numéro de série">
                     </div>
                     <div class="col-md-2">
-                      <select class="form-select" name="equipement_etat_3" required>
+                      <label for="equipement_etat_3" class="form-label visually-hidden">État 3</label>
+                      <select class="form-select" id="equipement_etat_3" name="equipement_etat_3">
                         <option value="Bon état">Bon état</option>
                         <option value="À vérifier">À vérifier</option>
                         <option value="Défaillant">Défaillant</option>
                       </select>
                     </div>
                     <div class="col-md-2">
-                      <input type="date" class="form-control" name="equipement_date_reception_3" required>
+                      <label for="equipement_date_reception_3" class="form-label visually-hidden">Date de réception 3</label>
+                      <input type="date" class="form-control" id="equipement_date_reception_3" name="equipement_date_reception_3">
                     </div>
                     <div class="col-md-2">
-                      <input type="number" class="form-control" name="equipement_nombre_3" min="1" value="1" required>
+                      <label for="equipement_nombre_3" class="form-label visually-hidden">Nombre de Machines 3</label>
+                      <input type="number" class="form-control" id="equipement_nombre_3" name="equipement_nombre_3" min="1" value="1">
                     </div>
                   </div>
                   <!-- Dynamic Photos Upload -->
@@ -235,7 +252,7 @@
                     <div id="photos-container">
                       <div class="input-group mb-2">
                         <input type="file" class="form-control" name="photo_chantier[]" accept="image/*">
-                        <button class="btn btn-danger remove-photo-btn" type="button" style="display:none;">Supprimer</button>
+                        <button class="btn btn-danger remove-photo-btn" type="button">Supprimer</button>
                       </div>
                     </div>
                     <button type="button" class="btn btn-secondary" id="add-photo-btn">Ajouter une photo</button>
@@ -248,6 +265,13 @@
                   document.addEventListener('DOMContentLoaded', function() {
                     const photosContainer = document.getElementById('photos-container');
                     const addPhotoBtn = document.getElementById('add-photo-btn');
+
+                    function updateRemoveButtons() {
+                      const removeButtons = document.querySelectorAll('.remove-photo-btn');
+                      removeButtons.forEach(btn => {
+                        btn.style.display = removeButtons.length > 1 ? '' : 'none';
+                      });
+                    }
 
                     addPhotoBtn.addEventListener('click', function() {
                       const newInputGroup = document.createElement('div');
@@ -266,38 +290,44 @@
 
                       removeBtn.addEventListener('click', function() {
                         newInputGroup.remove();
+                        updateRemoveButtons();
                       });
 
                       newInputGroup.appendChild(fileInput);
                       newInputGroup.appendChild(removeBtn);
                       photosContainer.appendChild(newInputGroup);
 
-                      document.querySelectorAll('.remove-photo-btn').forEach(btn => btn.style.display = '');
+                      updateRemoveButtons();
                     });
 
                     document.querySelectorAll('.remove-photo-btn').forEach(btn => {
                       btn.addEventListener('click', function() {
                         btn.parentElement.remove();
+                        updateRemoveButtons();
                       });
                     });
+
+                    updateRemoveButtons();
                   });
                 </script>
               </div>
               <!-- Connecteur Tab Content -->
               <div class="tab-pane fade" id="connecteur" role="tabpanel" aria-labelledby="connecteur-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
+                  <input type="hidden" name="section" value="connecteur">
+                  {{ form.csrf_token if form.csrf_token }}
                   <div class="row mb-3">
                     <div class="col-md-4">
-                      <label class="form-label">Type de connecteur</label>
-                      <input type="text" class="form-control" name="connecteur_type">
+                      <label for="connecteur_type" class="form-label">Type de connecteur</label>
+                      <input type="text" class="form-control" id="connecteur_type" name="connecteur_type">
                     </div>
                     <div class="col-md-4">
-                      <label class="form-label">Quantité</label>
-                      <input type="number" class="form-control" name="connecteur_quantite">
+                      <label for="connecteur_quantite" class="form-label">Quantité</label>
+                      <input type="number" class="form-control" id="connecteur_quantite" name="connecteur_quantite">
                     </div>
                     <div class="col-md-4">
-                      <label class="form-label">État</label>
-                      <select class="form-select" name="connecteur_etat">
+                      <label for="connecteur_etat" class="form-label">État</label>
+                      <select class="form-select" id="connecteur_etat" name="connecteur_etat">
                         <option value="Bon état">Bon état</option>
                         <option value="À vérifier">À vérifier</option>
                         <option value="Défaillant">Défaillant</option>
@@ -312,25 +342,27 @@
               <!-- Chemin de Câble Tab Content -->
               <div class="tab-pane fade" id="chemin-cable" role="tabpanel" aria-labelledby="chemin-cable-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
+                  <input type="hidden" name="section" value="chemin_cable">
+                  {{ form.csrf_token if form.csrf_token }}
                   <div class="card rounded-card mb-3">
                     <div class="card-body">
                       <div class="card-title mb-4">Chemin de Câble</div>
                       <div class="row mb-3">
                         <div class="col-md-3">
-                          <label class="form-label">Type de chemin</label>
-                          <input type="text" class="form-control" name="chemin_cable_type" placeholder="Ex: Fourreau enterré, Caniveau">
+                          <label for="chemin_cable_type" class="form-label">Type de chemin</label>
+                          <input type="text" class="form-control" id="chemin_cable_type" name="chemin_cable_type" placeholder="Ex: Fourreau enterré, Caniveau">
                         </div>
                         <div class="col-md-3">
-                          <label class="form-label">Longueur (m)</label>
-                          <input type="number" class="form-control" name="chemin_cable_longueur" placeholder="Longueur en mètres">
+                          <label for="chemin_cable_longueur" class="form-label">Longueur (m)</label>
+                          <input type="number" class="form-control" id="chemin_cable_longueur" name="chemin_cable_longueur" placeholder="Longueur en mètres">
                         </div>
                         <div class="col-md-3">
-                          <label class="form-label">Section (mm)</label>
-                          <input type="text" class="form-control" name="chemin_cable_section" placeholder="Dimensions">
+                          <label for="chemin_cable_section" class="form-label">Section (mm)</label>
+                          <input type="text" class="form-control" id="chemin_cable_section" name="chemin_cable_section" placeholder="Dimensions">
                         </div>
                         <div class="col-md-3">
-                          <label class="form-label">Profondeur enfouissement (cm)</label>
-                          <input type="number" class="form-control" name="chemin_cable_profondeur" placeholder="Profondeur en cm">
+                          <label for="chemin_cable_profondeur" class="form-label">Profondeur enfouissement (cm)</label>
+                          <input type="number" class="form-control" id="chemin_cable_profondeur" name="chemin_cable_profondeur" placeholder="Profondeur en cm">
                         </div>
                       </div>
                       <button type="submit" class="btn btn-primary mt-2">Enregistrer</button>
@@ -341,10 +373,12 @@
               <!-- Terre Tab Content -->
               <div class="tab-pane fade" id="terre" role="tabpanel" aria-labelledby="terre-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
+                  <input type="hidden" name="section" value="terre">
+                  {{ form.csrf_token if form.csrf_token }}
                   <div class="row mb-3">
                     <div class="col-md-6">
-                      <label class="form-label">Longueur (m)</label>
-                      <input type="number" class="form-control" name="terre_longueur" placeholder="Longueur en mètres">
+                      <label for="terre_longueur" class="form-label">Longueur (m)</label>
+                      <input type="number" class="form-control" id="terre_longueur" name="terre_longueur" placeholder="Longueur en mètres">
                     </div>
                   </div>
                   <div class="mt-3">
@@ -355,14 +389,16 @@
               <!-- Câble AC Tab Content -->
               <div class="tab-pane fade" id="cable-ac" role="tabpanel" aria-labelledby="cable-ac-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
+                  <input type="hidden" name="section" value="cable_ac">
+                  {{ form.csrf_token if form.csrf_token }}
                   <div class="row mb-3">
                     <div class="col-md-6">
-                      <label class="form-label">Section du câble AC</label>
-                      <input type="text" class="form-control" name="cableac_section">
+                      <label for="cableac_section" class="form-label">Section du câble AC</label>
+                      <input type="text" class="form-control" id="cableac_section" name="cableac_section">
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label">Longueur AC (m)</label>
-                      <input type="number" class="form-control" name="cableac_longueur">
+                      <label for="cableac_longueur" class="form-label">Longueur AC (m)</label>
+                      <input type="number" class="form-control" id="cableac_longueur" name="cableac_longueur">
                     </div>
                   </div>
                   <div class="mt-3">
@@ -373,21 +409,23 @@
               <!-- Câble DC Tab Content -->
               <div class="tab-pane fade" id="cable-dc" role="tabpanel" aria-labelledby="cable-dc-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
+                  <input type="hidden" name="section" value="cable_dc">
+                  {{ form.csrf_token if form.csrf_token }}
                   <div class="row mb-3">
                     <div class="col-md-6">
-                      <label class="form-label">Section du câble DC</label>
-                      <input type="text" class="form-control" name="cabledc_section">
+                      <label for="cabledc_section" class="form-label">Section du câble DC</label>
+                      <input type="text" class="form-control" id="cabledc_section" name="cabledc_section">
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label">Longueur DC (m)</label>
-                      <input type="number" class="form-control" name="cabledc_longueur">
+                      <label for="cabledc_longueur" class="form-label">Longueur DC (m)</label>
+                      <input type="number" class="form-control" id="cabledc_longueur" name="cabledc_longueur">
                     </div>
                   </div>
-                  <!-- Shelter nombre field added here -->
+                  <!-- Shelter nombre field -->
                   <div class="row mb-3">
                     <div class="col-md-6">
-                      <label class="form-label">Shelter nombre</label>
-                      <input type="number" class="form-control" name="shelter_nombre" min="0">
+                      <label for="shelter_nombre" class="form-label">Shelter nombre</label>
+                      <input type="number" class="form-control" id="shelter_nombre" name="shelter_nombre" min="0">
                     </div>
                   </div>
                   <div class="mt-3">
@@ -406,25 +444,27 @@
           <div class="card-body">
             <div class="card-title mb-4">Avancement du Chantier</div>
             <form method="POST" action="{{ url_for('suivi_journalier') }}">
+              <input type="hidden" name="section" value="avancement">
+              {{ form.csrf_token if form.csrf_token }}
               <div class="row mb-3">
                 <div class="col-md-4">
-                  <label class="form-label">Câble DC tiré (m)</label>
-                  <input type="text" class="form-control" name="cables_dctires">
+                  <label for="cables_dctires" class="form-label">Câble DC tiré (m)</label>
+                  <input type="number" class="form-control" id="cables_dctires" name="cables_dctires">
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">Câble AC tiré (m)</label>
-                  <input type="text" class="form-control" name="cables_actires">
+                  <label for="cables_actires" class="form-label">Câble AC tiré (m)</label>
+                  <input type="number" class="form-control" id="cables_actires" name="cables_actires">
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">Câble Terre tiré (m)</label>
-                  <input type="text" class="form-control" name="cables_terretires">
+                  <label for="cables_terretires" class="form-label">Câble Terre tiré (m)</label>
+                  <input type="number" class="form-control" id="cables_terretires" name="cables_terretires">
                 </div>
               </div>
-              <!-- Problems field added here -->
+              <!-- Problems field -->
               <div class="row mb-3">
                 <div class="col-md-12">
-                  <label class="form-label">Problems</label>
-                  <textarea class="form-control" name="problems" rows="2" placeholder="Décrivez les problèmes rencontrés (si applicable)"></textarea>
+                  <label for="problems" class="form-label">Problèmes</label>
+                  <textarea class="form-control" id="problems" name="problems" rows="2" placeholder="Décrivez les problèmes rencontrés (si applicable)"></textarea>
                 </div>
               </div>
               <div class="mt-3">
@@ -440,6 +480,8 @@
           <div class="card-body">
             <div class="card-title mb-4">Fin du Chantier</div>
             <form method="POST" action="{{ url_for('suivi_journalier') }}">
+              <input type="hidden" name="section" value="fin">
+              {{ form.csrf_token if form.csrf_token }}
               <div class="table-responsive">
                 <table class="table align-middle">
                   <thead>
@@ -457,16 +499,16 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td><input type="text" class="form-control" name="fin_zone"></td>
-                      <td><input type="text" class="form-control" name="fin_string"></td>
-                      <td><input type="text" class="form-control" name="fin_tension_dc"></td>
-                      <td><input type="text" class="form-control" name="fin_courant_dc"></td>
-                      <td><input type="text" class="form-control" name="fin_tension_ac"></td>
-                      <td><input type="text" class="form-control" name="fin_puissance"></td>
-                      <td><input type="date" class="form-control" name="fin_date"></td>
-                      <td><input type="text" class="form-control" name="fin_technicien"></td>
+                      <td><input type="text" class="form-control" id="fin_zone" name="fin_zone"></td>
+                      <td><input type="text" class="form-control" id="fin_string" name="fin_string"></td>
+                      <td><input type="number" class="form-control" id="fin_tension_dc" name="fin_tension_dc"></td>
+                      <td><input type="number" class="form-control" id="fin_courant_dc" name="fin_courant_dc"></td>
+                      <td><input type="number" class="form-control" id="fin_tension_ac" name="fin_tension_ac"></td>
+                      <td><input type="number" class="form-control" id="fin_puissance" name="fin_puissance"></td>
+                      <td><input type="date" class="form-control" id="fin_date" name="fin_date"></td>
+                      <td><input type="text" class="form-control" id="fin_technicien" name="fin_technicien"></td>
                       <td>
-                        <select class="form-select" name="fin_status">
+                        <select class="form-select" id="fin_status" name="fin_status">
                           <option value="Validé">Validé</option>
                           <option value="Non Validé">Non Validé</option>
                         </select>
@@ -482,6 +524,8 @@
           </div>
         </div>
       </div>
+      <!-- History Section -->
+      {% if current_user and current_user.role == "admin" %}
       <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
@@ -493,6 +537,7 @@
             <!-- Réception Section Table -->
             <h5 class="mt-4 mb-2">Réception du Chantier</h5>
             <div class="table-responsive history-table mb-4">
+              <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes sur les petits écrans.</p>
               <table class="table align-middle table-bordered table-striped">
                 <thead>
                   <tr>
@@ -520,32 +565,34 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for row in all_lignes %}
+                  {% for row in all_lignes|default([]) %}
                   <tr>
-                    <td>{{ row.date }}</td>
-                    <td>{{ row.utilisateur }}</td>
-                    <td>{{ row.equipement_type }}</td>
-                    <td>{{ row.equipement_reference }}</td>
-                    <td>{{ row.equipement_etat }}</td>
-                    <td>{{ row.equipement_date_reception }}</td>
-                    <td>{{ row.connecteur_type }}</td>
-                    <td>{{ row.connecteur_quantite }}</td>
-                    <td>{{ row.connecteur_etat }}</td>
-                    <td>{{ row.chemin_cable_longueur }}</td>
-                    <td>{{ row.chemin_cable_type }}</td>
-                    <td>{{ row.chemin_cable_section }}</td>
-                    <td>{{ row.chemin_cable_profondeur }}</td>
-                    <td>{{ row.terre_longueur }}</td>
-                    <td>{{ row.cableac_section }}</td>
-                    <td>{{ row.cableac_longueur }}</td>
-                    <td>{{ row.cabledc_section }}</td>
-                    <td>{{ row.cabledc_longueur }}</td>
-                    <td>{{ row.shelter_nombre }}</td>
+                    <td>{{ row.date|default('') }}</td>
+                    <td>{{ row.utilisateur|default('') }}</td>
+                    <td>{{ row.equipement_type|default('') }}</td>
+                    <td>{{ row.equipement_reference|default('') }}</td>
+                    <td>{{ row.equipement_etat|default('') }}</td>
+                    <td>{{ row.equipement_date_reception|default('') }}</td>
+                    <td>{{ row.connecteur_type|default('') }}</td>
+                    <td>{{ row.connecteur_quantite|default('') }}</td>
+                    <td>{{ row.connecteur_etat|default('') }}</td>
+                    <td>{{ row.chemin_cable_longueur|default('') }}</td>
+                    <td>{{ row.chemin_cable_type|default('') }}</td>
+                    <td>{{ row.chemin_cable_section|default('') }}</td>
+                    <td>{{ row.chemin_cable_profondeur|default('') }}</td>
+                    <td>{{ row.terre_longueur|default('') }}</td>
+                    <td>{{ row.cableac_section|default('') }}</td>
+                    <td>{{ row.cableac_longueur|default('') }}</td>
+                    <td>{{ row.cabledc_section|default('') }}</td>
+                    <td>{{ row.cabledc_longueur|default('') }}</td>
+                    <td>{{ row.shelter_nombre|default('') }}</td>
                     <td>
                       {% if row.images %}
                         {% for img in row.images %}
                           <a href="{{ url_for('get_image', image_id=img.id) }}" target="_blank">{{ img.filename }}</a>{% if not loop.last %}, {% endif %}
                         {% endfor %}
+                      {% else %}
+                        Aucune image
                       {% endif %}
                     </td>
                     <td><a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a></td>
@@ -557,6 +604,7 @@
             <!-- Avancement Section Table -->
             <h5 class="mt-4 mb-2">Avancement du Chantier</h5>
             <div class="table-responsive history-table mb-4">
+              <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes sur les petits écrans.</p>
               <table class="table align-middle table-bordered table-striped">
                 <thead>
                   <tr>
@@ -565,20 +613,20 @@
                     <th>Câble DC tiré</th>
                     <th>Câble AC tiré</th>
                     <th>Câble Terre tiré</th>
-                    <th>Problems</th>
+                    <th>Problèmes</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {% for row in all_lignes %}
+                  {% for row in all_lignes|default([]) %}
                   {% if row.cables_dctires or row.cables_actires or row.cables_terretires or row.problems %}
                   <tr>
-                    <td>{{ row.date }}</td>
-                    <td>{{ row.utilisateur }}</td>
-                    <td>{{ row.cables_dctires }}</td>
-                    <td>{{ row.cables_actires }}</td>
-                    <td>{{ row.cables_terretires }}</td>
-                    <td>{{ row.problems }}</td>
+                    <td>{{ row.date|default('') }}</td>
+                    <td>{{ row.utilisateur|default('') }}</td>
+                    <td>{{ row.cables_dctires|default('') }}</td>
+                    <td>{{ row.cables_actires|default('') }}</td>
+                    <td>{{ row.cables_terretires|default('') }}</td>
+                    <td>{{ row.problems|default('') }}</td>
                     <td><a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a></td>
                   </tr>
                   {% endif %}
@@ -589,6 +637,7 @@
             <!-- Fin du Chantier Section Table -->
             <h5 class="mt-4 mb-2">Fin du Chantier</h5>
             <div class="table-responsive history-table mb-4">
+              <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes sur les petits écrans.</p>
               <table class="table align-middle table-bordered table-striped">
                 <thead>
                   <tr>
@@ -607,20 +656,20 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for row in all_lignes %}
+                  {% for row in all_lignes|default([]) %}
                   {% if row.fin_zone or row.fin_string or row.fin_tension_dc or row.fin_courant_dc or row.fin_tension_ac or row.fin_puissance or row.fin_date or row.fin_technicien or row.fin_status %}
                   <tr>
-                    <td>{{ row.date }}</td>
-                    <td>{{ row.utilisateur }}</td>
-                    <td>{{ row.fin_zone }}</td>
-                    <td>{{ row.fin_string }}</td>
-                    <td>{{ row.fin_tension_dc }}</td>
-                    <td>{{ row.fin_courant_dc }}</td>
-                    <td>{{ row.fin_tension_ac }}</td>
-                    <td>{{ row.fin_puissance }}</td>
-                    <td>{{ row.fin_date }}</td>
-                    <td>{{ row.fin_technicien }}</td>
-                    <td>{{ row.fin_status }}</td>
+                    <td>{{ row.date|default('') }}</td>
+                    <td>{{ row.utilisateur|default('') }}</td>
+                    <td>{{ row.fin_zone|default('') }}</td>
+                    <td>{{ row.fin_string|default('') }}</td>
+                    <td>{{ row.fin_tension_dc|default('') }}</td>
+                    <td>{{ row.fin_courant_dc|default('') }}</td>
+                    <td>{{ row.fin_tension_ac|default('') }}</td>
+                    <td>{{ row.fin_puissance|default('') }}</td>
+                    <td>{{ row.fin_date|default('') }}</td>
+                    <td>{{ row.fin_technicien|default('') }}</td>
+                    <td>{{ row.fin_status|default('') }}</td>
                     <td><a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a></td>
                   </tr>
                   {% endif %}
@@ -634,5 +683,11 @@
       {% endif %}
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Fallback for Bootstrap CDN
+      if (typeof bootstrap === 'undefined') {
+        document.write('<script src="/static/js/bootstrap.bundle.min.js"><\/script>');
+      }
+    </script>
 </body>
 </html>
