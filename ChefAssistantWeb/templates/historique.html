@@ -1,114 +1,162 @@
-{% extends "base.html" %}
-{% block body %}
-<div class="main-app" style="display:block;">
-    <div class="header">
-        <h1>Modifier l'Entrée</h1>
-        <a href="{{ url_for('index') }}">
-            <button class="logout-btn">Retour</button>
-        </a>
-    </div>
-    <div class="content">
-        <form method="POST" action="" enctype="multipart/form-data">
+{% if current_user and current_user.role == "admin" %}
+      <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+        <div class="card rounded-card mb-3">
+          <div class="card-body">
+            <div class="card-title mb-4">Historique des Entrées</div>
             <div class="mb-3">
-                <label class="form-label">Date</label>
-                <input type="text" class="form-control" name="date" value="{{ entry.date }}" readonly>
+              <a href="{{ url_for('telecharger_historique') }}" class="btn btn-primary">Télécharger CSV</a>
+              <a href="{{ url_for('telecharger_historique_pdf') }}" class="btn btn-success">Télécharger PDF</a>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Chantier du Jour</label>
-                <input type="text" class="form-control" name="chantier_du_jour" value="{{ entry.chantier_du_jour }}">
+            <h5 class="mt-4 mb-2">Réception du Chantier</h5>
+            <div class="table-responsive history-table mb-4">
+              <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes sur les petits écrans.</p>
+              <table class="table align-middle table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Utilisateur</th>
+                    <th>Type Equipement</th>
+                    <th>Référence Equipement</th>
+                    <th>État Equipement</th>
+                    <th>Date Réception Equipement</th>
+                    <th>Type Connecteur</th>
+                    <th>Quantité Connecteur</th>
+                    <th>État Connecteur</th>
+                    <th>Longueur Chemin Câble</th>
+                    <th>Type Chemin Câble</th>
+                    <th>Section Chemin Câble</th>
+                    <th>Profondeur Chemin Câble</th>
+                    <th>Longueur Terre</th>
+                    <th>Section Câble AC</th>
+                    <th>Longueur Câble AC</th>
+                    <th>Section Câble DC</th>
+                    <th>Longueur Câble DC</th>
+                    <th>Shelter nombre</th>
+                    <th>Images</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in all_lignes|default([]) %}
+                  <tr>
+                    <td>{{ row.date|default('') }}</td>
+                    <td>{{ row.utilisateur|default('') }}</td>
+                    <td>{{ row.equipement_type|default('') }}</td>
+                    <td>{{ row.equipement_reference|default('') }}</td>
+                    <td>{{ row.equipement_etat|default('') }}</td>
+                    <td>{{ row.equipement_date_reception|default('') }}</td>
+                    <td>{{ row.connecteur_type|default('') }}</td>
+                    <td>{{ row.connecteur_quantite|default('') }}</td>
+                    <td>{{ row.connecteur_etat|default('') }}</td>
+                    <td>{{ row.chemin_cable_longueur|default('') }}</td>
+                    <td>{{ row.chemin_cable_type|default('') }}</td>
+                    <td>{{ row.chemin_cable_section|default('') }}</td>
+                    <td>{{ row.chemin_cable_profondeur|default('') }}</td>
+                    <td>{{ row.terre_longueur|default('') }}</td>
+                    <td>{{ row.cableac_section|default('') }}</td>
+                    <td>{{ row.cableac_longueur|default('') }}</td>
+                    <td>{{ row.cabledc_section|default('') }}</td>
+                    <td>{{ row.cabledc_longueur|default('') }}</td>
+                    <td>{{ row.shelter_nombre|default('') }}</td>
+                    <td>
+                      {% if row.images %}
+                        {% for img in row.images %}
+                          <a href="{{ url_for('get_image', image_id=img.id) }}" target="_blank">{{ img.filename }}</a>{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                      {% else %}
+                        Aucune image
+                      {% endif %}
+                    </td>
+                    <td class="nowrap">
+                        <a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a>
+                        <a href="{{ url_for('delete_entry', entry_id=row.id) }}" class="btn btn-danger modify-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette entrée ?');">Supprimer</a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Équipe Présente</label>
-                <input type="text" class="form-control" name="equipe_presente" value="{{ entry.equipe_presente }}">
+            <h5 class="mt-4 mb-2">Avancement du Chantier</h5>
+            <div class="table-responsive history-table mb-4">
+              <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes sur les petits écrans.</p>
+              <table class="table align-middle table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Utilisateur</th>
+                    <th>Câble DC tiré</th>
+                    <th>Câble AC tiré</th>
+                    <th>Câble Terre tiré</th>
+                    <th>Problèmes</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in all_lignes|default([]) %}
+                  {% if row.cables_dctires or row.cables_actires or row.cables_terretires or row.problems %}
+                  <tr>
+                    <td>{{ row.date|default('') }}</td>
+                    <td>{{ row.utilisateur|default('') }}</td>
+                    <td>{{ row.cables_dctires|default('') }}</td>
+                    <td>{{ row.cables_actires|default('') }}</td>
+                    <td>{{ row.cables_terretires|default('') }}</td>
+                    <td>{{ row.problems|default('') }}</td>
+                    <td class="nowrap">
+                        <a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a>
+                        <a href="{{ url_for('delete_entry', entry_id=row.id) }}" class="btn btn-danger modify-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette entrée ?');">Supprimer</a>
+                    </td>
+                  </tr>
+                  {% endif %}
+                  {% endfor %}
+                </tbody>
+              </table>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Travaux Réalisés</label>
-                <textarea class="form-control" name="travaux_realises">{{ entry.travaux_realises }}</textarea>
+            <h5 class="mt-4 mb-2">Fin du Chantier</h5>
+            <div class="table-responsive history-table mb-4">
+              <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes sur les petits écrans.</p>
+              <table class="table align-middle table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Utilisateur</th>
+                    <th>Zone</th>
+                    <th>String</th>
+                    <th>Tension DC (V)</th>
+                    <th>Courant DC (A)</th>
+                    <th>Tension AC (V)</th>
+                    <th>Puissance (W)</th>
+                    <th>Date (Fin)</th>
+                    <th>Technicien</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in all_lignes|default([]) %}
+                  {% if row.fin_zone or row.fin_string or row.fin_tension_dc or row.fin_courant_dc or row.fin_tension_ac or row.fin_puissance or row.fin_date or row.fin_technicien or row.fin_status %}
+                  <tr>
+                    <td>{{ row.date|default('') }}</td>
+                    <td>{{ row.utilisateur|default('') }}</td>
+                    <td>{{ row.fin_zone|default('') }}</td>
+                    <td>{{ row.fin_string|default('') }}</td>
+                    <td>{{ row.fin_tension_dc|default('') }}</td>
+                    <td>{{ row.fin_courant_dc|default('') }}</td>
+                    <td>{{ row.fin_tension_ac|default('') }}</td>
+                    <td>{{ row.fin_puissance|default('') }}</td>
+                    <td>{{ row.fin_date|default('') }}</td>
+                    <td>{{ row.fin_technicien|default('') }}</td>
+                    <td>{{ row.fin_status|default('') }}</td>
+                    <td class="nowrap">
+                        <a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a>
+                        <a href="{{ url_for('delete_entry', entry_id=row.id) }}" class="btn btn-danger modify-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette entrée ?');">Supprimer</a>
+                    </td>
+                  </tr>
+                  {% endif %}
+                  {% endfor %}
+                </tbody>
+              </table>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Problèmes</label>
-                <textarea class="form-control" name="problemes">{{ entry.problemes }}</textarea>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Avancement</label>
-                <input type="text" class="form-control" name="avancement" value="{{ entry.avancement }}">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Nombre de Rails</label>
-                <input type="number" class="form-control" name="nombre_rail" value="{{ entry.nombre_rail }}">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Câble DC</label>
-                <input type="text" class="form-control" name="cable_dc" value="{{ entry.cable_dc }}">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Câble AC</label>
-                <input type="text" class="form-control" name="cable_ac" value="{{ entry.cable_ac }}">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Images</label>
-                {% for image in entry.images %}
-                    <div class="input-group mb-2">
-                        <span class="form-control">{{ image.filename }}</span>
-                        <button type="button" class="btn btn-danger remove-image" data-image-id="{{ image.id }}">Supprimer</button>
-                    </div>
-                {% endfor %}
-                <div id="photos-container">
-                    <div class="input-group mb-2">
-                        <input type="file" class="form-control" name="photo_chantier[]" accept="image/*">
-                        <button class="btn btn-danger remove-photo-btn" type="button" style="display:none;">Supprimer</button>
-                    </div>
-                </div>
-                <button type="button" class="btn btn-secondary" id="add-photo-btn">Ajouter une photo</button>
-            </div>
-            <input type="hidden" name="delete_images" id="delete_images" value="">
-            <button type="submit" class="btn btn-primary">Enregistrer les Modifications</button>
-        </form>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const photosContainer = document.getElementById('photos-container');
-            const addPhotoBtn = document.getElementById('add-photo-btn');
-            const deleteImagesInput = document.getElementById('delete_images');
-
-            addPhotoBtn.addEventListener('click', function() {
-                const newInputGroup = document.createElement('div');
-                newInputGroup.className = 'input-group mb-2';
-
-                const fileInput = document.createElement('input');
-                fileInput.type = 'file';
-                fileInput.className = 'form-control';
-                fileInput.name = 'photo_chantier[]';
-                fileInput.accept = 'image/*';
-
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'btn btn-danger remove-photo-btn';
-                removeBtn.type = 'button';
-                removeBtn.textContent = 'Supprimer';
-
-                removeBtn.addEventListener('click', function() {
-                    newInputGroup.remove();
-                });
-
-                newInputGroup.appendChild(fileInput);
-                newInputGroup.appendChild(removeBtn);
-                photosContainer.appendChild(newInputGroup);
-
-                document.querySelectorAll('.remove-photo-btn').forEach(btn => btn.style.display = '');
-            });
-
-            document.querySelectorAll('.remove-image').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const imageId = this.getAttribute('data-image-id');
-                    let deleteIds = deleteImagesInput.value.split(',').filter(id => id);
-                    if (!deleteIds.includes(imageId)) {
-                        deleteIds.push(imageId);
-                    }
-                    deleteImagesInput.value = deleteIds.join(',');
-                    this.parentElement.remove();
-                });
-            });
-        });
-    </script>
-</div>
-{% endblock %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
