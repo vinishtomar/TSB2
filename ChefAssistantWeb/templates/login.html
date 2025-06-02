@@ -5,11 +5,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Suivi de Chantier</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f6f8fa;
+        }
+        .login-box {
+            background: white;
+            border-radius: 1rem;
+            padding: 2.5rem 2rem 2rem 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 350px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .login-box h1 {
+            font-size: 1.7rem;
+            color: #357abd;
+            margin-bottom: 1.5rem;
+        }
+        .logo img {
+            max-width: 120px;
+            margin-bottom: 1rem;
+        }
+        .form-group {
+            width: 100%;
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #d1e2ef;
+            border-radius: 0.4rem;
+            font-size: 1rem;
+            background: #f8fafc;
+        }
+        .login-btn {
+            margin-top: 0.5rem;
+            width: 100%;
+            padding: 0.7rem;
+            border: none;
+            border-radius: 0.4rem;
+            background: #357abd;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            transition: background .18s;
+        }
+        .login-btn:hover {
+            background: #26598d;
+        }
+        .alert {
+            width: 100%;
+            margin-bottom: 0.7rem;
+            padding: 0.5rem;
+            border-radius: 0.3rem;
+            font-size: 0.95rem;
+        }
+        .alert-success { background: #eaffea; color: #226e31; }
+        .alert-danger { background: #ffeaea; color: #b30000; }
+        .alert-warning { background: #fff6e0; color: #a67c00; }
+    </style>
 </head>
 <body>
     <div class="login-container">
         <form class="login-box" method="post" action="{{ url_for('login') }}">
-            <div class="logo">LOGO</div>
+            <div class="logo">
+                <img src="{{ url_for('static', filename='tsb-logo.png') }}" alt="TSB Logo">
+            </div>
             <h1>Suivi de Chantier</h1>
             {% with messages = get_flashed_messages(with_categories=true) %}
               {% if messages %}
