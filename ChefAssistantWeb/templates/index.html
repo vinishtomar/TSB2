@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Suivi de Chantier - Centrale au Sol</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Bootstrap 5 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background: #f6f8fa; }
@@ -93,7 +92,6 @@
         </div>
         <a href="{{ url_for('logout') }}"><button class="logout-btn">Déconnexion</button></a>
     </header>
-    <!-- Main Tabs -->
     <ul class="nav nav-tabs px-4 pt-3" id="mainTab" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="reception-tab" data-bs-toggle="tab" data-bs-target="#reception" type="button" role="tab" aria-controls="reception" aria-selected="true">Réception du Chantier</button>
@@ -111,12 +109,10 @@
       {% endif %}
     </ul>
     <div class="tab-content container-fluid pt-4" id="mainTabContent">
-      <!-- Réception Section with Sub-Tabs -->
       <div class="tab-pane fade show active" id="reception" role="tabpanel" aria-labelledby="reception-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Réception du Chantier</div>
-            <!-- Subnav Tabs -->
             <ul class="nav subnav nav-pills mb-4" id="receptionSubTab" role="tablist">
               <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="equipements-tab" data-bs-toggle="pill" data-bs-target="#equipements" type="button" role="tab" aria-controls="equipements" aria-selected="true">Équipements</button>
@@ -138,11 +134,10 @@
               </li>
             </ul>
             <div class="tab-content" id="receptionSubTabContent">
-              <!-- Équipements Tab Content -->
               <div class="tab-pane fade show active" id="equipements" role="tabpanel" aria-labelledby="equipements-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}" enctype="multipart/form-data">
                   <input type="hidden" name="section" value="equipements">
-                  {{ form.csrf_token if form.csrf_token }}
+                  
                   <div class="row mb-2 fw-bold text-center">
                     <div class="col-md-3">Type de machine</div>
                     <div class="col-md-3">Référence</div>
@@ -150,7 +145,6 @@
                     <div class="col-md-2">Date de réception</div>
                     <div class="col-md-2">Nombre de Machines</div>
                   </div>
-                  <!-- Machine 1 -->
                   <div class="row mb-2">
                     <div class="col-md-3">
                       <label for="equipement_type_1" class="form-label visually-hidden">Type de machine 1</label>
@@ -182,7 +176,6 @@
                       <input type="number" class="form-control" id="equipement_nombre_1" name="equipement_nombre_1" min="1" value="1" required>
                     </div>
                   </div>
-                  <!-- Machine 2 (Optional) -->
                   <div class="row mb-2">
                     <div class="col-md-3">
                       <label for="equipement_type_2" class="form-label visually-hidden">Type de machine 2</label>
@@ -214,7 +207,6 @@
                       <input type="number" class="form-control" id="equipement_nombre_2" name="equipement_nombre_2" min="1" value="1">
                     </div>
                   </div>
-                  <!-- Machine 3 (Optional) -->
                   <div class="row mb-3">
                     <div class="col-md-3">
                       <label for="equipement_type_3" class="form-label visually-hidden">Type de machine 3</label>
@@ -246,7 +238,6 @@
                       <input type="number" class="form-control" id="equipement_nombre_3" name="equipement_nombre_3" min="1" value="1">
                     </div>
                   </div>
-                  <!-- Dynamic Photos Upload -->
                   <div class="mb-3">
                     <label class="form-label">Photos du chantier</label>
                     <div id="photos-container">
@@ -311,11 +302,10 @@
                   });
                 </script>
               </div>
-              <!-- Connecteur Tab Content -->
               <div class="tab-pane fade" id="connecteur" role="tabpanel" aria-labelledby="connecteur-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <input type="hidden" name="section" value="connecteur">
-                  {{ form.csrf_token if form.csrf_token }}
+                  
                   <div class="row mb-3">
                     <div class="col-md-4">
                       <label for="connecteur_type" class="form-label">Type de connecteur</label>
@@ -339,11 +329,10 @@
                   </div>
                 </form>
               </div>
-              <!-- Chemin de Câble Tab Content -->
               <div class="tab-pane fade" id="chemin-cable" role="tabpanel" aria-labelledby="chemin-cable-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <input type="hidden" name="section" value="chemin_cable">
-                  {{ form.csrf_token if form.csrf_token }}
+                  
                   <div class="card rounded-card mb-3">
                     <div class="card-body">
                       <div class="card-title mb-4">Chemin de Câble</div>
@@ -370,11 +359,10 @@
                   </div>
                 </form>
               </div>
-              <!-- Terre Tab Content -->
               <div class="tab-pane fade" id="terre" role="tabpanel" aria-labelledby="terre-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <input type="hidden" name="section" value="terre">
-                  {{ form.csrf_token if form.csrf_token }}
+                  
                   <div class="row mb-3">
                     <div class="col-md-6">
                       <label for="terre_longueur" class="form-label">Longueur (m)</label>
@@ -386,11 +374,10 @@
                   </div>
                 </form>
               </div>
-              <!-- Câble AC Tab Content -->
               <div class="tab-pane fade" id="cable-ac" role="tabpanel" aria-labelledby="cable-ac-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <input type="hidden" name="section" value="cable_ac">
-                  {{ form.csrf_token if form.csrf_token }}
+                  
                   <div class="row mb-3">
                     <div class="col-md-6">
                       <label for="cableac_section" class="form-label">Section du câble AC</label>
@@ -406,11 +393,10 @@
                   </div>
                 </form>
               </div>
-              <!-- Câble DC Tab Content -->
               <div class="tab-pane fade" id="cable-dc" role="tabpanel" aria-labelledby="cable-dc-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <input type="hidden" name="section" value="cable_dc">
-                  {{ form.csrf_token if form.csrf_token }}
+                  
                   <div class="row mb-3">
                     <div class="col-md-6">
                       <label for="cabledc_section" class="form-label">Section du câble DC</label>
@@ -421,7 +407,6 @@
                       <input type="number" class="form-control" id="cabledc_longueur" name="cabledc_longueur">
                     </div>
                   </div>
-                  <!-- Shelter nombre field -->
                   <div class="row mb-3">
                     <div class="col-md-6">
                       <label for="shelter_nombre" class="form-label">Shelter nombre</label>
@@ -434,18 +419,16 @@
                 </form>
               </div>
             </div>
-            <!-- End Subnav Content -->
-          </div>
+            </div>
         </div>
       </div>
-      <!-- Avancement Section -->
       <div class="tab-pane fade" id="avancement" role="tabpanel" aria-labelledby="avancement-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Avancement du Chantier</div>
             <form method="POST" action="{{ url_for('suivi_journalier') }}">
               <input type="hidden" name="section" value="avancement">
-              {{ form.csrf_token if form.csrf_token }}
+              
               <div class="row mb-3">
                 <div class="col-md-4">
                   <label for="cables_dctires" class="form-label">Câble DC tiré (m)</label>
@@ -460,7 +443,6 @@
                   <input type="number" class="form-control" id="cables_terretires" name="cables_terretires">
                 </div>
               </div>
-              <!-- Problems field -->
               <div class="row mb-3">
                 <div class="col-md-12">
                   <label for="problems" class="form-label">Problèmes</label>
@@ -474,14 +456,13 @@
           </div>
         </div>
       </div>
-      <!-- Fin Section -->
       <div class="tab-pane fade" id="fin" role="tabpanel" aria-labelledby="fin-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Fin du Chantier</div>
             <form method="POST" action="{{ url_for('suivi_journalier') }}">
               <input type="hidden" name="section" value="fin">
-              {{ form.csrf_token if form.csrf_token }}
+              
               <div class="table-responsive">
                 <table class="table align-middle">
                   <thead>
@@ -524,7 +505,6 @@
           </div>
         </div>
       </div>
-      <!-- History Section -->
       {% if current_user and current_user.role == "admin" %}
       <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
         <div class="card rounded-card mb-3">
@@ -534,7 +514,6 @@
               <a href="{{ url_for('telecharger_historique') }}" class="btn btn-primary">Télécharger CSV</a>
               <a href="{{ url_for('telecharger_historique_pdf') }}" class="btn btn-success">Télécharger PDF</a>
             </div>
-            <!-- Réception Section Table -->
             <h5 class="mt-4 mb-2">Réception du Chantier</h5>
             <div class="table-responsive history-table mb-4">
               <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes sur les petits écrans.</p>
@@ -601,7 +580,6 @@
                 </tbody>
               </table>
             </div>
-            <!-- Avancement Section Table -->
             <h5 class="mt-4 mb-2">Avancement du Chantier</h5>
             <div class="table-responsive history-table mb-4">
               <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes sur les petits écrans.</p>
@@ -634,7 +612,6 @@
                 </tbody>
               </table>
             </div>
-            <!-- Fin du Chantier Section Table -->
             <h5 class="mt-4 mb-2">Fin du Chantier</h5>
             <div class="table-responsive history-table mb-4">
               <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes sur les petits écrans.</p>
