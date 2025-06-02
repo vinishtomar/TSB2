@@ -135,7 +135,7 @@
             </ul>
             <div class="tab-content" id="receptionSubTabContent">
               <div class="tab-pane fade show active" id="equipements" role="tabpanel" aria-labelledby="equipements-tab">
-                <form method="POST" action="{{ url_for('new_new_suivi_journalier') }}" enctype="multipart/form-data">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}" enctype="multipart/form-data">
                   <input type="hidden" name="section" value="equipements">
                   
                   <div class="row mb-2 fw-bold text-center">
@@ -303,7 +303,7 @@
                 </script>
               </div>
               <div class="tab-pane fade" id="connecteur" role="tabpanel" aria-labelledby="connecteur-tab">
-                <form method="POST" action="{{ url_for('new_suivi_journalier') }}">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <input type="hidden" name="section" value="connecteur">
                   
                   <div class="row mb-3">
@@ -330,7 +330,7 @@
                 </form>
               </div>
               <div class="tab-pane fade" id="chemin-cable" role="tabpanel" aria-labelledby="chemin-cable-tab">
-                <form method="POST" action="{{ url_for('new_suivi_journalier') }}">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <input type="hidden" name="section" value="chemin_cable">
                   
                   <div class="card rounded-card mb-3">
@@ -360,7 +360,7 @@
                 </form>
               </div>
               <div class="tab-pane fade" id="terre" role="tabpanel" aria-labelledby="terre-tab">
-                <form method="POST" action="{{ url_for('new_suivi_journalier') }}">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <input type="hidden" name="section" value="terre">
                   
                   <div class="row mb-3">
@@ -375,7 +375,7 @@
                 </form>
               </div>
               <div class="tab-pane fade" id="cable-ac" role="tabpanel" aria-labelledby="cable-ac-tab">
-                <form method="POST" action="{{ url_for('new_suivi_journalier') }}">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <input type="hidden" name="section" value="cable_ac">
                   
                   <div class="row mb-3">
@@ -394,7 +394,7 @@
                 </form>
               </div>
               <div class="tab-pane fade" id="cable-dc" role="tabpanel" aria-labelledby="cable-dc-tab">
-                <form method="POST" action="{{ url_for('new_suivi_journalier') }}">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <input type="hidden" name="section" value="cable_dc">
                   
                   <div class="row mb-3">
@@ -426,7 +426,7 @@
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Avancement du Chantier</div>
-            <form method="POST" action="{{ url_for('new_suivi_journalier') }}">
+            <form method="POST" action="{{ url_for('suivi_journalier') }}">
               <input type="hidden" name="section" value="avancement">
               
               <div class="row mb-3">
@@ -460,7 +460,7 @@
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Fin du Chantier</div>
-            <form method="POST" action="{{ url_for('new_suivi_journalier') }}">
+            <form method="POST" action="{{ url_for('suivi_journalier') }}">
               <input type="hidden" name="section" value="fin">
               
               <div class="table-responsive">
