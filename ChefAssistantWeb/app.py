@@ -32,9 +32,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# Ensure the 'uploads' directory exists (if you were saving files locally, not needed for DB storage)
-# os.makedirs('uploads', exist_ok=True) # Not strictly needed if images are in DB
-
 # --- MODELS ---
 class DBUser(db.Model):
     __tablename__ = 'db_user' # Explicit table name
@@ -113,6 +110,23 @@ class SuiviJournalierImage(db.Model):
     filename = db.Column(db.String(255), nullable=False)
     content_type = db.Column(db.String(255), nullable=False)
     data = db.Column(db.LargeBinary, nullable=False)
+
+# --- FUNCTION TO CREATE ADMIN USER ---
+def create_admin_user_if_not_exists():
+    # This function should be called within an app context
+    if not DBUser.query.filter_by(id="admin").first():
+        hashed_password = bcrypt.generate_password_hash("admin").decode('utf-8')
+        admin_user = DBUser(id="admin", password_hash=hashed_password, role="admin")
+        db.session.add(admin_user)
+        db.session.commit()
+        app.logger.info("Default admin user created.")
+
+# --- INITIALIZE DATABASE AND ADMIN USER ---
+# This block will run when the app is imported by the WSGI server
+with app.app_context():
+    db.create_all() # Create database tables if they don't exist
+    create_admin_user_if_not_exists() # Ensure default admin user exists
+
 
 # --- UTILITY FUNCTION FOR CSV (IF NEEDED LOCALLY) ---
 def save_to_csv(data_dict):
@@ -287,7 +301,7 @@ def modify_history(entry_id):
                     value = request.form.get(col_name)
                     # Handle type conversion for integer fields like shelter_nombre
                     if col_name == "shelter_nombre":
-                        value = int(value) if value else None
+                        value = int(value) if value and value.strip() else None # Ensure value is not empty string before int conversion
                     
                     setattr(entry, col_name, value)
             
@@ -355,11 +369,12 @@ def get_image(image_id):
 @login_required
 def telecharger_historique():
     if current_user.role == "admin":
-        rows = SuiviJournalier.query.all()
+        rows = SuiviJournalier.query.order_by(SuiviJournalier.date.desc()).all()
     else:
-        rows = SuiviJournalier.query.filter_by(utilisateur=current_user.id).all()
+        rows = SuiviJournalier.query.filter_by(utilisateur=current_user.id).order_by(SuiviJournalier.date.desc()).all()
     
-    fieldnames = [col.name for col in SuiviJournalier.__table__.columns if col.name != 'id'] + ['images_filenames']
+    # Dynamically get fieldnames from the model, excluding 'id', and add one for image filenames
+    fieldnames = [col.name for col in SuiviJournalier.__table__.columns if col.name not in ['id']] + ['images_filenames']
     
     csv_buffer = StringIO()
     writer = csv.writer(csv_buffer, delimiter=';')
@@ -371,15 +386,15 @@ def telecharger_historique():
             if field == 'images_filenames':
                 photo_filenames = ";".join([img.filename for img in row.images])
                 row_data.append(photo_filenames)
-            elif hasattr(row, field):
-                row_data.append(getattr(row, field, ""))
+            elif hasattr(row, field): # Check if the attribute exists on the row object
+                row_data.append(getattr(row, field, "")) # Provide default empty string
             else:
-                row_data.append("")
+                row_data.append("") # Should not happen if fieldnames are from model
         writer.writerow(row_data)
         
-    csv_buffer.seek(0)
+    csv_buffer.seek(0) # Rewind the buffer
     return Response(
-        csv_buffer,
+        csv_buffer.getvalue(), # Use getvalue() for StringIO
         mimetype='text/csv',
         headers={"Content-Disposition": f"attachment;filename={current_user.id}_historique_suivi.csv"}
     )
@@ -395,10 +410,15 @@ def telecharger_historique_pdf():
     
     pdf_buffer = BytesIO()
     # Use landscape for more horizontal space
-    doc = SimpleDocTemplate(pdf_buffer, pagesize=landscape(letter), topMargin=0.5*inch, bottomMargin=0.5*inch, leftMargin=0.5*inch, rightMargin=0.5*inch)
+    doc = SimpleDocTemplate(pdf_buffer, pagesize=landscape(letter), topMargin=0.5*inch, bottomMargin=0.5*inch, leftMargin=0.3*inch, rightMargin=0.3*inch)
     elements = []
     styles = getSampleStyleSheet()
     
+    # Custom style for smaller body text to fit more content
+    small_body_style = ParagraphStyle('smallBodyText', parent=styles['Normal'], fontSize=7)
+    small_bold_style = ParagraphStyle('smallBoldText', parent=styles['Normal'], fontSize=7, fontName='Helvetica-Bold')
+
+
     title_style = styles['h1']
     title_style.alignment = 1 # Center alignment
     elements.append(Paragraph("Historique des Suivi Journaliers", title_style))
@@ -407,41 +427,77 @@ def telecharger_historique_pdf():
     # Define fieldnames for the PDF table, can be a subset or reordered
     # Keep it manageable for PDF width
     pdf_fieldnames = [
-        "date", "utilisateur", "equipement_type", "equipement_reference", "equipement_etat",
-        "cables_dctires", "cables_actires", "problems", "fin_status", "images_count" 
+        "date", "utilisateur", "equipement_type", "equip_ref", "equip_etat", "equip_date_recept",
+        "cables_dc", "cables_ac", "cables_terre", "problems", "fin_stat", "img_count" 
     ]
     
-    header = [Paragraph(f"<b>{fn.replace('_', ' ').title()}</b>", styles['Normal']) for fn in pdf_fieldnames]
-    data_for_table = [header]
+    # Create more readable headers for PDF
+    pdf_headers = {
+        "date": "Date", "utilisateur": "Utilisateur", "equipement_type": "Type Équip.", 
+        "equip_ref": "Réf. Équip.", "equip_etat": "État Équip.", "equip_date_recept": "Date Récept.",
+        "cables_dc": "Câbles DC Tirés", "cables_ac": "Câbles AC Tirés", "cables_terre": "Câbles Terre Tirés",
+        "problems": "Problèmes", "fin_stat": "Statut Fin", "img_count": "Nb. Images"
+    }
+
+    header_paragraphs = [Paragraph(f"<b>{pdf_headers.get(fn, fn.replace('_', ' ').title())}</b>", small_bold_style) for fn in pdf_fieldnames]
+    data_for_table = [header_paragraphs]
 
     for row in rows:
-        row_data = []
+        row_data_paragraphs = []
         for field in pdf_fieldnames:
-            if field == 'images_count':
-                cell_content = str(len(row.images))
+            cell_content_str = ""
+            if field == 'img_count':
+                cell_content_str = str(len(row.images))
+            elif field == 'equip_ref':
+                 cell_content_str = str(getattr(row, "equipement_reference", ""))
+            elif field == 'equip_etat':
+                 cell_content_str = str(getattr(row, "equipement_etat", ""))
+            elif field == 'equip_date_recept':
+                 cell_content_str = str(getattr(row, "equipement_date_reception", ""))
+            elif field == 'cables_dc':
+                 cell_content_str = str(getattr(row, "cables_dctires", ""))
+            elif field == 'cables_ac':
+                 cell_content_str = str(getattr(row, "cables_actires", ""))
+            elif field == 'cables_terre':
+                 cell_content_str = str(getattr(row, "cables_terretires", ""))
+            elif field == 'fin_stat':
+                 cell_content_str = str(getattr(row, "fin_status", ""))
             elif hasattr(row, field):
-                cell_content = str(getattr(row, field, ""))
-                if len(cell_content) > 30: # Truncate long text for PDF
-                    cell_content = cell_content[:27] + "..."
-            else:
-                cell_content = ""
-            row_data.append(Paragraph(cell_content, styles['Normal']))
-        data_for_table.append(row_data)
+                cell_content_str = str(getattr(row, field, ""))
+            
+            # Truncate long text for PDF to prevent overflow
+            max_len = 25
+            if len(cell_content_str) > max_len:
+                cell_content_str = cell_content_str[:max_len-3] + "..."
+            row_data_paragraphs.append(Paragraph(cell_content_str, small_body_style))
+        data_for_table.append(row_data_paragraphs)
 
     if len(data_for_table) > 1: # If there's data beyond header
-        table = Table(data_for_table, repeatRows=1) # Repeat header on new pages
+        # Adjust column widths (example, you'll need to fine-tune)
+        # Total width available is approx 10 inches (landscape letter minus margins)
+        col_widths = [
+            1.0*inch, 0.8*inch, 0.8*inch, 0.8*inch, 0.7*inch, 0.8*inch, # date, util, equip_type, ref, etat, date_recept
+            0.7*inch, 0.7*inch, 0.7*inch, 1.5*inch, 0.7*inch, 0.6*inch  # dc, ac, terre, problems, fin_stat, img_count
+        ] 
+        
+        table = Table(data_for_table, colWidths=col_widths, repeatRows=1) 
         table_style = TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.darkslategray),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('FONTSIZE', (0, 0), (-1, 0), 7), # Header font size
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('TOPPADDING', (0, 0), (-1, 0), 8),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.lightgrey), # Row background
             ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
-            ('FONTSIZE', (0, 1), (-1, -1), 7),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ('FONTSIZE', (0, 1), (-1, -1), 7), # Data font size
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('LEFTPADDING', (0,0), (-1,-1), 4),
+            ('RIGHTPADDING', (0,0), (-1,-1), 4),
+            ('TOPPADDING', (0,1), (-1,-1), 4),
+            ('BOTTOMPADDING', (0,1), (-1,-1), 4),
         ])
         table.setStyle(table_style)
         elements.append(table)
@@ -494,20 +550,8 @@ def admin_panel():
     return render_template('admin.html', utilisateurs=users, current_user=current_user)
 
 
-# --- INITIALIZATION ---
-def create_admin_user_if_not_exists():
-    with app.app_context():
-        if not DBUser.query.filter_by(id="admin").first():
-            hashed_password = bcrypt.generate_password_hash("admin").decode('utf-8')
-            admin_user = DBUser(id="admin", password_hash=hashed_password, role="admin")
-            db.session.add(admin_user)
-            db.session.commit()
-            app.logger.info("Default admin user created.")
-
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all() # Create database tables if they don't exist
-        create_admin_user_if_not_exists() # Ensure default admin user exists
-    # Use Gunicorn or another WSGI server in production instead of app.run()
-    # For Render, Gunicorn is typically configured via Procfile or Render settings
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)), debug=False)
+    # The db.create_all() and admin user creation are now handled above,
+    # when the app is initialized.
+    # This block is only for running with `python app.py`
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)), debug=False) # debug=False for production
