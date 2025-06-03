@@ -425,20 +425,207 @@
                 </script>
               </div>
 
+              <div class="tab-content" id="receptionSubTabContent">
+              <!-- Equipment Section -->
+              <div class="tab-pane fade show active" id="equipements" role="tabpanel" aria-labelledby="equipements-tab">
+                <!-- ... existing equipment section content ... -->
+              </div>
+
               <!-- Connector Section -->
-              [Previous connector section with validation]
+              <div class="tab-pane fade" id="connecteur" role="tabpanel" aria-labelledby="connecteur-tab">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}" class="needs-validation" novalidate>
+                  <input type="hidden" name="section" value="connecteur">
+                  <input type="hidden" name="last_modified" value="2025-06-03 12:20:58">
+                  <input type="hidden" name="last_modified_by" value="tsbenergie">
+                  
+                  <div class="row mb-3">
+                    <div class="col-md-4">
+                      <label for="connecteur_type" class="form-label">Type de Connecteur</label>
+                      <select class="form-select" id="connecteur_type" name="connecteur_type" required>
+                        <option value="">Sélectionner...</option>
+                        <option value="MC4">MC4</option>
+                        <option value="MC4-EVO2">MC4-EVO2</option>
+                        <option value="Sunclix">Sunclix</option>
+                        <option value="Amphenol H4">Amphenol H4</option>
+                        <option value="QC4">QC4</option>
+                        <option value="Autre">Autre</option>
+                      </select>
+                      <div class="invalid-feedback">
+                        Veuillez sélectionner un type de connecteur
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <label for="connecteur_quantite" class="form-label">Quantité</label>
+                      <input type="number" class="form-control" id="connecteur_quantite" 
+                             name="connecteur_quantite" min="1" required>
+                      <div class="invalid-feedback">
+                        Veuillez entrer une quantité valide
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <label for="connecteur_etat" class="form-label">État</label>
+                      <select class="form-select" id="connecteur_etat" name="connecteur_etat" required>
+                        <option value="Neuf">Neuf</option>
+                        <option value="Bon état">Bon état</option>
+                        <option value="À vérifier">À vérifier</option>
+                        <option value="Défectueux">Défectueux</option>
+                      </select>
+                      <div class="invalid-feedback">
+                        Veuillez sélectionner un état
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                  </div>
+                </form>
+              </div>
 
               <!-- Cable Path Section -->
-              [Previous cable path section with validation]
+              <div class="tab-pane fade" id="chemin-cable" role="tabpanel" aria-labelledby="chemin-cable-tab">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}" class="needs-validation" novalidate>
+                  <input type="hidden" name="section" value="chemin_cable">
+                  <input type="hidden" name="last_modified" value="2025-06-03 12:20:58">
+                  <input type="hidden" name="last_modified_by" value="tsbenergie">
+                  
+                  <div class="row mb-3">
+                    <div class="col-md-3">
+                      <label for="chemin_cable_longueur" class="form-label">Longueur (m)</label>
+                      <input type="number" class="form-control" id="chemin_cable_longueur" 
+                             name="chemin_cable_longueur" min="0" step="0.1" required>
+                      <div class="invalid-feedback">
+                        Veuillez entrer une longueur valide
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <label for="chemin_cable_type" class="form-label">Type</label>
+                      <select class="form-select" id="chemin_cable_type" name="chemin_cable_type" required>
+                        <option value="">Sélectionner...</option>
+                        <option value="Métallique">Métallique</option>
+                        <option value="PVC">PVC</option>
+                        <option value="Aluminium">Aluminium</option>
+                        <option value="Acier galvanisé">Acier galvanisé</option>
+                        <option value="Autre">Autre</option>
+                      </select>
+                      <div class="invalid-feedback">
+                        Veuillez sélectionner un type
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <label for="chemin_cable_section" class="form-label">Section (mm²)</label>
+                      <input type="number" class="form-control" id="chemin_cable_section" 
+                             name="chemin_cable_section" min="0" step="0.1" required>
+                      <div class="invalid-feedback">
+                        Veuillez entrer une section valide
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <label for="chemin_cable_profondeur" class="form-label">Profondeur (cm)</label>
+                      <input type="number" class="form-control" id="chemin_cable_profondeur" 
+                             name="chemin_cable_profondeur" min="0" required>
+                      <div class="invalid-feedback">
+                        Veuillez entrer une profondeur valide
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                  </div>
+                </form>
+              </div>
 
               <!-- Ground Section -->
-              [Previous ground section with validation]
+              <div class="tab-pane fade" id="terre" role="tabpanel" aria-labelledby="terre-tab">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}" class="needs-validation" novalidate>
+                  <input type="hidden" name="section" value="terre">
+                  <input type="hidden" name="last_modified" value="2025-06-03 12:20:58">
+                  <input type="hidden" name="last_modified_by" value="tsbenergie">
+                  
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label for="terre_longueur" class="form-label">Longueur du câble de terre (m)</label>
+                      <input type="number" class="form-control" id="terre_longueur" 
+                             name="terre_longueur" min="0" step="0.1" required>
+                      <div class="invalid-feedback">
+                        Veuillez entrer une longueur valide
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                  </div>
+                </form>
+              </div>
 
               <!-- AC Cable Section -->
-              [Previous AC cable section with validation]
+              <div class="tab-pane fade" id="cable-ac" role="tabpanel" aria-labelledby="cable-ac-tab">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}" class="needs-validation" novalidate>
+                  <input type="hidden" name="section" value="cable_ac">
+                  <input type="hidden" name="last_modified" value="2025-06-03 12:20:58">
+                  <input type="hidden" name="last_modified_by" value="tsbenergie">
+                  
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label for="cableac_section" class="form-label">Section du câble AC (mm²)</label>
+                      <input type="number" class="form-control" id="cableac_section" 
+                             name="cableac_section" min="0" step="0.1" required>
+                      <div class="invalid-feedback">
+                        Veuillez entrer une section valide
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="cableac_longueur" class="form-label">Longueur du câble AC (m)</label>
+                      <input type="number" class="form-control" id="cableac_longueur" 
+                             name="cableac_longueur" min="0" step="0.1" required>
+                      <div class="invalid-feedback">
+                        Veuillez entrer une longueur valide
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                  </div>
+                </form>
+              </div>
 
               <!-- DC Cable Section -->
-              [Previous DC cable section with validation]
+              <div class="tab-pane fade" id="cable-dc" role="tabpanel" aria-labelledby="cable-dc-tab">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}" class="needs-validation" novalidate>
+                  <input type="hidden" name="section" value="cable_dc">
+                  <input type="hidden" name="last_modified" value="2025-06-03 12:20:58">
+                  <input type="hidden" name="last_modified_by" value="tsbenergie">
+                  
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label for="cabledc_section" class="form-label">Section du câble DC (mm²)</label>
+                      <input type="number" class="form-control" id="cabledc_section" 
+                             name="cabledc_section" min="0" step="0.1" required>
+                      <div class="invalid-feedback">
+                        Veuillez entrer une section valide
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="cabledc_longueur" class="form-label">Longueur du câble DC (m)</label>
+                      <input type="number" class="form-control" id="cabledc_longueur" 
+                             name="cabledc_longueur" min="0" step="0.1" required>
+                      <div class="invalid-feedback">
+                        Veuillez entrer une longueur valide
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            
             </div>
           </div>
         </div>
