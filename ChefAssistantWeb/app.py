@@ -176,6 +176,31 @@ with app.app_context():
 # --- ROUTES ---
 @app.route('/')
 @login_required
+@app.route('/suivi_journalier')
+@login_required
+def suivi_journalier():
+    if not current_user.role == "admin":
+        flash("Accès non autorisé", "error")
+        return redirect(url_for('index'))
+
+    page = request.args.get('page', 1, type=int)
+    entries_per_page = 10
+
+    # Get all entries with all fields
+    entries = db.session.query(Entry)\
+        .order_by(Entry.created_at.desc())\
+        .paginate(page=page, per_page=entries_per_page, error_out=False)
+
+    return render_template('suivi_journalier.html',
+                         entries=entries.items,
+                         current_page=page,
+                         total_pages=entries.pages,
+                         entries_per_page=entries_per_page)
+
+# Your other routes...
+
+if __name__ == '__main__':
+    app.run(debug=True)
 def index():
     if current_user.role == "admin":
         all_lignes = SuiviJournalier.query.order_by(SuiviJournalier.date.desc()).all()
