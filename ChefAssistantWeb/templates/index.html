@@ -267,162 +267,166 @@
             </ul>
 
             <div class="tab-content" id="receptionSubTabContent">
-              <!-- Equipment Section -->
+                            <!-- Equipment Section -->
               <div class="tab-pane fade show active" id="equipements" role="tabpanel" aria-labelledby="equipements-tab">
-                <form method="POST" action="{{ url_for('suivi_journalier') }}" enctype="multipart/form-data" class="needs-validation" novalidate>
+                <form method="POST" action="{{ url_for('suivi_journalier') }}" class="needs-validation" novalidate enctype="multipart/form-data">
                   <input type="hidden" name="section" value="equipements">
-                  <input type="hidden" name="last_modified" value="2025-06-03 10:11:38">
+                  <input type="hidden" name="last_modified" value="2025-06-03 12:34:33">
                   <input type="hidden" name="last_modified_by" value="tsbenergie">
-                  
-                  <div class="row mb-2 fw-bold text-center">
-                    <div class="col-md-3">Type de machine</div>
-                    <div class="col-md-3">Référence</div>
-                    <div class="col-md-2">État</div>
-                    <div class="col-md-2">Date de réception</div>
-                    <div class="col-md-2">Nombre de Machines</div>
-                  </div>
 
                   <!-- Equipment Entry 1 -->
-                  <div class="row mb-2 equipment-entry">
-                    <div class="col-md-3">
-                      <label for="equipement_type_1" class="form-label visually-hidden">Type de machine 1</label>
-                      <select class="form-select" id="equipement_type_1" name="equipement_type_1" required>
-                        <option value="">Sélectionner...</option>
-                        <option value="Nacelle ciseau">Nacelle ciseau</option>
-                        <option value="Nacelle à bras">Nacelle à bras</option>
-                        <option value="Manitou">Manitou</option>
-                        <option value="Chariot élévateur">Chariot élévateur</option>
-                        <option value="Grue mobile">Grue mobile</option>
-                        <option value="Autre">Autre</option>
-                      </select>
-                      <div class="invalid-feedback">
-                        Veuillez sélectionner un type de machine
+                  <div class="equipment-entry mb-4">
+                    <h5>Machine 1</h5>
+                    <div class="row">
+                      <div class="col-md-3">
+                        <label for="equipement_type_1" class="form-label">Type de machine</label>
+                        <select class="form-select" id="equipement_type_1" name="equipement_type_1" required>
+                          <option value="">Sélectionner...</option>
+                          <option value="Nacelle ciseau">Nacelle ciseau</option>
+                          <option value="Nacelle articulée">Nacelle articulée</option>
+                          <option value="Chariot élévateur">Chariot élévateur</option>
+                          <option value="Manitou">Manitou</option>
+                          <option value="Autre">Autre</option>
+                        </select>
+                        <div class="invalid-feedback">
+                          Veuillez sélectionner un type de machine
+                        </div>
                       </div>
-                    </div>
-                    <div class="col-md-3">
-                      <label for="equipement_reference_1" class="form-label visually-hidden">Référence 1</label>
-                      <input type="text" class="form-control" id="equipement_reference_1" name="equipement_reference_1" 
-                             placeholder="Numéro de série" required pattern="[A-Za-z0-9-]+" 
-                             title="Alphanumérique et tirets uniquement">
-                      <div class="invalid-feedback">
-                        Veuillez entrer une référence valide
+                      <div class="col-md-3">
+                        <label for="equipement_reference_1" class="form-label">Référence</label>
+                        <input type="text" class="form-control" id="equipement_reference_1" 
+                               name="equipement_reference_1" required placeholder="Numéro de série">
+                        <div class="invalid-feedback">
+                          Veuillez entrer une référence
+                        </div>
                       </div>
-                    </div>
-                    <div class="col-md-2">
-                      <label for="equipement_etat_1" class="form-label visually-hidden">État 1</label>
-                      <select class="form-select" id="equipement_etat_1" name="equipement_etat_1" required>
-                        <option value="Bon état">Bon état</option>
-                        <option value="À vérifier">À vérifier</option>
-                        <option value="Défaillant">Défaillant</option>
-                        <option value="En maintenance">En maintenance</option>
-                        <option value="Hors service">Hors service</option>
-                      </select>
-                      <div class="invalid-feedback">
-                        Veuillez sélectionner un état
+                      <div class="col-md-2">
+                        <label for="equipement_etat_1" class="form-label">État</label>
+                        <select class="form-select" id="equipement_etat_1" name="equipement_etat_1" required>
+                          <option value="Neuf">Neuf</option>
+                          <option value="Bon état">Bon état</option>
+                          <option value="À vérifier">À vérifier</option>
+                          <option value="Défectueux">Défectueux</option>
+                        </select>
+                        <div class="invalid-feedback">
+                          Veuillez sélectionner un état
+                        </div>
                       </div>
-                    </div>
-                    <div class="col-md-2">
-                      <label for="equipement_date_reception_1" class="form-label visually-hidden">Date de réception 1</label>
-                      <input type="date" class="form-control" id="equipement_date_reception_1" 
-                             name="equipement_date_reception_1" required>
-                      <div class="invalid-feedback">
-                        Veuillez sélectionner une date
+                      <div class="col-md-2">
+                        <label for="equipement_date_reception_1" class="form-label">Date de réception</label>
+                        <input type="date" class="form-control" id="equipement_date_reception_1" 
+                               name="equipement_date_reception_1" required>
+                        <div class="invalid-feedback">
+                          Veuillez entrer une date
+                        </div>
                       </div>
-                    </div>
-                    <div class="col-md-2">
-                      <label for="equipement_nombre_1" class="form-label visually-hidden">Nombre de Machines 1</label>
-                      <input type="number" class="form-control" id="equipement_nombre_1" 
-                             name="equipement_nombre_1" min="1" value="1" required>
-                      <div class="invalid-feedback">
-                        Minimum 1 machine requise
+                      <div class="col-md-2">
+                        <label for="equipement_nombre_1" class="form-label">Nombre</label>
+                        <input type="number" class="form-control" id="equipement_nombre_1" 
+                               name="equipement_nombre_1" min="1" value="1" required>
+                        <div class="invalid-feedback">
+                          Veuillez entrer un nombre valide
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   <!-- Equipment Entry 2 -->
-                  [Previous equipment entry 2 content with validation]
+                  <div class="equipment-entry mb-4">
+                    <h5>Machine 2</h5>
+                    <div class="row">
+                      <div class="col-md-3">
+                        <label for="equipement_type_2" class="form-label">Type de machine</label>
+                        <select class="form-select" id="equipement_type_2" name="equipement_type_2">
+                          <option value="">Sélectionner...</option>
+                          <option value="Nacelle ciseau">Nacelle ciseau</option>
+                          <option value="Nacelle articulée">Nacelle articulée</option>
+                          <option value="Chariot élévateur">Chariot élévateur</option>
+                          <option value="Manitou">Manitou</option>
+                          <option value="Autre">Autre</option>
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label for="equipement_reference_2" class="form-label">Référence</label>
+                        <input type="text" class="form-control" id="equipement_reference_2" 
+                               name="equipement_reference_2" placeholder="Numéro de série">
+                      </div>
+                      <div class="col-md-2">
+                        <label for="equipement_etat_2" class="form-label">État</label>
+                        <select class="form-select" id="equipement_etat_2" name="equipement_etat_2">
+                          <option value="Neuf">Neuf</option>
+                          <option value="Bon état">Bon état</option>
+                          <option value="À vérifier">À vérifier</option>
+                          <option value="Défectueux">Défectueux</option>
+                        </select>
+                      </div>
+                      <div class="col-md-2">
+                        <label for="equipement_date_reception_2" class="form-label">Date de réception</label>
+                        <input type="date" class="form-control" id="equipement_date_reception_2" 
+                               name="equipement_date_reception_2">
+                      </div>
+                      <div class="col-md-2">
+                        <label for="equipement_nombre_2" class="form-label">Nombre</label>
+                        <input type="number" class="form-control" id="equipement_nombre_2" 
+                               name="equipement_nombre_2" min="0" value="0">
+                      </div>
+                    </div>
+                  </div>
 
                   <!-- Equipment Entry 3 -->
-                  [Previous equipment entry 3 content with validation]
+                  <div class="equipment-entry mb-4">
+                    <h5>Machine 3</h5>
+                    <div class="row">
+                      <div class="col-md-3">
+                        <label for="equipement_type_3" class="form-label">Type de machine</label>
+                        <select class="form-select" id="equipement_type_3" name="equipement_type_3">
+                          <option value="">Sélectionner...</option>
+                          <option value="Nacelle ciseau">Nacelle ciseau</option>
+                          <option value="Nacelle articulée">Nacelle articulée</option>
+                          <option value="Chariot élévateur">Chariot élévateur</option>
+                          <option value="Manitou">Manitou</option>
+                          <option value="Autre">Autre</option>
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label for="equipement_reference_3" class="form-label">Référence</label>
+                        <input type="text" class="form-control" id="equipement_reference_3" 
+                               name="equipement_reference_3" placeholder="Numéro de série">
+                      </div>
+                      <div class="col-md-2">
+                        <label for="equipement_etat_3" class="form-label">État</label>
+                        <select class="form-select" id="equipement_etat_3" name="equipement_etat_3">
+                          <option value="Neuf">Neuf</option>
+                          <option value="Bon état">Bon état</option>
+                          <option value="À vérifier">À vérifier</option>
+                          <option value="Défectueux">Défectueux</option>
+                        </select>
+                      </div>
+                      <div class="col-md-2">
+                        <label for="equipement_date_reception_3" class="form-label">Date de réception</label>
+                        <input type="date" class="form-control" id="equipement_date_reception_3" 
+                               name="equipement_date_reception_3">
+                      </div>
+                      <div class="col-md-2">
+                        <label for="equipement_nombre_3" class="form-label">Nombre</label>
+                        <input type="number" class="form-control" id="equipement_nombre_3" 
+                               name="equipement_nombre_3" min="0" value="0">
+                      </div>
+                    </div>
+                  </div>
 
                   <!-- Photo Upload Section -->
                   <div class="mb-3">
-                    <label class="form-label">Photos du chantier</label>
-                    <div id="photos-container">
-                      <div class="input-group mb-2">
-                        <input type="file" class="form-control" name="photo_chantier[]" 
-                               accept="image/*" data-max-size="5242880">
-                        <button class="btn btn-danger remove-photo-btn" type="button">Supprimer</button>
-                      </div>
-                    </div>
-                    <div class="invalid-feedback">
-                      Fichier trop volumineux. Maximum 5 MB par image.
-                    </div>
-                    <button type="button" class="btn btn-secondary" id="add-photo-btn">Ajouter une photo</button>
+                    <label for="photo_chantier" class="form-label">Photos du chantier</label>
+                    <input type="file" class="form-control" id="photo_chantier" 
+                           name="photo_chantier[]" multiple accept="image/*">
+                    <div class="form-text">Vous pouvez sélectionner plusieurs photos</div>
                   </div>
 
                   <div class="mt-3">
                     <button type="submit" class="btn btn-primary">Enregistrer</button>
                   </div>
                 </form>
-
-                <!-- Photo Management JavaScript -->
-                <script>
-                  document.addEventListener('DOMContentLoaded', function() {
-                    const photosContainer = document.getElementById('photos-container');
-                    const addPhotoBtn = document.getElementById('add-photo-btn');
-
-                    function updateRemoveButtons() {
-                      const removeButtons = document.querySelectorAll('.remove-photo-btn');
-                      removeButtons.forEach(btn => {
-                        btn.style.display = removeButtons.length > 1 ? '' : 'none';
-                      });
-                    }
-
-                    addPhotoBtn.addEventListener('click', function() {
-                      const newInputGroup = document.createElement('div');
-                      newInputGroup.className = 'input-group mb-2';
-                      newInputGroup.innerHTML = `
-                        <input type="file" class="form-control" name="photo_chantier[]" 
-                               accept="image/*" data-max-size="5242880">
-                        <button class="btn btn-danger remove-photo-btn" type="button">Supprimer</button>
-                      `;
-
-                      const removeBtn = newInputGroup.querySelector('.remove-photo-btn');
-                      removeBtn.addEventListener('click', function() {
-                        newInputGroup.remove();
-                        updateRemoveButtons();
-                      });
-
-                      photosContainer.appendChild(newInputGroup);
-                      updateRemoveButtons();
-                    });
-
-                    // Initial setup
-                    document.querySelectorAll('.remove-photo-btn').forEach(btn => {
-                      btn.addEventListener('click', function() {
-                        btn.closest('.input-group').remove();
-                        updateRemoveButtons();
-                      });
-                    });
-                    updateRemoveButtons();
-
-                    // File size validation
-                    document.querySelectorAll('input[type="file"]').forEach(input => {
-                      input.addEventListener('change', function() {
-                        const maxSize = this.dataset.maxSize;
-                        Array.from(this.files).forEach(file => {
-                          if (file.size > maxSize) {
-                            this.value = '';
-                            this.classList.add('is-invalid');
-                          } else {
-                            this.classList.remove('is-invalid');
-                          }
-                        });
-                      });
-                    });
-                  });
-                </script>
               </div>
 
               <div class="tab-content" id="receptionSubTabContent">
