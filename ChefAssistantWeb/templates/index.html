@@ -2,10 +2,11 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <!-- Last modified by tsbenergie on 2025-06-03 10:09:46 UTC -->
+    <!-- Last modified by tsbenergie on 2025-06-03 13:20:51 UTC -->
     <title>Suivi de Chantier - Centrale au Sol</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body { 
             background: #f6f8fa; 
@@ -218,7 +219,7 @@
         <a href="{{ url_for('logout') }}"><button class="logout-btn">Déconnexion</button></a>
     </header>
 
-    <!-- Last modified: 2025-06-03 10:11:38 UTC by tsbenergie -->
+    <!-- Last modified: 2025-06-03 13:22:33 UTC by tsbenergie -->
     <ul class="nav nav-tabs px-4 pt-3" id="mainTab" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="reception-tab" data-bs-toggle="tab" data-bs-target="#reception" type="button" role="tab" aria-controls="reception" aria-selected="true">Réception du Chantier</button>
@@ -237,6 +238,8 @@
     </ul>
 
     <div class="tab-content container-fluid pt-4" id="mainTabContent">
+
+              <!-- Reception Tab -->
       <div class="tab-pane fade show active" id="reception" role="tabpanel" aria-labelledby="reception-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
@@ -267,14 +270,13 @@
             </ul>
 
             <div class="tab-content" id="receptionSubTabContent">
-                            <!-- Equipment Section -->
+              <!-- Equipment Section -->
               <div class="tab-pane fade show active" id="equipements" role="tabpanel" aria-labelledby="equipements-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}" class="needs-validation" novalidate enctype="multipart/form-data">
                   <input type="hidden" name="section" value="equipements">
-                  <input type="hidden" name="last_modified" value="2025-06-03 12:34:33">
+                  <input type="hidden" name="last_modified" value="2025-06-03 13:23:41">
                   <input type="hidden" name="last_modified_by" value="tsbenergie">
-
-                  <!-- Equipment Entry 1 -->
+                                      <!-- Equipment Entry 1 -->
                   <div class="equipment-entry mb-4">
                     <h5>Machine 1</h5>
                     <div class="row">
@@ -372,8 +374,7 @@
                       </div>
                     </div>
                   </div>
-
-                  <!-- Equipment Entry 3 -->
+                                      <!-- Equipment Entry 3 -->
                   <div class="equipment-entry mb-4">
                     <h5>Machine 3</h5>
                     <div class="row">
@@ -429,20 +430,13 @@
                 </form>
               </div>
 
-              <div class="tab-content" id="receptionSubTabContent">
-              <!-- Equipment Section -->
-              <div class="tab-pane fade show active" id="equipements" role="tabpanel" aria-labelledby="equipements-tab">
-                <!-- ... existing equipment section content ... -->
-              </div>
-
               <!-- Connector Section -->
               <div class="tab-pane fade" id="connecteur" role="tabpanel" aria-labelledby="connecteur-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}" class="needs-validation" novalidate>
                   <input type="hidden" name="section" value="connecteur">
-                  <input type="hidden" name="last_modified" value="2025-06-03 12:20:58">
+                  <input type="hidden" name="last_modified" value="2025-06-03 13:37:05">
                   <input type="hidden" name="last_modified_by" value="tsbenergie">
-                  
-                  <div class="row mb-3">
+                                      <div class="row mb-3">
                     <div class="col-md-4">
                       <label for="connecteur_type" class="form-label">Type de Connecteur</label>
                       <select class="form-select" id="connecteur_type" name="connecteur_type" required>
@@ -490,7 +484,7 @@
               <div class="tab-pane fade" id="chemin-cable" role="tabpanel" aria-labelledby="chemin-cable-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}" class="needs-validation" novalidate>
                   <input type="hidden" name="section" value="chemin_cable">
-                  <input type="hidden" name="last_modified" value="2025-06-03 12:20:58">
+                  <input type="hidden" name="last_modified" value="2025-06-03 13:38:09">
                   <input type="hidden" name="last_modified_by" value="tsbenergie">
                   
                   <div class="row mb-3">
@@ -539,12 +533,11 @@
                   </div>
                 </form>
               </div>
-
-              <!-- Ground Section -->
+                              <!-- Ground Section -->
               <div class="tab-pane fade" id="terre" role="tabpanel" aria-labelledby="terre-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}" class="needs-validation" novalidate>
                   <input type="hidden" name="section" value="terre">
-                  <input type="hidden" name="last_modified" value="2025-06-03 12:20:58">
+                  <input type="hidden" name="last_modified" value="2025-06-03 13:39:09">
                   <input type="hidden" name="last_modified_by" value="tsbenergie">
                   
                   <div class="row mb-3">
@@ -568,7 +561,7 @@
               <div class="tab-pane fade" id="cable-ac" role="tabpanel" aria-labelledby="cable-ac-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}" class="needs-validation" novalidate>
                   <input type="hidden" name="section" value="cable_ac">
-                  <input type="hidden" name="last_modified" value="2025-06-03 12:20:58">
+                  <input type="hidden" name="last_modified" value="2025-06-03 13:39:09">
                   <input type="hidden" name="last_modified_by" value="tsbenergie">
                   
                   <div class="row mb-3">
@@ -600,7 +593,7 @@
               <div class="tab-pane fade" id="cable-dc" role="tabpanel" aria-labelledby="cable-dc-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}" class="needs-validation" novalidate>
                   <input type="hidden" name="section" value="cable_dc">
-                  <input type="hidden" name="last_modified" value="2025-06-03 12:20:58">
+                  <input type="hidden" name="last_modified" value="2025-06-03 13:39:09">
                   <input type="hidden" name="last_modified_by" value="tsbenergie">
                   
                   <div class="row mb-3">
@@ -628,19 +621,17 @@
                 </form>
               </div>
             </div>
-
-            
-            </div>
           </div>
         </div>
       </div>
+              <!-- Avancement Tab -->
       <div class="tab-pane fade" id="avancement" role="tabpanel" aria-labelledby="avancement-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Avancement du Chantier</div>
             <form method="POST" action="{{ url_for('suivi_journalier') }}" class="needs-validation" novalidate>
               <input type="hidden" name="section" value="avancement">
-              <input type="hidden" name="last_modified" value="2025-06-03 10:13:30">
+              <input type="hidden" name="last_modified" value="2025-06-03 13:40:03">
               <input type="hidden" name="last_modified_by" value="tsbenergie">
               
               <div class="row mb-3">
@@ -729,7 +720,7 @@
           </div>
         </div>
       </div>
-
+              <!-- Fin Tab -->
       <div class="tab-pane fade" id="fin" role="tabpanel" aria-labelledby="fin-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
@@ -737,7 +728,7 @@
             <p class="text-muted mb-3">Relevé final des tensions prises sur le chantier</p>
             <form method="POST" action="{{ url_for('suivi_journalier') }}" class="needs-validation" novalidate>
               <input type="hidden" name="section" value="fin">
-              <input type="hidden" name="last_modified" value="2025-06-03 10:13:30">
+              <input type="hidden" name="last_modified" value="2025-06-03 13:41:04">
               <input type="hidden" name="last_modified_by" value="tsbenergie">
               
               <div class="table-responsive">
@@ -818,31 +809,9 @@
           </div>
         </div>
       </div>
-    <div class="tab-content container-fluid pt-4" id="mainTabContent">
-      <div class="tab-pane fade show active" id="reception" role="tabpanel" aria-labelledby="reception-tab">
-        <!-- Reception content -->
-      </div>
-
-      <div class="tab-pane fade" id="avancement" role="tabpanel" aria-labelledby="avancement-tab">
-        <!-- Avancement content -->
-      </div>
-
-      <div class="tab-pane fade" id="fin" role="tabpanel" aria-labelledby="fin-tab">
-        <!-- Fin content -->
-      </div>
-
-      <!-- PASTE THE NEW CODE HERE - Replace the existing historique tab section -->
+              <!-- Historique Tab -->
       {% if current_user and current_user.role == "admin" %}
       <div class="tab-pane fade" id="historique" role="tabpanel" aria-labelledby="historique-tab">
-        <!-- Old history content to replace -->
-      </div>
-      {% endif %}
-    </div>
-
-       
-
-      {% if current_user and current_user.role == "admin" %}
-      <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Historique des Entrées</div>
@@ -929,9 +898,11 @@
       </div>
       {% endif %}
     </div>
-
+        <!-- JavaScript Section -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
+      // Last modified by tsbenergie on 2025-06-03 13:43:29 UTC
       document.addEventListener('DOMContentLoaded', function() {
         // Form validation
         const forms = document.querySelectorAll('.needs-validation');
@@ -945,132 +916,129 @@
           }, false);
         });
 
-        // Final Tensions Table Row Management
+        // Dynamic row management for final tensions table
         const addRowBtn = document.getElementById('addRowBtn');
-        const tbody = document.getElementById('finalTensionsBody');
-        
-        if (addRowBtn && tbody) {
+        if (addRowBtn) {
           addRowBtn.addEventListener('click', function() {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>
-                <input type="text" class="form-control" name="fin_zone[]" required>
-                <div class="invalid-feedback">Champ requis</div>
-              </td>
-              <td>
-                <input type="text" class="form-control" name="fin_string[]" required>
-                <div class="invalid-feedback">Champ requis</div>
-              </td>
-              <td>
-                <input type="number" class="form-control tension-dc" name="fin_tension_dc[]" 
-                       step="0.01" required>
-                <div class="invalid-feedback">Valeur invalide</div>
-              </td>
-              <td>
-                <input type="number" class="form-control courant-dc" name="fin_courant_dc[]" 
-                       step="0.01" required>
-                <div class="invalid-feedback">Valeur invalide</div>
-              </td>
-              <td>
-                <input type="number" class="form-control" name="fin_tension_ac[]" 
-                       step="0.01" required>
-                <div class="invalid-feedback">Valeur invalide</div>
-              </td>
-              <td>
-                <input type="number" class="form-control puissance" name="fin_puissance[]" 
-                       step="0.01" required readonly>
-              </td>
-              <td>
-                <input type="date" class="form-control" name="fin_date[]" required>
-                <div class="invalid-feedback">Date requise</div>
-              </td>
-              <td>
-                <input type="text" class="form-control" name="fin_technicien[]" required>
-                <div class="invalid-feedback">Technicien requis</div>
-              </td>
-              <td>
-                <select class="form-select" name="fin_status[]" required>
-                  <option value="Validé">Validé</option>
-                  <option value="Non Validé">Non Validé</option>
-                  <option value="En Attente">En Attente</option>
-                </select>
-                <div class="invalid-feedback">Status requis</div>
-              </td>
-              <td>
-                <button type="button" class="btn btn-danger btn-sm remove-row" 
-                        title="Supprimer cette ligne">✕</button>
-              </td>
-            `;
-            tbody.appendChild(row);
-            updateRemoveButtons();
-            setupPowerCalculation(row);
+            const tbody = document.getElementById('finalTensionsBody');
+            const firstRow = tbody.querySelector('tr');
+            const newRow = firstRow.cloneNode(true);
+            
+            // Clear input values
+            newRow.querySelectorAll('input').forEach(input => {
+              input.value = '';
+            });
+            
+            // Show remove button
+            newRow.querySelector('.remove-row').style.display = 'block';
+            
+            tbody.appendChild(newRow);
+            setupRowEvents(newRow);
           });
+        }
 
-          function updateRemoveButtons() {
-            const rows = tbody.querySelectorAll('tr');
-            tbody.querySelectorAll('.remove-row').forEach((btn, idx) => {
-              btn.style.display = rows.length > 1 ? '' : 'none';
-              btn.onclick = function() {
-                btn.closest('tr').remove();
-                updateRemoveButtons();
-              };
+        // Setup row events function
+        function setupRowEvents(row) {
+          // Remove row button
+          const removeBtn = row.querySelector('.remove-row');
+          if (removeBtn) {
+            removeBtn.addEventListener('click', function() {
+              if (document.getElementById('finalTensionsBody').children.length > 1) {
+                row.remove();
+              }
             });
           }
 
-          function setupPowerCalculation(row) {
-            const tensionDc = row.querySelector('.tension-dc');
-            const courantDc = row.querySelector('.courant-dc');
-            const puissance = row.querySelector('.puissance');
+          // Power calculation
+          const tensionDc = row.querySelector('.tension-dc');
+          const courantDc = row.querySelector('.courant-dc');
+          const puissance = row.querySelector('.puissance');
 
-            function calculatePower() {
-              if (tensionDc.value && courantDc.value) {
-                puissance.value = (parseFloat(tensionDc.value) * parseFloat(courantDc.value)).toFixed(2);
-              }
-            }
+          if (tensionDc && courantDc && puissance) {
+            const calculatePower = () => {
+              const tension = parseFloat(tensionDc.value) || 0;
+              const courant = parseFloat(courantDc.value) || 0;
+              puissance.value = (tension * courant).toFixed(2);
+            };
 
             tensionDc.addEventListener('input', calculatePower);
             courantDc.addEventListener('input', calculatePower);
           }
-
-          // Setup initial rows
-          document.querySelectorAll('#finalTensionsBody tr').forEach(row => {
-            setupPowerCalculation(row);
-          });
-
-          updateRemoveButtons();
         }
 
-        // Export PDF functionality
+        // Setup initial row events
+        document.querySelectorAll('#finalTensionsBody tr').forEach(setupRowEvents);
+
+        // Export to PDF function
         const exportPdfBtn = document.getElementById('exportPdfBtn');
         if (exportPdfBtn) {
           exportPdfBtn.addEventListener('click', function() {
-            // Add your PDF export logic here
-            alert('Fonctionnalité d\'export PDF à implémenter');
+            window.print();
           });
         }
 
-        // Admin section - History management
-        const modifyBtns = document.querySelectorAll('.modify-btn');
-        const deleteBtns = document.querySelectorAll('.delete-btn');
+        // Auto-save draft functionality
+        let autosaveTimer;
+        const autosaveDelay = 30000; // 30 seconds
 
-        modifyBtns.forEach(btn => {
-          btn.addEventListener('click', function() {
-            const entryId = this.dataset.entryId;
-            // Add your modification logic here
-            console.log('Modifier entrée:', entryId);
-          });
-        });
-
-        deleteBtns.forEach(btn => {
-          btn.addEventListener('click', function() {
-            const entryId = this.dataset.entryId;
-            if (confirm('Êtes-vous sûr de vouloir supprimer cette entrée ?')) {
-              // Add your deletion logic here
-              console.log('Supprimer entrée:', entryId);
+        function autosave() {
+          clearTimeout(autosaveTimer);
+          autosaveTimer = setTimeout(() => {
+            const activeForm = document.querySelector('.tab-pane.active form');
+            if (activeForm) {
+              const formData = new FormData(activeForm);
+              formData.append('autosave', 'true');
+              
+              fetch(activeForm.action, {
+                method: 'POST',
+                body: formData
+              }).then(response => {
+                if (response.ok) {
+                  console.log('Autosaved successfully');
+                }
+              }).catch(error => {
+                console.error('Autosave failed:', error);
+              });
             }
-          });
+          }, autosaveDelay);
+        }
+
+        // Add autosave triggers to all form inputs
+        document.querySelectorAll('form input, form textarea, form select').forEach(input => {
+          input.addEventListener('change', autosave);
+          input.addEventListener('keyup', autosave);
         });
+
+        // Image preview functionality
+        const photoInput = document.getElementById('photo_chantier');
+        if (photoInput) {
+          photoInput.addEventListener('change', function(event) {
+            const previewContainer = document.createElement('div');
+            previewContainer.className = 'mt-3 d-flex flex-wrap gap-2';
+            
+            Array.from(event.target.files).forEach(file => {
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                const preview = document.createElement('img');
+                preview.src = e.target.result;
+                preview.className = 'img-thumbnail';
+                preview.style.maxWidth = '150px';
+                preview.style.maxHeight = '150px';
+                previewContainer.appendChild(preview);
+              };
+              reader.readAsDataURL(file);
+            });
+
+            const existing = photoInput.nextElementSibling;
+            if (existing && existing.classList.contains('mt-3')) {
+              existing.remove();
+            }
+            photoInput.parentNode.appendChild(previewContainer);
+          });
+        }
       });
     </script>
   </body>
 </html>
+
+    
