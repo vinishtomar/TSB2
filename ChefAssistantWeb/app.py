@@ -197,10 +197,6 @@ def suivi_journalier():
                          total_pages=entries.pages,
                          entries_per_page=entries_per_page)
 
-# Your other routes...
-
-if __name__ == '__main__':
-    app.run(debug=True)
 def index():
     if current_user.role == "admin":
         all_lignes = SuiviJournalier.query.order_by(SuiviJournalier.date.desc()).all()
