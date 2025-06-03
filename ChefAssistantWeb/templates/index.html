@@ -824,13 +824,21 @@
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Historique des Entrées</div>
+            
+            <!-- Download buttons -->
             <div class="mb-3">
-              <a href="{{ url_for('telecharger_historique') }}" class="btn btn-primary">Télécharger CSV</a>
-              <a href="{{ url_for('telecharger_historique_pdf') }}" class="btn btn-success">Télécharger PDF</a>
+              <a href="{{ url_for('telecharger_historique') }}" class="btn btn-primary">
+                <i class="fas fa-file-csv"></i> Télécharger CSV
+              </a>
+              <a href="{{ url_for('telecharger_historique_pdf') }}" class="btn btn-danger">
+                <i class="fas fa-file-pdf"></i> Télécharger PDF
+              </a>
             </div>
-            <div class="table-responsive history-table">
+
+            <!-- History Table -->
+            <div class="table-responsive">
               <table class="table table-striped table-hover">
-                <thead>
+                <thead class="table-primary">
                   <tr>
                     <th>Date</th>
                     <th>Utilisateur</th>
@@ -841,19 +849,54 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for entry in history %}
+                  {% for ligne in all_lignes %}
                   <tr>
-                    <td>{{ entry.date.strftime('%Y-%m-%d %H:%M') }}</td>
-                    <td>{{ entry.user }}</td>
-                    <td>{{ entry.section }}</td>
-                    <td>{{ entry.type }}</td>
-                    <td>{{ entry.details }}</td>
+                    <td>{{ ligne.date.strftime('%Y-%m-%d %H:%M') if ligne.date else '' }}</td>
+                    <td>{{ ligne.utilisateur }}</td>
+                    <td>{{ ligne.nom_chantier }}</td>
+                    <td>{{ ligne.equipement_type or '' }}</td>
                     <td>
-                      <button class="btn btn-primary btn-sm modify-btn" 
-                              data-entry-id="{{ entry.id }}">Modifier</button>
-                      <button class="btn btn-danger btn-sm delete-btn" 
-                              data-entry-id="{{ entry.id }}">Supprimer</button>
+                      <small>
+                        {% if ligne.equipement_reference %}Réf: {{ ligne.equipement_reference }}<br>{% endif %}
+                        {% if ligne.equipement_etat %}État: {{ ligne.equipement_etat }}<br>{% endif %}
+                        {% if ligne.fin_status %}Status: {{ ligne.fin_status }}{% endif %}
+                      </small>
                     </td>
+                    <td>
+                      <div class="btn-group">
+                        <a href="{{ url_for('modify_history', entry_id=ligne.id) }}" 
+                           class="btn btn-sm btn-warning">
+                          <i class="fas fa-edit"></i>
+                        </a>
+                        <form action="{{ url_for('delete_history', entry_id=ligne.id) }}" 
+                              method="POST" 
+                              style="display: inline;"
+                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette entrée?');">
+                          <button type="submit" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </form>
+                      </div>
+                      
+                      {% if ligne.images %}
+                      <div class="mt-1">
+                        {% for image in ligne.images %}
+                        <a href="{{ url_for('get_image', image_id=image.id) }}" 
+                           target="_blank" 
+                           class="me-1">
+                          <img src="{{ url_for('get_image', image_id=image.id) }}" 
+                               alt="Photo {{ loop.index }}" 
+                               class="img-thumbnail" 
+                               style="max-width: 30px; max-height: 30px;">
+                        </a>
+                        {% endfor %}
+                      </div>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% else %}
+                  <tr>
+                    <td colspan="6" class="text-center">Aucune donnée disponible</td>
                   </tr>
                   {% endfor %}
                 </tbody>
