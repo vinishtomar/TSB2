@@ -231,7 +231,7 @@
       </li>
       {% if current_user and current_user.role == "admin" %}
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">Historique</button>
+        <button class="nav-link" id="historique-tab" data-bs-toggle="tab" data-bs-target="#historique" type="button" role="tab" aria-controls="historique" aria-selected="false">Historique</button>
       </li>
       {% endif %}
     </ul>
@@ -818,6 +818,28 @@
           </div>
         </div>
       </div>
+    <div class="tab-content container-fluid pt-4" id="mainTabContent">
+      <div class="tab-pane fade show active" id="reception" role="tabpanel" aria-labelledby="reception-tab">
+        <!-- Reception content -->
+      </div>
+
+      <div class="tab-pane fade" id="avancement" role="tabpanel" aria-labelledby="avancement-tab">
+        <!-- Avancement content -->
+      </div>
+
+      <div class="tab-pane fade" id="fin" role="tabpanel" aria-labelledby="fin-tab">
+        <!-- Fin content -->
+      </div>
+
+      <!-- PASTE THE NEW CODE HERE - Replace the existing historique tab section -->
+      {% if current_user and current_user.role == "admin" %}
+      <div class="tab-pane fade" id="historique" role="tabpanel" aria-labelledby="historique-tab">
+        <!-- Old history content to replace -->
+      </div>
+      {% endif %}
+    </div>
+
+       
 
       {% if current_user and current_user.role == "admin" %}
       <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
