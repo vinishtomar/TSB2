@@ -1,5 +1,4 @@
-
-         <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -12,7 +11,7 @@
             background: linear-gradient(90deg, #4a90e2, #357abd);
             color: white;
             padding: 1.5rem 2rem;
-            font-size: 2rem;
+            /* font-size: 2rem; /* Adjusted because the logo takes up space */
             font-weight: bold;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             display: flex;
@@ -22,8 +21,8 @@
         .header-title {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
-            font-size: 2rem;
+            /* gap: 0.8rem; /* Gap is less needed if image has margin */
+            font-size: 1.8rem; /* Slightly reduced to accommodate logo well */
             font-weight: 700;
         }
         .logout-btn {
@@ -62,7 +61,7 @@
         .table thead th {
             background-color: #357abd;
             color: white;
-            font-size: 0.90rem; /* Adjusted for more columns potentially */
+            font-size: 0.90rem; 
             white-space: nowrap;
         }
         .table tbody tr:nth-child(even) {
@@ -70,34 +69,30 @@
         }
         .table td, .table th {
             vertical-align: middle !important;
-            padding: 0.4rem; /* Adjusted for more columns potentially */
-            font-size: 0.85rem; /* Adjusted for more columns potentially */
+            padding: 0.4rem; 
+            font-size: 0.85rem; 
         }
         .nowrap {
             white-space: nowrap;
         }
         .history-table {
-            font-size: 0.85rem; /* Adjusted for more columns potentially */
+            font-size: 0.85rem; 
             overflow-x: auto;
         }
-        .modify-btn, .delete-btn { /* Combined for similar styling */
+        .modify-btn, .delete-btn { 
             padding: 0.2rem 0.5rem;
             font-size: 0.8rem;
-            margin-right: 0.2rem; /* Spacing between buttons */
+            margin-right: 0.2rem; 
         }
     </style>
 </head>
 <body>
     <header class="main-header">
         <div class="header-title">
-           <span style="font-size:1.5rem;">
-            {% if session.chantier_type == 'centrale-sol' %}🌞
-            {% elif session.chantier_type == 'ombriere' %}🚗
-            {% elif session.chantier_type == 'toiture' %}🏠
-            {% else %}🛠️
-            {% endif %}
-           </span>
-           Suivi de Chantier -
+           <!-- START: Corrected TSB Logo path -->
+           <img src="{{ url_for('static', filename='tsb-logo.png') }}" alt="TSB Énergie Logo" style="height: 40px; margin-right: 15px; vertical-align: middle;">
+           <!-- END: Corrected TSB Logo path -->
+           Suivi de Chantier - 
            {% if session.chantier_type == 'centrale-sol' %}Centrale au Sol
            {% elif session.chantier_type == 'ombriere' %}Ombrière
            {% elif session.chantier_type == 'toiture' %}Toiture
@@ -163,14 +158,12 @@
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="cable-dc-tab" data-bs-toggle="pill" data-bs-target="#cable-dc" type="button" role="tab" aria-controls="cable-dc" aria-selected="false">Câble DC</button>
               </li>
-              <!-- START: Added Onduleur nombre and Shelter nombre tabs -->
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="onduleur-nombre-reception-tab" data-bs-toggle="pill" data-bs-target="#onduleur-nombre-reception-pane" type="button" role="tab" aria-controls="onduleur-nombre-reception-pane" aria-selected="false">Onduleur Nombre</button>
               </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="shelter-nombre-reception-nav-tab" data-bs-toggle="pill" data-bs-target="#shelter-nombre-reception-pane" type="button" role="tab" aria-controls="shelter-nombre-reception-pane" aria-selected="false">Shelter Nombre</button>
               </li>
-              <!-- END: Added Onduleur nombre and Shelter nombre tabs -->
             </ul>
             <div class="tab-content" id="receptionSubTabContent">
               <div class="tab-pane fade show active" id="equipements" role="tabpanel" aria-labelledby="equipements-tab">
@@ -403,22 +396,11 @@
                       <input type="number" class="form-control" id="cabledc_longueur" name="cabledc_longueur" min="0" step="any">
                     </div>
                   </div>
-                  <!-- START: Removed Shelter nombre from Câble DC form -->
-                  <!-- 
-                  <div class="row mb-3">
-                    <div class="col-md-6">
-                      <label for="shelter_nombre" class="form-label">Shelter nombre</label>
-                      <input type="number" class="form-control" id="shelter_nombre" name="shelter_nombre" min="0">
-                    </div>
-                  </div>
-                   -->
-                  <!-- END: Removed Shelter nombre from Câble DC form -->
                   <div class="mt-3">
                     <button type="submit" class="btn btn-primary">Enregistrer Câble DC</button>
                   </div>
                 </form>
               </div>
-              <!-- START: Added Onduleur nombre and Shelter nombre tab panes -->
               <div class="tab-pane fade" id="onduleur-nombre-reception-pane" role="tabpanel" aria-labelledby="onduleur-nombre-reception-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <input type="hidden" name="section" value="onduleur_nombre">
@@ -447,7 +429,6 @@
                   </div>
                 </form>
               </div>
-              <!-- END: Added Onduleur nombre and Shelter nombre tab panes -->
             </div>
           </div>
         </div>
@@ -673,7 +654,7 @@
                   <th>Long. AC</th>
                   <th>Sect. DC</th>
                   <th>Long. DC</th>
-                  <th>Nb Onduleur</th> <!-- Added Nb Onduleur column -->
+                  <th>Nb Onduleur</th> 
                   <th>Nb Shelter</th>
                   <th>Images</th>
                   <th>Action</th>
@@ -703,7 +684,7 @@
                     <td>{{ row.cableac_longueur|default('') }}</td>
                     <td>{{ row.cabledc_section|default('') }}</td>
                     <td>{{ row.cabledc_longueur|default('') }}</td>
-                    <td>{{ row.onduleur_nombre|default('') }}</td> <!-- Added data for Nb Onduleur -->
+                    <td>{{ row.onduleur_nombre|default('') }}</td> 
                     <td>{{ row.shelter_nombre|default('') }}</td>
                     <td>
                       {% if row.images %}
