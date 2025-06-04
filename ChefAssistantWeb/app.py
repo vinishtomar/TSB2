@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, Res
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import distinct # Added for distinct queries
 from io import StringIO, BytesIO
 from datetime import datetime
 from reportlab.lib.pagesizes import letter, landscape
@@ -54,12 +55,10 @@ class SuiviJournalier(db.Model):
     utilisateur = db.Column(db.String(255))
     nom_du_chantier = db.Column(db.String(255), nullable=True)
 
-    # --- ADDED FOR CHANTIER TYPE AND CONDITIONAL FIELDS --- START
-    chantier_type = db.Column(db.String(50), nullable=True) # e.g., 'centrale-sol', 'ombriere', 'toiture'
-    interconnexion = db.Column(db.String(255), nullable=True) # For 'centrale-sol' and 'ombriere'
-    nombre_panneaux = db.Column(db.Integer, nullable=True)   # For 'toiture'
-    nombre_rail = db.Column(db.Integer, nullable=True)       # For 'toiture'
-    # --- ADDED FOR CHANTIER TYPE AND CONDITIONAL FIELDS --- END
+    chantier_type = db.Column(db.String(50), nullable=True) 
+    interconnexion = db.Column(db.String(255), nullable=True) 
+    nombre_panneaux = db.Column(db.Integer, nullable=True)   
+    nombre_rail = db.Column(db.Integer, nullable=True)       
 
     equipement_type = db.Column(db.String(255), nullable=True)
     equipement_reference = db.Column(db.String(255), nullable=True)
@@ -119,12 +118,66 @@ with app.app_context():
 @app.route('/')
 @login_required
 def index():
+    base_query = SuiviJournalier.query
+
+    # Apply user-specific filter for non-admins first
+    if current_user.role != "admin":
+        base_query = base_query.filter(SuiviJournalier.utilisateur == current_user.id)
+
+    # Get filter parameters from request.args
+    filter_utilisateur_req = request.args.get('filter_utilisateur')
+    filter_nom_chantier_req = request.args.get('filter_nom_chantier')
+    active_tab_from_url = request.args.get('active_tab', 'reception') 
+
+    # Apply filters if they are present
+    if filter_utilisateur_req:
+        # Admin can filter by any user, non-admin's filter_utilisateur is ignored or pre-set to self
+        if current_user.role == "admin":
+            base_query = base_query.filter(SuiviJournalier.utilisateur == filter_utilisateur_req)
+        # else: # non-admin can only see their own, already filtered
+            # pass
+    if filter_nom_chantier_req:
+        base_query = base_query.filter(SuiviJournalier.nom_du_chantier == filter_nom_chantier_req)
+
+    all_lignes = base_query.order_by(SuiviJournalier.date.desc()).all()
+
+    # For populating filter dropdowns
+    distinct_users = []
+    distinct_nom_chantiers = []
+
     if current_user.role == "admin":
-        all_lignes = SuiviJournalier.query.order_by(SuiviJournalier.date.desc()).all()
+        # Admins see all distinct users and chantiers from the (potentially already filtered by admin's choice) base
+        # For dropdowns, we want all possible options, so query without user/chantier filters applied yet.
+        distinct_users_query = db.session.query(distinct(SuiviJournalier.utilisateur)).order_by(SuiviJournalier.utilisateur).all()
+        distinct_users = [user[0] for user in distinct_users_query if user[0]]
+
+        distinct_nom_chantiers_query = db.session.query(distinct(SuiviJournalier.nom_du_chantier))\
+            .filter(SuiviJournalier.nom_du_chantier.isnot(None), SuiviJournalier.nom_du_chantier != '')\
+            .order_by(SuiviJournalier.nom_du_chantier).all()
+        distinct_nom_chantiers = [name[0] for name in distinct_nom_chantiers_query if name[0]]
     else:
-        all_lignes = SuiviJournalier.query.filter_by(utilisateur=current_user.id).order_by(SuiviJournalier.date.desc()).all()
-    # Pass session to template so chantier_type can be accessed for conditional rendering
-    return render_template('index.html', all_lignes=all_lignes, current_user=current_user, session=session)
+        # Non-admins only see their own name (if they have entries)
+        # and chantiers they have worked on.
+        user_has_entries = SuiviJournalier.query.filter_by(utilisateur=current_user.id).first()
+        if user_has_entries:
+            distinct_users = [current_user.id]
+        
+        distinct_nom_chantiers_user_query = db.session.query(distinct(SuiviJournalier.nom_du_chantier))\
+            .filter(SuiviJournalier.utilisateur == current_user.id)\
+            .filter(SuiviJournalier.nom_du_chantier.isnot(None), SuiviJournalier.nom_du_chantier != '')\
+            .order_by(SuiviJournalier.nom_du_chantier).all()
+        distinct_nom_chantiers = [name[0] for name in distinct_nom_chantiers_user_query if name[0]]
+
+
+    return render_template('index.html',
+                           all_lignes=all_lignes,
+                           current_user=current_user,
+                           session=session,
+                           distinct_users=distinct_users,
+                           distinct_nom_chantiers=distinct_nom_chantiers,
+                           current_filter_utilisateur=filter_utilisateur_req,
+                           current_filter_nom_chantier=filter_nom_chantier_req,
+                           active_tab=active_tab_from_url)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -133,44 +186,36 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        # --- ADDED FOR CHANTIER TYPE --- START
         chantier_type_from_form = request.form.get('chantier_type')
-        # --- ADDED FOR CHANTIER TYPE --- END
 
         user_from_db = DBUser.query.filter_by(id=username).first()
         if user_from_db and bcrypt.check_password_hash(user_from_db.password_hash, password):
             user_obj = User(user_from_db.id, user_from_db.role)
             login_user(user_obj)
-            # --- ADDED FOR CHANTIER TYPE --- START
-            session['chantier_type'] = chantier_type_from_form # Store in session
-            # --- ADDED FOR CHANTIER TYPE --- END
+            session['chantier_type'] = chantier_type_from_form 
             return redirect(url_for('index'))
         else:
             flash("Nom d'utilisateur ou mot de passe incorrect.", "danger")
-    return render_template('login.html') # login.html is your template name
+    return render_template('login.html') 
 
 @app.route('/logout')
 @login_required
 def logout():
-    # --- ADDED FOR CHANTIER TYPE --- START
-    session.pop('chantier_type', None) # Clear chantier_type from session
-    # --- ADDED FOR CHANTIER TYPE --- END
+    session.pop('chantier_type', None) 
     logout_user()
-    # session.clear() # This would also clear chantier_type, but explicit pop is fine
     flash("Vous avez été déconnecté.", "success")
     return redirect(url_for('login'))
 
 @app.route('/suivi-journalier', methods=['POST'])
 @login_required
 def suivi_journalier():
+    active_tab_after_submit = "reception" # Default
     try:
         data_to_save = {
             "utilisateur": current_user.id,
             "date": datetime.now().strftime('%Y-%m-%d %H:%M'),
             "nom_du_chantier": request.form.get("nom_du_chantier"),
-            # --- ADDED FOR CHANTIER TYPE AND CONDITIONAL FIELDS --- START
-            "chantier_type": session.get('chantier_type'), # Get from session
-            # --- ADDED FOR CHANTIER TYPE AND CONDITIONAL FIELDS --- END
+            "chantier_type": session.get('chantier_type'), 
             "equipement_type": request.form.get("equipement_type_1"),
             "equipement_reference": request.form.get("equipement_reference_1"),
             "equipement_etat": request.form.get("equipement_etat_1"),
@@ -195,7 +240,7 @@ def suivi_journalier():
             "cables_actires": request.form.get("cables_actires"),
             "cables_terretires": request.form.get("cables_terretires"),
             "problems": request.form.get("problems"),
-            "fin_zone": request.form.get("fin_zone"),
+            "fin_zone": request.form.get("fin_zone"), # This will only get the first element if multiple are submitted with same name
             "fin_string": request.form.get("fin_string"),
             "fin_tension_dc": request.form.get("fin_tension_dc"),
             "fin_courant_dc": request.form.get("fin_courant_dc"),
@@ -206,19 +251,38 @@ def suivi_journalier():
             "fin_status": request.form.get("fin_status"),
         }
 
-        # --- ADDED FOR CHANTIER TYPE AND CONDITIONAL FIELDS --- START
-        current_chantier_type = session.get('chantier_type')
-        if request.form.get("section") == "avancement": # Only for avancement section
+        section = request.form.get("section")
+        if section in ["equipements", "connecteur", "chemin_cable", "terre", "cable_ac", "cable_dc"]:
+            active_tab_after_submit = "reception"
+        elif section == "avancement":
+            active_tab_after_submit = "avancement"
+            current_chantier_type = session.get('chantier_type')
             if current_chantier_type in ['centrale-sol', 'ombriere']:
                 data_to_save["interconnexion"] = request.form.get("interconnexion")
             elif current_chantier_type == 'toiture':
                 data_to_save["nombre_panneaux"] = request.form.get("nombre_panneaux", type=int) if request.form.get("nombre_panneaux") else None
                 data_to_save["nombre_rail"] = request.form.get("nombre_rail", type=int) if request.form.get("nombre_rail") else None
-        # --- ADDED FOR CHANTIER TYPE AND CONDITIONAL FIELDS --- END
+        elif section == "fin":
+            active_tab_after_submit = "fin"
+            # Note: The current model saves only one "fin" entry.
+            # If multiple rows are submitted from the "Fin du Chantier" table,
+            # you'll need to adjust the logic here to handle request.form.getlist()
+            # and likely change the database model or create related tables for multiple "fin" entries per SuiviJournalier.
+            # For now, it saves the first row's data.
+            data_to_save["fin_zone"] = request.form.getlist("fin_zone[]")[0] if request.form.getlist("fin_zone[]") else None
+            data_to_save["fin_string"] = request.form.getlist("fin_string[]")[0] if request.form.getlist("fin_string[]") else None
+            data_to_save["fin_tension_dc"] = request.form.getlist("fin_tension_dc[]")[0] if request.form.getlist("fin_tension_dc[]") else None
+            data_to_save["fin_courant_dc"] = request.form.getlist("fin_courant_dc[]")[0] if request.form.getlist("fin_courant_dc[]") else None
+            data_to_save["fin_tension_ac"] = request.form.getlist("fin_tension_ac[]")[0] if request.form.getlist("fin_tension_ac[]") else None
+            data_to_save["fin_puissance"] = request.form.getlist("fin_puissance[]")[0] if request.form.getlist("fin_puissance[]") else None
+            data_to_save["fin_date"] = request.form.getlist("fin_date[]")[0] if request.form.getlist("fin_date[]") else None
+            data_to_save["fin_technicien"] = request.form.getlist("fin_technicien[]")[0] if request.form.getlist("fin_technicien[]") else None
+            data_to_save["fin_status"] = request.form.getlist("fin_status[]")[0] if request.form.getlist("fin_status[]") else None
+
 
         entry = SuiviJournalier(**data_to_save)
         db.session.add(entry)
-        db.session.flush()
+        db.session.flush() # to get entry.id for images
 
         photos = request.files.getlist('photo_chantier[]')
         for photo in photos:
@@ -239,7 +303,7 @@ def suivi_journalier():
         app.logger.error(f"Error in suivi_journalier: {str(e)}")
         flash(f"❌ Erreur Serveur lors de l'enregistrement: {str(e)}", "danger")
     
-    return redirect(url_for('index'))
+    return redirect(url_for('index', active_tab=active_tab_after_submit))
 
 
 @app.route('/modify-history/<int:entry_id>', methods=['GET', 'POST'])
@@ -248,32 +312,25 @@ def modify_history(entry_id):
     entry = SuiviJournalier.query.get_or_404(entry_id)
     if current_user.role != "admin" and entry.utilisateur != current_user.id:
         flash("Droits insuffisants pour modifier cette entrée.", "danger")
-        return redirect(url_for('index'))
+        return redirect(url_for('index', active_tab='history'))
 
     if request.method == 'POST':
         try:
             for column in SuiviJournalier.__table__.columns:
                 col_name = column.name
                 if col_name in request.form:
-                    if col_name in ['id', 'date', 'utilisateur', 'chantier_type']: # Protect chantier_type from direct modification here
+                    if col_name in ['id', 'date', 'utilisateur', 'chantier_type']: 
                         continue
                     
                     value = request.form.get(col_name)
                     if col_name == "shelter_nombre":
                         value = int(value) if value and value.strip() else None
-                    # --- ADDED FOR CHANTIER TYPE AND CONDITIONAL FIELDS (modify) --- START
                     elif col_name == "nombre_panneaux":
                         value = int(value) if value and value.strip() else None
                     elif col_name == "nombre_rail":
                         value = int(value) if value and value.strip() else None
-                    # interconnexion is string, handled by default
-                    # --- ADDED FOR CHANTIER TYPE AND CONDITIONAL FIELDS (modify) --- END
                     setattr(entry, col_name, value)
             
-            # If chantier_type specific fields were submitted (because they were visible on the form)
-            # and they are not directly in SuiviJournalier.__table__.columns for the generic loop
-            # (though they are, so the above loop should catch them)
-            # This is more of a safeguard or alternative for explicit handling:
             if entry.chantier_type in ['centrale-sol', 'ombriere']:
                 if 'interconnexion' in request.form:
                     entry.interconnexion = request.form.get('interconnexion')
@@ -304,18 +361,17 @@ def modify_history(entry_id):
             
             db.session.commit()
             flash("Entrée modifiée avec succès.", "success")
-            return redirect(url_for('index'))
+            return redirect(url_for('index', active_tab='history'))
         except Exception as e:
             db.session.rollback()
             app.logger.error(f"Error modifying history entry {entry_id}: {str(e)}")
             flash(f"Erreur lors de la modification : {str(e)}", "danger")
             
-    return render_template('modify_history.html', entry=entry) # Make sure modify_history.html exists
+    return render_template('modify_history.html', entry=entry)
 
 @app.route('/delete-history/<int:entry_id>', methods=['POST'])
 @login_required
 def delete_history(entry_id):
-    # ... (no changes needed here for this feature)
     if current_user.role != "admin":
         flash("Accès refusé : Administrateur seulement.", "danger")
         return redirect(url_for('index'))
@@ -328,33 +384,40 @@ def delete_history(entry_id):
         db.session.rollback()
         app.logger.error(f"Error deleting history entry {entry_id}: {str(e)}")
         flash(f"Erreur lors de la suppression de l'entrée: {str(e)}", "danger")
-    return redirect(url_for('index'))
+    return redirect(url_for('index', active_tab='history'))
 
 @app.route('/image/<int:image_id>')
 @login_required
 def get_image(image_id):
-    # ... (no changes needed here for this feature)
     image = SuiviJournalierImage.query.get_or_404(image_id)
-    if current_user.role != 'admin' and image.suivi.utilisateur != current_user.id:
+    # Ensure user has permission to view image (admin or owner of parent entry)
+    if current_user.role != 'admin' and (not image.suivi or image.suivi.utilisateur != current_user.id):
         abort(403)
     return send_file(BytesIO(image.data), mimetype=image.content_type)
+
+def _get_filtered_rows():
+    """Helper function to get rows based on current user and request filters."""
+    base_query = SuiviJournalier.query
+    
+    filter_utilisateur_req = request.args.get('filter_utilisateur')
+    filter_nom_chantier_req = request.args.get('filter_nom_chantier')
+
+    if current_user.role != "admin":
+        base_query = base_query.filter(SuiviJournalier.utilisateur == current_user.id)
+    elif filter_utilisateur_req: # Admin can filter by user
+        base_query = base_query.filter(SuiviJournalier.utilisateur == filter_utilisateur_req)
+    
+    if filter_nom_chantier_req:
+        base_query = base_query.filter(SuiviJournalier.nom_du_chantier == filter_nom_chantier_req)
+        
+    return base_query.order_by(SuiviJournalier.date.desc()).all()
 
 @app.route('/telecharger-historique')
 @login_required
 def telecharger_historique():
-    if current_user.role == "admin":
-        rows = SuiviJournalier.query.order_by(SuiviJournalier.date.desc()).all()
-    else:
-        rows = SuiviJournalier.query.filter_by(utilisateur=current_user.id).order_by(SuiviJournalier.date.desc()).all()
+    rows = _get_filtered_rows()
     
-    # --- MODIFIED FOR CHANTIER TYPE FIELDS (CSV) --- START
-    # The dynamic fieldname generation will pick up the new columns.
-    # Ensure the order is logical if desired, or list them explicitly.
-    # For simplicity, we'll let the dynamic generation include them.
-    # If specific order is needed:
-    # fieldnames = ["date", "utilisateur", "nom_du_chantier", "chantier_type", "equipement_type", ..., "interconnexion", "nombre_panneaux", "nombre_rail", ..., "images_filenames"]
     fieldnames = [col.name for col in SuiviJournalier.__table__.columns if col.name not in ['id']] + ['images_filenames']
-    # --- MODIFIED FOR CHANTIER TYPE FIELDS (CSV) --- END
     
     csv_buffer = StringIO()
     writer = csv.writer(csv_buffer, delimiter=';')
@@ -373,40 +436,64 @@ def telecharger_historique():
         writer.writerow(row_data)
         
     csv_buffer.seek(0)
+    
+    # Create a dynamic filename based on filters
+    filename_parts = [current_user.id if current_user.role != "admin" else "admin"]
+    filter_utilisateur_req = request.args.get('filter_utilisateur')
+    filter_nom_chantier_req = request.args.get('filter_nom_chantier')
+    if filter_utilisateur_req:
+        filename_parts.append(f"user_{filter_utilisateur_req.replace(' ','_')}")
+    if filter_nom_chantier_req:
+        filename_parts.append(f"chantier_{filter_nom_chantier_req.replace(' ','_')}")
+    filename_parts.append("historique_suivi.csv")
+    
+    download_filename = "_".join(filename_parts)
+
     return Response(
         csv_buffer.getvalue(),
         mimetype='text/csv',
-        headers={"Content-Disposition": f"attachment;filename={current_user.id}_historique_suivi.csv"}
+        headers={"Content-Disposition": f"attachment;filename={download_filename}"}
     )
 
 @app.route('/telecharger-historique-pdf')
 @login_required
 def telecharger_historique_pdf():
-    if current_user.role != "admin":
-        flash("Accès refusé.", "danger")
-        return redirect(url_for('index'))
+    if current_user.role != "admin": # PDF global for admin only, can be adapted for filtered
+        flash("Accès refusé. Le PDF global est pour les administrateurs.", "danger")
+        return redirect(url_for('index', active_tab='history'))
 
-    rows = SuiviJournalier.query.order_by(SuiviJournalier.date.desc()).all()
+    rows = _get_filtered_rows() # Use helper to get potentially filtered rows
     
     pdf_buffer = BytesIO()
-    doc = SimpleDocTemplate(pdf_buffer, pagesize=landscape(letter), topMargin=0.5*inch, bottomMargin=0.5*inch, leftMargin=0.1*inch, rightMargin=0.1*inch) # Adjusted margins
+    doc = SimpleDocTemplate(pdf_buffer, pagesize=landscape(letter), topMargin=0.5*inch, bottomMargin=0.5*inch, leftMargin=0.1*inch, rightMargin=0.1*inch) 
     elements = []
     styles = getSampleStyleSheet()
     
-    small_body_style = ParagraphStyle('smallBodyText', parent=styles['Normal'], fontSize=5) # Even smaller
+    small_body_style = ParagraphStyle('smallBodyText', parent=styles['Normal'], fontSize=5) 
     small_bold_style = ParagraphStyle('smallBoldText', parent=styles['Normal'], fontSize=5, fontName='Helvetica-Bold')
 
     title_style = styles['h1']
     title_style.alignment = 1
-    elements.append(Paragraph("Historique des Suivi Journaliers", title_style))
+    
+    filter_utilisateur_req = request.args.get('filter_utilisateur')
+    filter_nom_chantier_req = request.args.get('filter_nom_chantier')
+    
+    title_text = "Historique des Suivi Journaliers"
+    if filter_utilisateur_req or filter_nom_chantier_req:
+        title_text += " (Filtré)"
+        if filter_utilisateur_req:
+            title_text += f" - Utilisateur: {filter_utilisateur_req}"
+        if filter_nom_chantier_req:
+            title_text += f" - Chantier: {filter_nom_chantier_req}"
+            
+    elements.append(Paragraph(title_text, title_style))
     elements.append(Spacer(1, 0.2*inch))
 
-    # --- MODIFIED FOR CHANTIER TYPE FIELDS (PDF) --- START
     pdf_fieldnames = [
-        "date", "util", "nom_chantier", "type_chantier", # Added type_chantier
+        "date", "util", "nom_chantier", "type_chantier", 
         "equip_type", "equip_ref", "equip_etat",
         "cables_dc", "cables_ac", "cables_terre",
-        "interconnexion", "nb_panneaux", "nb_rail",      # Added new fields
+        "interconnexion", "nb_panneaux", "nb_rail",      
         "problems", "fin_stat", "img_count" 
     ]
     
@@ -417,16 +504,14 @@ def telecharger_historique_pdf():
         "interconnexion": "Interco.", "nb_panneaux": "Nb Pan.", "nb_rail": "Nb Rail",
         "problems": "Problèmes", "fin_stat": "Stat. Fin", "img_count": "Imgs"
     }
-    # --- MODIFIED FOR CHANTIER TYPE FIELDS (PDF) --- END
 
     header_paragraphs = [Paragraph(f"<b>{pdf_headers.get(fn, fn.replace('_', ' ').title())}</b>", small_bold_style) for fn in pdf_fieldnames]
     data_for_table = [header_paragraphs]
 
     for row in rows:
         row_data_paragraphs = []
-        for field_key in pdf_fieldnames: # Use field_key to iterate pdf_fieldnames
+        for field_key in pdf_fieldnames: 
             cell_content_str = ""
-            # Map pdf_fieldnames keys to actual SuiviJournalier model attribute names
             actual_attr = ""
             if field_key == 'img_count': cell_content_str = str(len(row.images))
             elif field_key == 'util': actual_attr = "utilisateur"
@@ -439,41 +524,35 @@ def telecharger_historique_pdf():
             elif field_key == 'cables_ac': actual_attr = "cables_actires"
             elif field_key == 'cables_terre': actual_attr = "cables_terretires"
             elif field_key == 'interconnexion':
-                if row.chantier_type in ['centrale-sol', 'ombriere']:
-                    actual_attr = "interconnexion"
-                else: cell_content_str = "-" # Explicitly empty if not applicable
+                if row.chantier_type in ['centrale-sol', 'ombriere']: actual_attr = "interconnexion"
+                else: cell_content_str = "-" 
             elif field_key == 'nb_panneaux':
-                if row.chantier_type == 'toiture':
-                    actual_attr = "nombre_panneaux"
+                if row.chantier_type == 'toiture': actual_attr = "nombre_panneaux"
                 else: cell_content_str = "-"
             elif field_key == 'nb_rail':
-                if row.chantier_type == 'toiture':
-                    actual_attr = "nombre_rail"
+                if row.chantier_type == 'toiture': actual_attr = "nombre_rail"
                 else: cell_content_str = "-"
             elif field_key == 'problems': actual_attr = "problems"
             elif field_key == 'fin_stat': actual_attr = "fin_status"
-            elif field_key == 'date': actual_attr = "date" # direct map
+            elif field_key == 'date': actual_attr = "date" 
 
             if actual_attr and hasattr(row, actual_attr):
                  cell_content_str = str(getattr(row, actual_attr, ""))
             
-            max_len = 15 # Adjusted for very small font
+            max_len = 15 
             if len(cell_content_str) > max_len:
                 cell_content_str = cell_content_str[:max_len-3] + "..."
             row_data_paragraphs.append(Paragraph(cell_content_str, small_body_style))
         data_for_table.append(row_data_paragraphs)
 
     if len(data_for_table) > 1:
-        # --- MODIFIED FOR CHANTIER TYPE FIELDS (PDF col widths) --- START
-        # Total width ~10.8 inches. 16 columns. ~0.675 inch per column on average.
         col_widths = [
-            0.7*inch, 0.5*inch, 0.7*inch, 0.6*inch,  # date, util, nom_chantier, type_chantier
-            0.6*inch, 0.6*inch, 0.5*inch,           # equip_type, ref, etat
-            0.5*inch, 0.5*inch, 0.5*inch,           # dc, ac, terre
-            0.7*inch, 0.5*inch, 0.5*inch,           # interco, nb_pan, nb_rail
-            1.2*inch, 0.6*inch, 0.5*inch            # problems, fin_stat, img_count
-        ] # Sum: 10.3 inches
-        # --- MODIFIED FOR CHANTIER TYPE FIELDS (PDF col widths) --- END
+            0.7*inch, 0.5*inch, 0.7*inch, 0.6*inch, 
+            0.6*inch, 0.6*inch, 0.5*inch,          
+            0.5*inch, 0.5*inch, 0.5*inch,          
+            0.7*inch, 0.5*inch, 0.5*inch,          
+            1.2*inch, 0.6*inch, 0.5*inch           
+        ] 
         
         table = Table(data_for_table, colWidths=col_widths, repeatRows=1) 
         table_style = TableStyle([
@@ -489,16 +568,26 @@ def telecharger_historique_pdf():
         table.setStyle(table_style)
         elements.append(table)
     else:
-        elements.append(Paragraph("Aucune donnée à afficher.", styles['Normal']))
+        elements.append(Paragraph("Aucune donnée à afficher pour les filtres sélectionnés.", styles['Normal']))
 
     doc.build(elements)
     pdf_buffer.seek(0)
-    return send_file(pdf_buffer, mimetype='application/pdf', as_attachment=True, download_name="historique_suivi.pdf")
+    
+    # Create a dynamic filename for PDF based on filters
+    filename_parts_pdf = ["historique_suivi"]
+    if filter_utilisateur_req:
+        filename_parts_pdf.append(f"user_{filter_utilisateur_req.replace(' ','_')}")
+    if filter_nom_chantier_req:
+        filename_parts_pdf.append(f"chantier_{filter_nom_chantier_req.replace(' ','_')}")
+    filename_parts_pdf.append(".pdf")
+    
+    pdf_download_filename = "_".join(filename_parts_pdf)
+
+    return send_file(pdf_buffer, mimetype='application/pdf', as_attachment=True, download_name=pdf_download_filename)
 
 @app.route('/admin', methods=['GET', 'POST'])
 @login_required
 def admin_panel():
-    # ... (no changes needed here for this feature)
     if current_user.role != "admin":
         flash("Accès refusé : Administrateur seulement.", "danger")
         return redirect(url_for('index'))
@@ -524,6 +613,12 @@ def admin_panel():
             else:
                 user_to_delete = DBUser.query.filter_by(id=username).first()
                 if user_to_delete:
+                    # Before deleting user, consider what to do with their SuiviJournalier entries
+                    # Option 1: Set utilisateur to NULL or a placeholder
+                    # SuiviJournalier.query.filter_by(utilisateur=username).update({"utilisateur": None})
+                    # Option 2: Delete entries (cascade delete if FK is set up, or manual delete)
+                    # SuiviJournalier.query.filter_by(utilisateur=username).delete()
+                    # For now, we'll just delete the user. Data will remain associated with the old username string.
                     db.session.delete(user_to_delete)
                     db.session.commit()
                     flash(f"🗑️ Utilisateur '{username}' supprimé.", "success")
