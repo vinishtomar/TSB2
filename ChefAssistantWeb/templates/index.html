@@ -10,7 +10,7 @@
         .main-header {
             background: linear-gradient(90deg, #4a90e2, #357abd);
             color: white;
-            padding: 1rem 2rem; /* Potentially adjust padding if logo is much larger */
+            padding: 1rem 2rem;
             font-weight: bold;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             display: flex;
@@ -20,7 +20,7 @@
         .header-title {
             display: flex;
             align-items: center;
-            font-size: 1.8rem; /* This might need to be adjusted based on final logo size */
+            font-size: 1.8rem;
             font-weight: 700;
         }
         .logout-btn {
@@ -87,9 +87,7 @@
 <body>
     <header class="main-header">
         <div class="header-title">
-           <!-- START: Increased TSB Logo size -->
            <img src="{{ url_for('static', filename='tsb-logo.png') }}" alt="TSB Énergie Logo" style="height: 55px; margin-right: 15px; vertical-align: middle;">
-           <!-- END: Increased TSB Logo size -->
            Suivi de Chantier - 
            {% if session.chantier_type == 'centrale-sol' %}Centrale au Sol
            {% elif session.chantier_type == 'ombriere' %}Ombrière
@@ -100,7 +98,6 @@
         <a href="{{ url_for('logout') }}"><button class="logout-btn">Déconnexion</button></a>
     </header>
 
-    <!-- Flash Messages -->
     <div class="container-fluid pt-2">
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
@@ -438,6 +435,16 @@
             <div class="card-title mb-4">Avancement du Chantier</div>
             <form method="POST" action="{{ url_for('suivi_journalier') }}">
               <input type="hidden" name="section" value="avancement">
+              
+              <!-- START: Added Nom Chantier for Avancement -->
+              <div class="row mb-3">
+                <div class="col-md-12">
+                  <label for="nom_du_chantier_avancement" class="form-label">Nom du chantier</label>
+                  <input type="text" class="form-control" id="nom_du_chantier_avancement" name="nom_du_chantier" placeholder="Entrez le nom du chantier (si différent de réception)">
+                </div>
+              </div>
+              <!-- END: Added Nom Chantier for Avancement -->
+
               <div class="row mb-3">
                 <div class="col-md-4">
                   <label for="cables_dctires" class="form-label">Câble DC tiré (m)</label>
@@ -452,6 +459,24 @@
                   <input type="number" class="form-control" id="cables_terretires" name="cables_terretires" min="0" step="any">
                 </div>
               </div>
+
+              <!-- START: Added Equipe, Onduleur, Heure de travail -->
+              <div class="row mb-3">
+                <div class="col-md-4">
+                  <label for="equipe_avancement" class="form-label">Équipe</label>
+                  <input type="text" class="form-control" id="equipe_avancement" name="equipe_avancement" placeholder="Noms de l'équipe">
+                </div>
+                <div class="col-md-4">
+                  <label for="heure_travail_avancement" class="form-label">Heures de travail</label>
+                  <input type="text" class="form-control" id="heure_travail_avancement" name="heure_travail_avancement" placeholder="Ex: 8h, 09:00-17:30">
+                </div>
+                 <div class="col-md-4">
+                  <label for="onduleur_avancement" class="form-label">Onduleur (Détails/Statut)</label>
+                  <input type="text" class="form-control" id="onduleur_avancement" name="onduleur_avancement" placeholder="Statut, problèmes rencontrés">
+                </div>
+              </div>
+              <!-- END: Added Equipe, Onduleur, Heure de travail -->
+
               {% if session.chantier_type == 'centrale-sol' or session.chantier_type == 'ombriere' %}
               <div class="row mb-3">
                 <div class="col-md-12">
@@ -489,9 +514,20 @@
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Fin du Chantier - Tableau des Tensions</div>
-            <p class="text-muted mb-3">Relevé final des tensions et mesures.</p>
+            
             <form method="POST" action="{{ url_for('suivi_journalier') }}">
               <input type="hidden" name="section" value="fin">
+
+              <!-- START: Added Nom Chantier for Fin -->
+              <div class="row mb-3">
+                <div class="col-md-12">
+                  <label for="nom_du_chantier_fin" class="form-label">Nom du chantier</label>
+                  <input type="text" class="form-control" id="nom_du_chantier_fin" name="nom_du_chantier" placeholder="Confirmez le nom du chantier">
+                </div>
+              </div>
+              <!-- END: Added Nom Chantier for Fin -->
+
+              <p class="text-muted mb-3">Relevé final des tensions et mesures.</p>
               <div class="table-responsive">
                 <table class="table align-middle" id="finalTensionsTable">
                   <thead>
@@ -652,15 +688,15 @@
                   <th>Long. AC</th>
                   <th>Sect. DC</th>
                   <th>Long. DC</th>
-                  <th>Nb Onduleur</th> 
-                  <th>Nb Shelter</th>
+                  <th>Nb Ondul. (R)</th>
+                  <th>Nb Shelter (R)</th>
                   <th>Images</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {% for row in all_lignes|default([]) %}
-                  {% if row.equipement_type or row.connecteur_type or row.chemin_cable_type or row.terre_longueur or row.cableac_section or row.cabledc_section or row.onduleur_nombre or row.shelter_nombre %}
+                  {% if row.equipement_type or row.connecteur_type or row.chemin_cable_type or row.terre_longueur or row.cableac_section or row.cabledc_section or row.onduleur_nombre or row.shelter_nombre or (section == 'equipements' and row.nom_du_chantier) %}
                   <tr>
                     <td>{{ row.date|default('') }}</td>
                     <td>{{ row.utilisateur|default('') }}</td>
@@ -714,7 +750,11 @@
                 <tr>
                   <th>Date</th>
                   <th>Utilisateur</th>
+                  <th>Nom Chantier</th> <!-- Added -->
                   <th>Type Chantier</th>
+                  <th>Équipe</th> <!-- Added -->
+                  <th>Onduleur (Avanc.)</th> <!-- Added -->
+                  <th>Heures Travail</th> <!-- Added -->
                   <th>Câble DC (m)</th>
                   <th>Câble AC (m)</th>
                   <th>Câble Terre (m)</th>
@@ -727,11 +767,15 @@
               </thead>
               <tbody>
                 {% for row in all_lignes|default([]) %}
-                {% if row.cables_dctires or row.cables_actires or row.cables_terretires or row.problems or row.interconnexion or row.nombre_panneaux or row.nombre_rail %}
+                {% if row.cables_dctires or row.cables_actires or row.cables_terretires or row.problems or row.interconnexion or row.nombre_panneaux or row.nombre_rail or row.equipe or row.onduleur_details_avancement or row.heure_de_travail or (section == 'avancement' and row.nom_du_chantier) %}
                 <tr>
                   <td>{{ row.date|default('') }}</td>
                   <td>{{ row.utilisateur|default('') }}</td>
+                  <td>{{ row.nom_du_chantier|default('') }}</td> <!-- Added -->
                   <td>{{ row.chantier_type|default('N/A') }}</td>
+                  <td>{{ row.equipe|default('') }}</td> <!-- Added -->
+                  <td>{{ row.onduleur_details_avancement|default('') }}</td> <!-- Added -->
+                  <td>{{ row.heure_de_travail|default('') }}</td> <!-- Added -->
                   <td>{{ row.cables_dctires|default('') }}</td>
                   <td>{{ row.cables_actires|default('') }}</td>
                   <td>{{ row.cables_terretires|default('') }}</td>
@@ -778,6 +822,7 @@
                 <tr>
                   <th>Date Entrée</th>
                   <th>Utilisateur</th>
+                  <th>Nom Chantier</th> <!-- Added -->
                   <th>Zone</th>
                   <th>String</th>
                   <th>Tension DC (V)</th>
@@ -792,10 +837,11 @@
               </thead>
               <tbody>
                 {% for row in all_lignes|default([]) %}
-                {% if row.fin_zone or row.fin_string %} 
+                {% if row.fin_zone or row.fin_string or (section == 'fin' and row.nom_du_chantier) %}
                 <tr>
                   <td>{{ row.date|default('') }}</td>
                   <td>{{ row.utilisateur|default('') }}</td>
+                  <td>{{ row.nom_du_chantier|default('') }}</td> <!-- Added -->
                   <td>{{ row.fin_zone|default('') }}</td>
                   <td>{{ row.fin_string|default('') }}</td>
                   <td>{{ row.fin_tension_dc|default('') }}</td>
