@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Suivi de Chantier - Centrale au Sol</title>
+    <title>Suivi de Chantier - {% if session.chantier_type == 'centrale-sol' %}Centrale au Sol{% elif session.chantier_type == 'ombriere' %}Ombrière{% elif session.chantier_type == 'toiture' %}Toiture{% else %}Général{% endif %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -61,7 +61,7 @@
         .table thead th {
             background-color: #357abd;
             color: white;
-            font-size: 0.95rem;
+            font-size: 0.90rem; /* Adjusted for more columns potentially */
             white-space: nowrap;
         }
         .table tbody tr:nth-child(even) {
@@ -69,29 +69,57 @@
         }
         .table td, .table th {
             vertical-align: middle !important;
-            padding: 0.5rem;
+            padding: 0.4rem; /* Adjusted for more columns potentially */
+            font-size: 0.85rem; /* Adjusted for more columns potentially */
         }
         .nowrap {
             white-space: nowrap;
         }
         .history-table {
-            font-size: 0.9rem;
+            font-size: 0.85rem; /* Adjusted for more columns potentially */
             overflow-x: auto;
         }
-        .modify-btn {
+        .modify-btn, .delete-btn { /* Combined for similar styling */
             padding: 0.2rem 0.5rem;
             font-size: 0.8rem;
+            margin-right: 0.2rem; /* Spacing between buttons */
         }
     </style>
 </head>
 <body>
     <header class="main-header">
         <div class="header-title">
-           <span style="font-size:1.5rem;">🌞</span>
-           Suivi de Chantier - Centrale au Sol
+           <span style="font-size:1.5rem;">
+            {% if session.chantier_type == 'centrale-sol' %}🌞
+            {% elif session.chantier_type == 'ombriere' %}🚗
+            {% elif session.chantier_type == 'toiture' %}🏠
+            {% else %}🛠️
+            {% endif %}
+           </span>
+           Suivi de Chantier - 
+           {% if session.chantier_type == 'centrale-sol' %}Centrale au Sol
+           {% elif session.chantier_type == 'ombriere' %}Ombrière
+           {% elif session.chantier_type == 'toiture' %}Toiture
+           {% else %}Général
+           {% endif %}
         </div>
         <a href="{{ url_for('logout') }}"><button class="logout-btn">Déconnexion</button></a>
     </header>
+
+    <!-- Flash Messages -->
+    <div class="container-fluid pt-2">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+    </div>
+
     <ul class="nav nav-tabs px-4 pt-3" id="mainTab" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="reception-tab" data-bs-toggle="tab" data-bs-target="#reception" type="button" role="tab" aria-controls="reception" aria-selected="true">Réception du Chantier</button>
@@ -108,6 +136,7 @@
       </li>
       {% endif %}
     </ul>
+
     <div class="tab-content container-fluid pt-4" id="mainTabContent">
       <div class="tab-pane fade show active" id="reception" role="tabpanel" aria-labelledby="reception-tab">
         <div class="card rounded-card mb-3">
@@ -138,26 +167,25 @@
                 <form method="POST" action="{{ url_for('suivi_journalier') }}" enctype="multipart/form-data">
                   <input type="hidden" name="section" value="equipements">
                   
-                  <!-- ADDED NOM DU CHANTIER FIELD - START -->
                   <div class="row mb-3">
                     <div class="col-md-12">
-                      <label for="nom_du_chantier" class="form-label">Nom du chantier</label>
-                      <input type="text" class="form-control" id="nom_du_chantier" name="nom_du_chantier" placeholder="Entrez le nom du chantier">
+                      <label for="nom_du_chantier_reception" class="form-label">Nom du chantier</label> <!-- Changed id to avoid conflict if same id is used elsewhere -->
+                      <input type="text" class="form-control" id="nom_du_chantier_reception" name="nom_du_chantier" placeholder="Entrez le nom du chantier">
                     </div>
                   </div>
-                  <!-- ADDED NOM DU CHANTIER FIELD - END -->
                   
                   <div class="row mb-2 fw-bold text-center">
                     <div class="col-md-3">Type de machine</div>
                     <div class="col-md-3">Référence</div>
                     <div class="col-md-2">État</div>
                     <div class="col-md-2">Date de réception</div>
-                    <div class="col-md-2">Nombre de Machines</div>
+                    <div class="col-md-2">Nombre</div>
                   </div>
+                  <!-- Equipement Row 1 -->
                   <div class="row mb-2">
                     <div class="col-md-3">
                       <label for="equipement_type_1" class="form-label visually-hidden">Type de machine 1</label>
-                      <select class="form-select" id="equipement_type_1" name="equipement_type_1" required>
+                      <select class="form-select" id="equipement_type_1" name="equipement_type_1">
                         <option value="">Sélectionner...</option>
                         <option value="Nacelle ciseau">Nacelle ciseau</option>
                         <option value="Nacelle à bras">Nacelle à bras</option>
@@ -166,11 +194,11 @@
                     </div>
                     <div class="col-md-3">
                       <label for="equipement_reference_1" class="form-label visually-hidden">Référence 1</label>
-                      <input type="text" class="form-control" id="equipement_reference_1" name="equipement_reference_1" placeholder="Numéro de série" required>
+                      <input type="text" class="form-control" id="equipement_reference_1" name="equipement_reference_1" placeholder="Numéro de série">
                     </div>
                     <div class="col-md-2">
                       <label for="equipement_etat_1" class="form-label visually-hidden">État 1</label>
-                      <select class="form-select" id="equipement_etat_1" name="equipement_etat_1" required>
+                      <select class="form-select" id="equipement_etat_1" name="equipement_etat_1">
                         <option value="Bon état">Bon état</option>
                         <option value="À vérifier">À vérifier</option>
                         <option value="Défaillant">Défaillant</option>
@@ -178,143 +206,104 @@
                     </div>
                     <div class="col-md-2">
                       <label for="equipement_date_reception_1" class="form-label visually-hidden">Date de réception 1</label>
-                      <input type="date" class="form-control" id="equipement_date_reception_1" name="equipement_date_reception_1" required>
+                      <input type="date" class="form-control" id="equipement_date_reception_1" name="equipement_date_reception_1">
                     </div>
                     <div class="col-md-2">
                       <label for="equipement_nombre_1" class="form-label visually-hidden">Nombre de Machines 1</label>
-                      <input type="number" class="form-control" id="equipement_nombre_1" name="equipement_nombre_1" min="1" value="1" required>
+                      <input type="number" class="form-control" id="equipement_nombre_1" name="equipement_nombre_1" min="0" value="1">
                     </div>
                   </div>
+                  <!-- Equipement Row 2 -->
                   <div class="row mb-2">
                     <div class="col-md-3">
-                      <label for="equipement_type_2" class="form-label visually-hidden">Type de machine 2</label>
-                      <select class="form-select" id="equipement_type_2" name="equipement_type_2">
+                      <select class="form-select" name="equipement_type_2">
                         <option value="">Sélectionner...</option>
                         <option value="Nacelle ciseau">Nacelle ciseau</option>
                         <option value="Nacelle à bras">Nacelle à bras</option>
                         <option value="Manitou">Manitou</option>
                       </select>
                     </div>
-                    <div class="col-md-3">
-                      <label for="equipement_reference_2" class="form-label visually-hidden">Référence 2</label>
-                      <input type="text" class="form-control" id="equipement_reference_2" name="equipement_reference_2" placeholder="Numéro de série">
-                    </div>
+                    <div class="col-md-3"><input type="text" class="form-control" name="equipement_reference_2" placeholder="Numéro de série"></div>
                     <div class="col-md-2">
-                      <label for="equipement_etat_2" class="form-label visually-hidden">État 2</label>
-                      <select class="form-select" id="equipement_etat_2" name="equipement_etat_2">
-                        <option value="Bon état">Bon état</option>
-                        <option value="À vérifier">À vérifier</option>
-                        <option value="Défaillant">Défaillant</option>
+                      <select class="form-select" name="equipement_etat_2">
+                        <option value="Bon état">Bon état</option><option value="À vérifier">À vérifier</option><option value="Défaillant">Défaillant</option>
                       </select>
                     </div>
-                    <div class="col-md-2">
-                      <label for="equipement_date_reception_2" class="form-label visually-hidden">Date de réception 2</label>
-                      <input type="date" class="form-control" id="equipement_date_reception_2" name="equipement_date_reception_2">
-                    </div>
-                    <div class="col-md-2">
-                      <label for="equipement_nombre_2" class="form-label visually-hidden">Nombre de Machines 2</label>
-                      <input type="number" class="form-control" id="equipement_nombre_2" name="equipement_nombre_2" min="1" value="1">
-                    </div>
+                    <div class="col-md-2"><input type="date" class="form-control" name="equipement_date_reception_2"></div>
+                    <div class="col-md-2"><input type="number" class="form-control" name="equipement_nombre_2" min="0" value="1"></div>
                   </div>
+                  <!-- Equipement Row 3 -->
                   <div class="row mb-3">
                     <div class="col-md-3">
-                      <label for="equipement_type_3" class="form-label visually-hidden">Type de machine 3</label>
-                      <select class="form-select" id="equipement_type_3" name="equipement_type_3">
+                      <select class="form-select" name="equipement_type_3">
                         <option value="">Sélectionner...</option>
                         <option value="Nacelle ciseau">Nacelle ciseau</option>
                         <option value="Nacelle à bras">Nacelle à bras</option>
                         <option value="Manitou">Manitou</option>
                       </select>
                     </div>
-                    <div class="col-md-3">
-                      <label for="equipement_reference_3" class="form-label visually-hidden">Référence 3</label>
-                      <input type="text" class="form-control" id="equipement_reference_3" name="equipement_reference_3" placeholder="Numéro de série">
-                    </div>
+                    <div class="col-md-3"><input type="text" class="form-control" name="equipement_reference_3" placeholder="Numéro de série"></div>
                     <div class="col-md-2">
-                      <label for="equipement_etat_3" class="form-label visually-hidden">État 3</label>
-                      <select class="form-select" id="equipement_etat_3" name="equipement_etat_3">
-                        <option value="Bon état">Bon état</option>
-                        <option value="À vérifier">À vérifier</option>
-                        <option value="Défaillant">Défaillant</option>
+                      <select class="form-select" name="equipement_etat_3">
+                        <option value="Bon état">Bon état</option><option value="À vérifier">À vérifier</option><option value="Défaillant">Défaillant</option>
                       </select>
                     </div>
-                    <div class="col-md-2">
-                      <label for="equipement_date_reception_3" class="form-label visually-hidden">Date de réception 3</label>
-                      <input type="date" class="form-control" id="equipement_date_reception_3" name="equipement_date_reception_3">
-                    </div>
-                    <div class="col-md-2">
-                      <label for="equipement_nombre_3" class="form-label visually-hidden">Nombre de Machines 3</label>
-                      <input type="number" class="form-control" id="equipement_nombre_3" name="equipement_nombre_3" min="1" value="1">
-                    </div>
+                    <div class="col-md-2"><input type="date" class="form-control" name="equipement_date_reception_3"></div>
+                    <div class="col-md-2"><input type="number" class="form-control" name="equipement_nombre_3" min="0" value="1"></div>
                   </div>
                   <div class="mb-3">
                     <label class="form-label">Photos du chantier</label>
                     <div id="photos-container">
                       <div class="input-group mb-2">
                         <input type="file" class="form-control" name="photo_chantier[]" accept="image/*">
-                        <button class="btn btn-danger remove-photo-btn" type="button">Supprimer</button>
+                        <button class="btn btn-danger remove-photo-btn" type="button" style="display:none;">Supprimer</button>
                       </div>
                     </div>
-                    <button type="button" class="btn btn-secondary" id="add-photo-btn">Ajouter une photo</button>
+                    <button type="button" class="btn btn-secondary btn-sm" id="add-photo-btn">Ajouter une photo</button>
                   </div>
                   <div class="mt-3">
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer Équipements</button>
                   </div>
                 </form>
                 <script>
                   document.addEventListener('DOMContentLoaded', function() {
                     const photosContainer = document.getElementById('photos-container');
                     const addPhotoBtn = document.getElementById('add-photo-btn');
-
-                    function updateRemoveButtons() {
-                      const removeButtons = document.querySelectorAll('.remove-photo-btn');
-                      removeButtons.forEach(btn => {
-                        btn.style.display = removeButtons.length > 1 ? '' : 'none';
+                    function updateRemoveButtonsVisibility() {
+                      const allPhotoInputs = photosContainer.querySelectorAll('.input-group');
+                      allPhotoInputs.forEach((group, index) => {
+                        const removeBtn = group.querySelector('.remove-photo-btn');
+                        if (removeBtn) {
+                          removeBtn.style.display = allPhotoInputs.length > 1 ? '' : 'none';
+                        }
                       });
                     }
-
                     addPhotoBtn.addEventListener('click', function() {
                       const newInputGroup = document.createElement('div');
                       newInputGroup.className = 'input-group mb-2';
-
-                      const fileInput = document.createElement('input');
-                      fileInput.type = 'file';
-                      fileInput.className = 'form-control';
-                      fileInput.name = 'photo_chantier[]';
-                      fileInput.accept = 'image/*';
-
-                      const removeBtn = document.createElement('button');
-                      removeBtn.className = 'btn btn-danger remove-photo-btn';
-                      removeBtn.type = 'button';
-                      removeBtn.textContent = 'Supprimer';
-
-                      removeBtn.addEventListener('click', function() {
-                        newInputGroup.remove();
-                        updateRemoveButtons();
-                      });
-
-                      newInputGroup.appendChild(fileInput);
-                      newInputGroup.appendChild(removeBtn);
+                      newInputGroup.innerHTML = `
+                        <input type="file" class="form-control" name="photo_chantier[]" accept="image/*">
+                        <button class="btn btn-danger remove-photo-btn" type="button">Supprimer</button>`;
                       photosContainer.appendChild(newInputGroup);
-
-                      updateRemoveButtons();
+                      newInputGroup.querySelector('.remove-photo-btn').addEventListener('click', function() {
+                        this.parentElement.remove();
+                        updateRemoveButtonsVisibility();
+                      });
+                      updateRemoveButtonsVisibility();
                     });
-
-                    document.querySelectorAll('.remove-photo-btn').forEach(btn => {
+                    photosContainer.querySelectorAll('.remove-photo-btn').forEach(btn => {
                       btn.addEventListener('click', function() {
-                        btn.parentElement.remove();
-                        updateRemoveButtons();
+                        this.parentElement.remove();
+                        updateRemoveButtonsVisibility();
                       });
                     });
-
-                    updateRemoveButtons();
+                    updateRemoveButtonsVisibility(); // Initial check
                   });
                 </script>
               </div>
               <div class="tab-pane fade" id="connecteur" role="tabpanel" aria-labelledby="connecteur-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <input type="hidden" name="section" value="connecteur">
-                  
                   <div class="row mb-3">
                     <div class="col-md-4">
                       <label for="connecteur_type" class="form-label">Type de connecteur</label>
@@ -322,7 +311,7 @@
                     </div>
                     <div class="col-md-4">
                       <label for="connecteur_quantite" class="form-label">Quantité</label>
-                      <input type="number" class="form-control" id="connecteur_quantite" name="connecteur_quantite">
+                      <input type="number" class="form-control" id="connecteur_quantite" name="connecteur_quantite" min="0">
                     </div>
                     <div class="col-md-4">
                       <label for="connecteur_etat" class="form-label">État</label>
@@ -334,86 +323,79 @@
                     </div>
                   </div>
                   <div class="mt-3">
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer Connecteur</button>
                   </div>
                 </form>
               </div>
               <div class="tab-pane fade" id="chemin-cable" role="tabpanel" aria-labelledby="chemin-cable-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <input type="hidden" name="section" value="chemin_cable">
-                  
-                  <div class="card rounded-card mb-3">
-                    <div class="card-body">
-                      <div class="card-title mb-4">Chemin de Câble</div>
-                      <div class="row mb-3">
-                        <div class="col-md-3">
-                          <label for="chemin_cable_type" class="form-label">Type de chemin</label>
-                          <input type="text" class="form-control" id="chemin_cable_type" name="chemin_cable_type" placeholder="Ex: Fourreau enterré, Caniveau">
-                        </div>
-                        <div class="col-md-3">
-                          <label for="chemin_cable_longueur" class="form-label">Longueur (m)</label>
-                          <input type="number" class="form-control" id="chemin_cable_longueur" name="chemin_cable_longueur" placeholder="Longueur en mètres">
-                        </div>
-                        <div class="col-md-3">
-                          <label for="chemin_cable_section" class="form-label">Section (mm)</label>
-                          <input type="text" class="form-control" id="chemin_cable_section" name="chemin_cable_section" placeholder="Dimensions">
-                        </div>
-                        <div class="col-md-3">
-                          <label for="chemin_cable_profondeur" class="form-label">Profondeur enfouissement (cm)</label>
-                          <input type="number" class="form-control" id="chemin_cable_profondeur" name="chemin_cable_profondeur" placeholder="Profondeur en cm">
-                        </div>
-                      </div>
-                      <button type="submit" class="btn btn-primary mt-2">Enregistrer</button>
+                  <div class="row mb-3">
+                    <div class="col-md-3">
+                      <label for="chemin_cable_type" class="form-label">Type de chemin</label>
+                      <input type="text" class="form-control" id="chemin_cable_type" name="chemin_cable_type" placeholder="Ex: Fourreau, Caniveau">
                     </div>
+                    <div class="col-md-3">
+                      <label for="chemin_cable_longueur" class="form-label">Longueur (m)</label>
+                      <input type="number" class="form-control" id="chemin_cable_longueur" name="chemin_cable_longueur" min="0" step="any">
+                    </div>
+                    <div class="col-md-3">
+                      <label for="chemin_cable_section" class="form-label">Section (mm² ou dim.)</label>
+                      <input type="text" class="form-control" id="chemin_cable_section" name="chemin_cable_section" placeholder="Ex: 50mm² ou 100x50">
+                    </div>
+                    <div class="col-md-3">
+                      <label for="chemin_cable_profondeur" class="form-label">Profondeur enfoui. (cm)</label>
+                      <input type="number" class="form-control" id="chemin_cable_profondeur" name="chemin_cable_profondeur" min="0" step="any">
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer Chemin Câble</button>
                   </div>
                 </form>
               </div>
               <div class="tab-pane fade" id="terre" role="tabpanel" aria-labelledby="terre-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <input type="hidden" name="section" value="terre">
-                  
                   <div class="row mb-3">
                     <div class="col-md-6">
-                      <label for="terre_longueur" class="form-label">Longueur (m)</label>
-                      <input type="number" class="form-control" id="terre_longueur" name="terre_longueur" placeholder="Longueur en mètres">
+                      <label for="terre_longueur" class="form-label">Longueur Terre (m)</label>
+                      <input type="number" class="form-control" id="terre_longueur" name="terre_longueur" min="0" step="any">
                     </div>
                   </div>
                   <div class="mt-3">
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer Terre</button>
                   </div>
                 </form>
               </div>
               <div class="tab-pane fade" id="cable-ac" role="tabpanel" aria-labelledby="cable-ac-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <input type="hidden" name="section" value="cable_ac">
-                  
                   <div class="row mb-3">
                     <div class="col-md-6">
-                      <label for="cableac_section" class="form-label">Section du câble AC</label>
+                      <label for="cableac_section" class="form-label">Section Câble AC (mm²)</label>
                       <input type="text" class="form-control" id="cableac_section" name="cableac_section">
                     </div>
                     <div class="col-md-6">
-                      <label for="cableac_longueur" class="form-label">Longueur AC (m)</label>
-                      <input type="number" class="form-control" id="cableac_longueur" name="cableac_longueur">
+                      <label for="cableac_longueur" class="form-label">Longueur Câble AC (m)</label>
+                      <input type="number" class="form-control" id="cableac_longueur" name="cableac_longueur" min="0" step="any">
                     </div>
                   </div>
                   <div class="mt-3">
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer Câble AC</button>
                   </div>
                 </form>
               </div>
               <div class="tab-pane fade" id="cable-dc" role="tabpanel" aria-labelledby="cable-dc-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}">
                   <input type="hidden" name="section" value="cable_dc">
-                  
                   <div class="row mb-3">
                     <div class="col-md-6">
-                      <label for="cabledc_section" class="form-label">Section du câble DC</label>
+                      <label for="cabledc_section" class="form-label">Section Câble DC (mm²)</label>
                       <input type="text" class="form-control" id="cabledc_section" name="cabledc_section">
                     </div>
                     <div class="col-md-6">
-                      <label for="cabledc_longueur" class="form-label">Longueur DC (m)</label>
-                      <input type="number" class="form-control" id="cabledc_longueur" name="cabledc_longueur">
+                      <label for="cabledc_longueur" class="form-label">Longueur Câble DC (m)</label>
+                      <input type="number" class="form-control" id="cabledc_longueur" name="cabledc_longueur" min="0" step="any">
                     </div>
                   </div>
                   <div class="row mb-3">
@@ -423,7 +405,7 @@
                     </div>
                   </div>
                   <div class="mt-3">
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer Câble DC</button>
                   </div>
                 </form>
               </div>
@@ -431,6 +413,7 @@
           </div>
         </div>
       </div>
+
       <div class="tab-pane fade" id="avancement" role="tabpanel" aria-labelledby="avancement-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
@@ -441,25 +424,48 @@
               <div class="row mb-3">
                 <div class="col-md-4">
                   <label for="cables_dctires" class="form-label">Câble DC tiré (m)</label>
-                  <input type="number" class="form-control" id="cables_dctires" name="cables_dctires">
+                  <input type="number" class="form-control" id="cables_dctires" name="cables_dctires" min="0" step="any">
                 </div>
                 <div class="col-md-4">
                   <label for="cables_actires" class="form-label">Câble AC tiré (m)</label>
-                  <input type="number" class="form-control" id="cables_actires" name="cables_actires">
+                  <input type="number" class="form-control" id="cables_actires" name="cables_actires" min="0" step="any">
                 </div>
                 <div class="col-md-4">
                   <label for="cables_terretires" class="form-label">Câble Terre tiré (m)</label>
-                  <input type="number" class="form-control" id="cables_terretires" name="cables_terretires">
+                  <input type="number" class="form-control" id="cables_terretires" name="cables_terretires" min="0" step="any">
                 </div>
               </div>
+
+              <!-- CONDITIONAL FIELDS FOR AVANCEMENT DU CHANTIER - START -->
+              {% if session.chantier_type == 'centrale-sol' or session.chantier_type == 'ombriere' %}
               <div class="row mb-3">
                 <div class="col-md-12">
-                  <label for="problems" class="form-label">Problèmes</label>
-                  <textarea class="form-control" id="problems" name="problems" rows="2" placeholder="Décrivez les problèmes rencontrés (si applicable)"></textarea>
+                  <label for="interconnexion" class="form-label">Interconnexion (ex: status, détails)</label>
+                  <input type="text" class="form-control" id="interconnexion" name="interconnexion" placeholder="Détails de l'interconnexion">
+                </div>
+              </div>
+              {% elif session.chantier_type == 'toiture' %}
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="nombre_panneaux" class="form-label">Nombre panneaux posés</label>
+                  <input type="number" class="form-control" id="nombre_panneaux" name="nombre_panneaux" min="0" placeholder="Quantité">
+                </div>
+                <div class="col-md-6">
+                  <label for="nombre_rail" class="form-label">Nombre rail posé (m)</label>
+                  <input type="number" class="form-control" id="nombre_rail" name="nombre_rail" min="0" step="any" placeholder="Longueur totale en mètres">
+                </div>
+              </div>
+              {% endif %}
+              <!-- CONDITIONAL FIELDS FOR AVANCEMENT DU CHANTIER - END -->
+
+              <div class="row mb-3">
+                <div class="col-md-12">
+                  <label for="problems" class="form-label">Problèmes rencontrés / Observations</label>
+                  <textarea class="form-control" id="problems" name="problems" rows="3" placeholder="Décrivez les problèmes ou observations (si applicable)"></textarea>
                 </div>
               </div>
               <div class="mt-3">
-                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                <button type="submit" class="btn btn-primary">Enregistrer Avancement</button>
               </div>
             </form>
           </div>
@@ -469,8 +475,8 @@
       <div class="tab-pane fade" id="fin" role="tabpanel" aria-labelledby="fin-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
-            <div class="card-title mb-4">Tableau des Tensions Finales</div>
-            <p class="text-muted mb-3">Relevé final des tensions prises sur le chantier</p>
+            <div class="card-title mb-4">Fin du Chantier - Tableau des Tensions</div>
+            <p class="text-muted mb-3">Relevé final des tensions et mesures.</p>
             <form method="POST" action="{{ url_for('suivi_journalier') }}">
               <input type="hidden" name="section" value="fin">
               <div class="table-responsive">
@@ -483,200 +489,234 @@
                       <th>Courant DC (A)</th>
                       <th>Tension AC (V)</th>
                       <th>Puissance (W)</th>
-                      <th>Date</th>
+                      <th>Date Mesure</th>
                       <th>Technicien</th>
-                      <th>Status</th>
-                      <th></th>
+                      <th>Statut</th>
+                      <th><span class="visually-hidden">Actions</span></th>
                     </tr>
                   </thead>
                   <tbody id="finalTensionsBody">
                     <tr>
-                      <td><input type="text" class="form-control" name="fin_zone[]" required></td>
-                      <td><input type="text" class="form-control" name="fin_string[]" required></td>
-                      <td><input type="number" class="form-control" name="fin_tension_dc[]" step="any"></td>
-                      <td><input type="number" class="form-control" name="fin_courant_dc[]" step="any"></td>
-                      <td><input type="number" class="form-control" name="fin_tension_ac[]" step="any"></td>
-                      <td><input type="number" class="form-control" name="fin_puissance[]" step="any"></td>
-                      <td><input type="date" class="form-control" name="fin_date[]"></td>
-                      <td><input type="text" class="form-control" name="fin_technicien[]"></td>
+                      <td><input type="text" class="form-control form-control-sm" name="fin_zone[]"></td>
+                      <td><input type="text" class="form-control form-control-sm" name="fin_string[]"></td>
+                      <td><input type="number" class="form-control form-control-sm" name="fin_tension_dc[]" step="any"></td>
+                      <td><input type="number" class="form-control form-control-sm" name="fin_courant_dc[]" step="any"></td>
+                      <td><input type="number" class="form-control form-control-sm" name="fin_tension_ac[]" step="any"></td>
+                      <td><input type="number" class="form-control form-control-sm" name="fin_puissance[]" step="any"></td>
+                      <td><input type="date" class="form-control form-control-sm" name="fin_date[]"></td>
+                      <td><input type="text" class="form-control form-control-sm" name="fin_technicien[]"></td>
                       <td>
-                        <select class="form-select" name="fin_status[]">
+                        <select class="form-select form-select-sm" name="fin_status[]">
                           <option value="Validé">Validé</option>
                           <option value="Non Validé">Non Validé</option>
+                          <option value="En attente">En attente</option>
                         </select>
                       </td>
                       <td>
-                        <button type="button" class="btn btn-danger btn-sm remove-row" title="Supprimer cette ligne" style="display:none;">✕</button>
+                        <button type="button" class="btn btn-danger btn-sm remove-row-fin" title="Supprimer" style="display:none;">✕</button>
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-              <div class="mb-3">
-                <button type="button" class="btn btn-primary" id="addRowBtn">Ajouter ligne</button>
-                <button type="submit" class="btn btn-primary">Enregistrer</button>
-                <button type="button" class="btn btn-success" id="exportPdfBtn">Exporter PDF</button>
+              <div class="mt-3">
+                <button type="button" class="btn btn-secondary btn-sm" id="addRowFinBtn">Ajouter ligne</button>
+                <button type="submit" class="btn btn-primary">Enregistrer Fin de Chantier</button>
+                <!-- <button type="button" class="btn btn-success" id="exportPdfBtn">Exporter PDF Relevés</button> -->
               </div>
             </form>
+             <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                const addRowBtnFin = document.getElementById('addRowFinBtn');
+                const tbodyFin = document.getElementById('finalTensionsBody');
+                function updateRemoveButtonsFinVisibility() {
+                  const rows = tbodyFin.querySelectorAll('tr');
+                  rows.forEach((row, index) => {
+                    const removeBtn = row.querySelector('.remove-row-fin');
+                    if (removeBtn) removeBtn.style.display = rows.length > 1 ? '' : 'none';
+                  });
+                }
+                addRowBtnFin.addEventListener('click', function() {
+                  const newRowHTML = `
+                    <td><input type="text" class="form-control form-control-sm" name="fin_zone[]"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="fin_string[]"></td>
+                    <td><input type="number" class="form-control form-control-sm" name="fin_tension_dc[]" step="any"></td>
+                    <td><input type="number" class="form-control form-control-sm" name="fin_courant_dc[]" step="any"></td>
+                    <td><input type="number" class="form-control form-control-sm" name="fin_tension_ac[]" step="any"></td>
+                    <td><input type="number" class="form-control form-control-sm" name="fin_puissance[]" step="any"></td>
+                    <td><input type="date" class="form-control form-control-sm" name="fin_date[]"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="fin_technicien[]"></td>
+                    <td>
+                      <select class="form-select form-select-sm" name="fin_status[]">
+                        <option value="Validé">Validé</option><option value="Non Validé">Non Validé</option><option value="En attente">En attente</option>
+                      </select>
+                    </td>
+                    <td><button type="button" class="btn btn-danger btn-sm remove-row-fin" title="Supprimer">✕</button></td>`;
+                  const tr = tbodyFin.insertRow();
+                  tr.innerHTML = newRowHTML;
+                  tr.querySelector('.remove-row-fin').addEventListener('click', function() {
+                    this.closest('tr').remove();
+                    updateRemoveButtonsFinVisibility();
+                  });
+                  updateRemoveButtonsFinVisibility();
+                });
+                tbodyFin.querySelectorAll('.remove-row-fin').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        this.closest('tr').remove();
+                        updateRemoveButtonsFinVisibility();
+                    });
+                });
+                updateRemoveButtonsFinVisibility(); // Initial check
+              });
+            </script>
           </div>
         </div>
-        <script>
-          document.addEventListener('DOMContentLoaded', function() {
-            const addRowBtn = document.getElementById('addRowBtn');
-            const tbody = document.getElementById('finalTensionsBody');
-            addRowBtn.addEventListener('click', function() {
-              const row = document.createElement('tr');
-              row.innerHTML = `
-                <td><input type="text" class="form-control" name="fin_zone[]" required></td>
-                <td><input type="text" class="form-control" name="fin_string[]" required></td>
-                <td><input type="number" class="form-control" name="fin_tension_dc[]" step="any"></td>
-                <td><input type="number" class="form-control" name="fin_courant_dc[]" step="any"></td>
-                <td><input type="number" class="form-control" name="fin_tension_ac[]" step="any"></td>
-                <td><input type="number" class="form-control" name="fin_puissance[]" step="any"></td>
-                <td><input type="date" class="form-control" name="fin_date[]"></td>
-                <td><input type="text" class="form-control" name="fin_technicien[]"></td>
-                <td>
-                  <select class="form-select" name="fin_status[]">
-                    <option value="Validé">Validé</option>
-                    <option value="Non Validé">Non Validé</option>
-                  </select>
-                </td>
-                <td>
-                  <button type="button" class="btn btn-danger btn-sm remove-row" title="Supprimer cette ligne">✕</button>
-                </td>
-              `;
-              tbody.appendChild(row);
-              updateRemoveButtons();
-            });
-            function updateRemoveButtons() {
-              const rows = tbody.querySelectorAll('tr');
-              tbody.querySelectorAll('.remove-row').forEach((btn, idx) => {
-                btn.style.display = rows.length > 1 ? '' : 'none';
-                btn.onclick = function() {
-                  btn.closest('tr').remove();
-                  updateRemoveButtons();
-                };
-              });
-            }
-            updateRemoveButtons();
-          });
-        </script>
       </div>
 
       {% if current_user and current_user.role == "admin" %}
       <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
       <div class="card rounded-card mb-3">
         <div class="card-body">
-          <div class="card-title mb-4">Historique des Entrées</div>
-          <div class="mb-3">
-            <a href="{{ url_for('telecharger_historique') }}" class="btn btn-primary">Télécharger CSV</a>
-            <a href="{{ url_for('telecharger_historique_pdf') }}" class="btn btn-success">Télécharger PDF</a>
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="card-title mb-0">Historique des Entrées</div>
+            <div>
+                <a href="{{ url_for('telecharger_historique') }}" class="btn btn-sm btn-primary">Télécharger CSV Global</a>
+                <a href="{{ url_for('telecharger_historique_pdf') }}" class="btn btn-sm btn-success">Télécharger PDF Global</a>
+            </div>
           </div>
+          
           <h5 class="mt-4 mb-2">Réception du Chantier</h5>
           <div class="table-responsive history-table mb-4">
-            <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes sur les petits écrans.</p>
+            <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes.</p>
             <table class="table align-middle table-bordered table-striped">
               <thead>
                 <tr>
                   <th>Date</th>
                   <th>Utilisateur</th>
-                  <!-- ADDED NOM DU CHANTIER HEADER - START -->
-                  <th>Nom du Chantier</th>
-                  <!-- ADDED NOM DU CHANTIER HEADER - END -->
-                  <th>Type Equipement</th>
-                  <th>Référence Equipement</th>
-                  <th>État Equipement</th>
-                  <th>Date Réception Equipement</th>
-                  <th>Type Connecteur</th>
-                  <th>Quantité Connecteur</th>
-                  <th>État Connecteur</th>
-                  <th>Longueur Chemin Câble</th>
-                  <th>Type Chemin Câble</th>
-                  <th>Section Chemin Câble</th>
-                  <th>Profondeur Chemin Câble</th>
-                  <th>Longueur Terre</th>
-                  <th>Section Câble AC</th>
-                  <th>Longueur Câble AC</th>
-                  <th>Section Câble DC</th>
-                  <th>Longueur Câble DC</th>
-                  <th>Shelter nombre</th>
+                  <th>Nom Chantier</th>
+                  <th>Type Équip.</th>
+                  <th>Réf. Équip.</th>
+                  <th>État Équip.</th>
+                  <th>Date Récept. Équip.</th>
+                  <th>Nb Équip. 1</th>
+                  <th>Type Conn.</th>
+                  <th>Qté Conn.</th>
+                  <th>État Conn.</th>
+                  <th>Type Ch. Câble</th>
+                  <th>Long. Ch. Câble</th>
+                  <th>Sect. Ch. Câble</th>
+                  <th>Prof. Ch. Câble</th>
+                  <th>Long. Terre</th>
+                  <th>Sect. AC</th>
+                  <th>Long. AC</th>
+                  <th>Sect. DC</th>
+                  <th>Long. DC</th>
+                  <th>Nb Shelter</th>
                   <th>Images</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {% for row in all_lignes|default([]) %}
-                <tr>
-                  <td>{{ row.date|default('') }}</td>
-                  <td>{{ row.utilisateur|default('') }}</td>
-                  <!-- ADDED NOM DU CHANTIER DATA - START -->
-                  <td>{{ row.nom_du_chantier|default('') }}</td>
-                  <!-- ADDED NOM DU CHANTIER DATA - END -->
-                  <td>{{ row.equipement_type|default('') }}</td>
-                  <td>{{ row.equipement_reference|default('') }}</td>
-                  <td>{{ row.equipement_etat|default('') }}</td>
-                  <td>{{ row.equipement_date_reception|default('') }}</td>
-                  <td>{{ row.connecteur_type|default('') }}</td>
-                  <td>{{ row.connecteur_quantite|default('') }}</td>
-                  <td>{{ row.connecteur_etat|default('') }}</td>
-                  <td>{{ row.chemin_cable_longueur|default('') }}</td>
-                  <td>{{ row.chemin_cable_type|default('') }}</td>
-                  <td>{{ row.chemin_cable_section|default('') }}</td>
-                  <td>{{ row.chemin_cable_profondeur|default('') }}</td>
-                  <td>{{ row.terre_longueur|default('') }}</td>
-                  <td>{{ row.cableac_section|default('') }}</td>
-                  <td>{{ row.cableac_longueur|default('') }}</td>
-                  <td>{{ row.cabledc_section|default('') }}</td>
-                  <td>{{ row.cabledc_longueur|default('') }}</td>
-                  <td>{{ row.shelter_nombre|default('') }}</td>
-                  <td>
-                    {% if row.images %}
-                      {% for img in row.images %}
-                        <a href="{{ url_for('get_image', image_id=img.id) }}" target="_blank">{{ img.filename }}</a>{% if not loop.last %}, {% endif %}
-                      {% endfor %}
-                    {% else %}
-                      Aucune image
-                    {% endif %}
-                  </td>
-                  <td>
-                    <a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a>
-                    <form action="{{ url_for('delete_history', entry_id=row.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Voulez-vous vraiment supprimer cette entrée ?');">
-                      <button type="submit" class="btn btn-danger delete-btn">Supprimer</button>
-                    </form>
-                  </td>
-                </tr>
+                  {% if row.equipement_type or row.connecteur_type or row.chemin_cable_type or row.terre_longueur or row.cableac_section or row.cabledc_section %}
+                  <tr>
+                    <td>{{ row.date|default('') }}</td>
+                    <td>{{ row.utilisateur|default('') }}</td>
+                    <td>{{ row.nom_du_chantier|default('') }}</td>
+                    <td>{{ row.equipement_type|default('') }}</td>
+                    <td>{{ row.equipement_reference|default('') }}</td>
+                    <td>{{ row.equipement_etat|default('') }}</td>
+                    <td>{{ row.equipement_date_reception|default('') }}</td>
+                    <td>{{ row.equipement_nombre_1|default('') }}</td> {# Simplified to show one count #}
+                    <td>{{ row.connecteur_type|default('') }}</td>
+                    <td>{{ row.connecteur_quantite|default('') }}</td>
+                    <td>{{ row.connecteur_etat|default('') }}</td>
+                    <td>{{ row.chemin_cable_type|default('') }}</td>
+                    <td>{{ row.chemin_cable_longueur|default('') }}</td>
+                    <td>{{ row.chemin_cable_section|default('') }}</td>
+                    <td>{{ row.chemin_cable_profondeur|default('') }}</td>
+                    <td>{{ row.terre_longueur|default('') }}</td>
+                    <td>{{ row.cableac_section|default('') }}</td>
+                    <td>{{ row.cableac_longueur|default('') }}</td>
+                    <td>{{ row.cabledc_section|default('') }}</td>
+                    <td>{{ row.cabledc_longueur|default('') }}</td>
+                    <td>{{ row.shelter_nombre|default('') }}</td>
+                    <td>
+                      {% if row.images %}
+                        {% for img in row.images %}
+                          <a href="{{ url_for('get_image', image_id=img.id) }}" target="_blank" class="badge bg-info text-dark">{{ img.filename|truncate(15) }}</a>
+                        {% endfor %}
+                      {% else %}
+                        -
+                      {% endif %}
+                    </td>
+                    <td class="nowrap">
+                      <a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a>
+                      <form action="{{ url_for('delete_history', entry_id=row.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Supprimer cette entrée ?');">
+                        <button type="submit" class="btn btn-danger delete-btn">Supprimer</button>
+                      </form>
+                    </td>
+                  </tr>
+                  {% endif %}
                 {% endfor %}
               </tbody>
             </table>
           </div>
+
           <h5 class="mt-4 mb-2">Avancement du Chantier</h5>
           <div class="table-responsive history-table mb-4">
-            <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes sur les petits écrans.</p>
+            <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes.</p>
             <table class="table align-middle table-bordered table-striped">
               <thead>
                 <tr>
                   <th>Date</th>
                   <th>Utilisateur</th>
-                  <th>Câble DC tiré</th>
-                  <th>Câble AC tiré</th>
-                  <th>Câble Terre tiré</th>
+                  <th>Type Chantier</th>
+                  <th>Câble DC (m)</th>
+                  <th>Câble AC (m)</th>
+                  <th>Câble Terre (m)</th>
+                  <th>Interconnexion</th>
+                  <th>Nb Panneaux</th>
+                  <th>Nb Rails (m)</th>
                   <th>Problèmes</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {% for row in all_lignes|default([]) %}
-                {% if row.cables_dctires or row.cables_actires or row.cables_terretires or row.problems %}
+                {% if row.cables_dctires or row.cables_actires or row.cables_terretires or row.problems or row.interconnexion or row.nombre_panneaux or row.nombre_rail %}
                 <tr>
                   <td>{{ row.date|default('') }}</td>
                   <td>{{ row.utilisateur|default('') }}</td>
+                  <td>{{ row.chantier_type|default('N/A') }}</td>
                   <td>{{ row.cables_dctires|default('') }}</td>
                   <td>{{ row.cables_actires|default('') }}</td>
                   <td>{{ row.cables_terretires|default('') }}</td>
-                  <td>{{ row.problems|default('') }}</td>
                   <td>
+                    {% if row.chantier_type == 'centrale-sol' or row.chantier_type == 'ombriere' %}
+                      {{ row.interconnexion|default('-') }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if row.chantier_type == 'toiture' %}
+                      {{ row.nombre_panneaux|default('-') }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if row.chantier_type == 'toiture' %}
+                      {{ row.nombre_rail|default('-') }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                  <td>{{ row.problems|default('') }}</td>
+                  <td class="nowrap">
                     <a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a>
-                    <form action="{{ url_for('delete_history', entry_id=row.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Voulez-vous vraiment supprimer cette entrée ?');">
+                    <form action="{{ url_for('delete_history', entry_id=row.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Supprimer cette entrée ?');">
                       <button type="submit" class="btn btn-danger delete-btn">Supprimer</button>
                     </form>
                   </td>
@@ -686,13 +726,14 @@
               </tbody>
             </table>
           </div>
+
           <h5 class="mt-4 mb-2">Fin du Chantier</h5>
           <div class="table-responsive history-table mb-4">
-            <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes sur les petits écrans.</p>
+            <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes.</p>
             <table class="table align-middle table-bordered table-striped">
               <thead>
                 <tr>
-                  <th>Date</th>
+                  <th>Date Entrée</th>
                   <th>Utilisateur</th>
                   <th>Zone</th>
                   <th>String</th>
@@ -700,15 +741,15 @@
                   <th>Courant DC (A)</th>
                   <th>Tension AC (V)</th>
                   <th>Puissance (W)</th>
-                  <th>Date (Fin)</th>
+                  <th>Date Mesure</th>
                   <th>Technicien</th>
-                  <th>Status</th>
+                  <th>Statut</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {% for row in all_lignes|default([]) %}
-                {% if row.fin_zone or row.fin_string or row.fin_tension_dc or row.fin_courant_dc or row.fin_tension_ac or row.fin_puissance or row.fin_date or row.fin_technicien or row.fin_status %}
+                {% if row.fin_zone or row.fin_string %} {# Check if there's fin data #}
                 <tr>
                   <td>{{ row.date|default('') }}</td>
                   <td>{{ row.utilisateur|default('') }}</td>
@@ -721,9 +762,9 @@
                   <td>{{ row.fin_date|default('') }}</td>
                   <td>{{ row.fin_technicien|default('') }}</td>
                   <td>{{ row.fin_status|default('') }}</td>
-                  <td>
+                  <td class="nowrap">
                     <a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a>
-                    <form action="{{ url_for('delete_history', entry_id=row.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Voulez-vous vraiment supprimer cette entrée ?');">
+                    <form action="{{ url_for('delete_history', entry_id=row.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Supprimer cette entrée ?');">
                       <button type="submit" class="btn btn-danger delete-btn">Supprimer</button>
                     </form>
                   </td>
@@ -736,8 +777,9 @@
         </div>
       </div>
     </div>
-    {% endif %}
-    </div>
+    {% endif %} {# End Admin History Tab #}
+    </div> <!-- End mainTabContent -->
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
