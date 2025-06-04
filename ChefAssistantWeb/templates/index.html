@@ -3,125 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suivi de Chantier TSB Energie</title>
+    <title>Suivi de Chantier</title> {# Original Title #}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            background-color: #f0f2f5; /* Lighter grey for overall background */
-        }
-        .navbar {
-            background-color: #004A99; /* TSB Energie Blue */
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .navbar-brand, .nav-link, .navbar-text {
-            color: #ffffff !important;
-        }
-        .nav-link:hover {
-            color: #e0e0e0 !important;
-        }
+        /* Your original styles or minimal styles for functionality */
         .rounded-card {
             border-radius: 15px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-            background-color: #ffffff;
-            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem; /* Added some margin */
         }
         .card-title {
             font-weight: bold;
-            color: #004A99; /* TSB Energie Blue */
-            border-bottom: 2px solid #FFD700; /* TSB Energie Yellow/Gold */
-            padding-bottom: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .nav-tabs .nav-link {
-            color: #004A99;
-            border: 1px solid transparent;
-            border-top-left-radius: .25rem;
-            border-top-right-radius: .25rem;
+            color: #2c3e50;
         }
         .nav-tabs .nav-link.active {
-            color: #003366; /* Darker Blue for active tab */
-            background-color: #e9ecef;
-            border-color: #dee2e6 #dee2e6 #e9ecef;
-            border-bottom: 3px solid #FFD700; /* TSB Energie Yellow/Gold */
+            background-color: #f8f9fa;
+            border-bottom: 3px solid #007bff;
         }
         .form-label {
             font-weight: 500;
-            color: #343a40;
         }
-        .btn-primary {
-            background-color: #004A99;
-            border-color: #004A99;
-        }
-        .btn-primary:hover {
-            background-color: #003366;
-            border-color: #003366;
-        }
-        .btn-danger { /* Standard danger color */
-             /* background-color: #C00000; Red TSB */
-             /* border-color: #C00000; */
-        }
-        .btn-success { /* Standard success color */
-            /* background-color: #00B050; Green TSB */
-            /* border-color: #00B050; */
-        }
-        .table-primary {
-            background-color: #004A99 !important; /* For table header */
-            color: white;
-        }
-        .alert {
-            border-radius: .25rem;
+        .table-responsive {
+            margin-top: 1rem;
         }
         .logout-btn {
-            color: #FFD700 !important; /* TSB Gold for logout */
+            color: #ffc107 !important; /* Example: Amber color for logout */
         }
-        .form-section-title {
-            color: #003366;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-            font-weight: 600;
+         .navbar-custom {
+            background-color: #343a40; /* Dark background for navbar */
+        }
+        .navbar-custom .navbar-brand,
+        .navbar-custom .nav-link,
+        .navbar-custom .navbar-text {
+            color: #f8f9fa; /* Light text for navbar */
+        }
+        .navbar-custom .nav-link:hover {
+            color: #adb5bd; /* Lighter hover color */
         }
     </style>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-custom mb-4">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('index') }}">
-                <i class="fas fa-tools me-2"></i>TSB Energie - Suivi de Chantier
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="{{ url_for('index') }}">Suivi de Chantier App</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav ms-auto">
                     {% if current_user.is_authenticated %}
-                        <li class="nav-item">
-                            <span class="navbar-text me-3">
-                                Bienvenue, {{ current_user.id }} ({{ current_user.role }})
-                            </span>
-                        </li>
+                        <span class="navbar-text me-3">
+                            Utilisateur: {{ current_user.id }} ({{ current_user.role }})
+                        </span>
                         {% if current_user.role == 'admin' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin_panel') }}">Panneau Admin</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin_view_all_suivi_journalier') }}">Toutes les Entrées (Admin)</a>
-                        </li>
+                            <a class="nav-link" href="{{ url_for('admin_panel') }}">Admin</a>
+                            <a class="nav-link" href="{{ url_for('admin_view_all_suivi_journalier') }}">Voir Entrées (Admin)</a>
                         {% endif %}
-                        <li class="nav-item">
-                            <a class="nav-link logout-btn" href="{{ url_for('logout') }}">Déconnexion <i class="fas fa-sign-out-alt"></i></a>
-                        </li>
+                        <a class="nav-link logout-btn" href="{{ url_for('logout') }}">Déconnexion</a>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('login') }}">Connexion</a>
-                        </li>
+                        <a class="nav-link" href="{{ url_for('login') }}">Connexion</a>
                     {% endif %}
-                </ul>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container-fluid py-3">
+    <div class="container-fluid py-4">
         <!-- Flash messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -134,44 +83,65 @@
             {% endif %}
         {% endwith %}
 
-        <!-- Main Form for Suivi Journalier -->
-        <div class="card rounded-card mb-4">
-            <div class="card-body">
-                <h3 class="card-title">Nouvelle Entrée de Suivi Journalier</h3>
-                <form method="POST" action="{{ url_for('add_suivi_journalier_entry') }}" enctype="multipart/form-data" class="needs-validation" novalidate>
-                    {# If using Flask-WTF for CSRF protection: <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> #}
-                    
-                    <div class="row mb-3">
+        <!-- Combined Form for all sections -->
+        <form method="POST" action="{{ url_for('add_suivi_journalier_entry') }}" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {# CSRF Token: <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> #}
+
+            <div class="card rounded-card mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Informations Générales et Photos</h4>
+                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="nom_chantier" class="form-label">Nom du Chantier <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="nom_chantier" name="nom_chantier" required>
                             <div class="invalid-feedback">Le nom du chantier est requis.</div>
                         </div>
-                         <div class="col-md-6">
-                            <label for="date_entree" class="form-label">Date de l'entrée</label>
-                            {# Assuming 'datetime' is passed to the template context for datetime.now() #}
-                            <input type="text" class="form-control" id="date_entree" name="date" 
+                        <div class="col-md-6">
+                            <label for="date_entree_form" class="form-label">Date de l'entrée</label>
+                            <input type="text" class="form-control" id="date_entree_form" name="date" 
                                    value="{{ datetime.now().strftime('%Y-%m-%d %H:%M') if datetime else '' }}" readonly>
                             <small class="form-text text-muted">Généré automatiquement.</small>
                         </div>
+                        <div class="col-12 mt-3">
+                            <label for="form_photo_chantier" class="form-label">Photos Générales du Chantier (multiples possibles)</label>
+                            <input type="file" class="form-control" id="form_photo_chantier" name="photo_chantier[]" multiple accept="image/*,.png,.jpg,.jpeg,.gif">
+                            <small class="form-text text-muted">Extensions: .png, .jpg, .jpeg, .gif. Max 16MB.</small>
+                        </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Navigation Tabs for Form Sections -->
-                    <ul class="nav nav-tabs mb-4" id="formTab" role="tablist">
-                        <li class="nav-item" role="presentation"><button class="nav-link active" id="form-equipement-tab" data-bs-toggle="tab" data-bs-target="#form-equipement" type="button" role="tab" aria-controls="form-equipement" aria-selected="true">Équipement</button></li>
-                        <li class="nav-item" role="presentation"><button class="nav-link" id="form-connecteur-tab" data-bs-toggle="tab" data-bs-target="#form-connecteur" type="button" role="tab" aria-controls="form-connecteur" aria-selected="false">Connecteur</button></li>
-                        <li class="nav-item" role="presentation"><button class="nav-link" id="form-chemincable-tab" data-bs-toggle="tab" data-bs-target="#form-chemincable" type="button" role="tab" aria-controls="form-chemincable" aria-selected="false">Chemin de câble</button></li>
-                        <li class="nav-item" role="presentation"><button class="nav-link" id="form-terre-ac-dc-tab" data-bs-toggle="tab" data-bs-target="#form-terre-ac-dc" type="button" role="tab" aria-controls="form-terre-ac-dc" aria-selected="false">Terre & Câbles</button></li>
-                        <li class="nav-item" role="presentation"><button class="nav-link" id="form-avancement-tab" data-bs-toggle="tab" data-bs-target="#form-avancement" type="button" role="tab" aria-controls="form-avancement" aria-selected="false">Avancement & Conditions</button></li>
-                        <li class="nav-item" role="presentation"><button class="nav-link" id="form-fin-tab" data-bs-toggle="tab" data-bs-target="#form-fin" type="button" role="tab" aria-controls="form-fin" aria-selected="false">Mesures Finales</button></li>
-                        <li class="nav-item" role="presentation"><button class="nav-link" id="form-photos-tab" data-bs-toggle="tab" data-bs-target="#form-photos" type="button" role="tab" aria-controls="form-photos" aria-selected="false">Photos Générales</button></li>
-                    </ul>
 
-                    <!-- Tab Content for Form Sections -->
-                    <div class="tab-content" id="formTabContent">
-                        <!-- Equipment Tab Pane -->
-                        <div class="tab-pane fade show active" id="form-equipement" role="tabpanel" aria-labelledby="form-equipement-tab">
-                            <h5 class="form-section-title">Informations Équipement</h5>
+            <!-- Navigation Tabs for Form Sections -->
+            <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="equipement-tab" data-bs-toggle="tab" data-bs-target="#equipement" type="button" role="tab" aria-controls="equipement" aria-selected="true">Équipement</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="connecteur-tab" data-bs-toggle="tab" data-bs-target="#connecteur" type="button" role="tab" aria-controls="connecteur" aria-selected="false">Connecteur</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="chemincable-tab" data-bs-toggle="tab" data-bs-target="#chemincable" type="button" role="tab" aria-controls="chemincable" aria-selected="false">Chemin de câble</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="terre-cables-tab" data-bs-toggle="tab" data-bs-target="#terre-cables" type="button" role="tab" aria-controls="terre-cables" aria-selected="false">Terre & Câbles</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="avancement-tab" data-bs-toggle="tab" data-bs-target="#avancement" type="button" role="tab" aria-controls="avancement" aria-selected="false">Avancement & Conditions</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="fin-tab" data-bs-toggle="tab" data-bs-target="#fin" type="button" role="tab" aria-controls="fin" aria-selected="false">Mesures Finales</button>
+                </li>
+                <!-- "Historique" tab is separate, not part of this form -->
+            </ul>
+
+            <!-- Tab Content for Form Sections -->
+            <div class="tab-content" id="myTabContent">
+                <!-- Equipment Tab -->
+                <div class="tab-pane fade show active" id="equipement" role="tabpanel" aria-labelledby="equipement-tab">
+                    <div class="card rounded-card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Suivi des Équipements</h5>
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="form-label">Type de Machine</label>
@@ -203,26 +173,30 @@
                                 </div>
                                 <div class="col-md-2">
                                     <label class="form-label">Nombre (Cat. 1)</label>
-                                    <input type="text" class="form-control" name="equipement_nombre_1" placeholder="ex: 5">
+                                    <input type="text" class="form-control" name="equipement_nombre_1" placeholder="Texte/Num">
                                 </div>
                                 <div class="col-md-2">
                                     <label class="form-label">Nombre (Cat. 2)</label>
-                                    <input type="text" class="form-control" name="equipement_nombre_2" placeholder="ex: 10">
+                                    <input type="text" class="form-control" name="equipement_nombre_2" placeholder="Texte/Num">
                                 </div>
                                 <div class="col-md-2">
                                     <label class="form-label">Nombre (Cat. 3)</label>
-                                    <input type="text" class="form-control" name="equipement_nombre_3" placeholder="ex: 2">
+                                    <input type="text" class="form-control" name="equipement_nombre_3" placeholder="Texte/Num">
                                 </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">Nombre de Shelter</label>
+                                 <div class="col-md-2">
+                                    <label class="form-label">Shelters (Nb)</label>
                                     <input type="number" class="form-control" name="shelter_nombre" min="0">
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Connector Tab Pane -->
-                        <div class="tab-pane fade" id="form-connecteur" role="tabpanel" aria-labelledby="form-connecteur-tab">
-                            <h5 class="form-section-title">Informations Connecteur</h5>
+                <!-- Connector Tab -->
+                <div class="tab-pane fade" id="connecteur" role="tabpanel" aria-labelledby="connecteur-tab">
+                    <div class="card rounded-card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Suivi des Connecteurs</h5>
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="form-label">Type de Connecteur</label>
@@ -240,7 +214,7 @@
                                     <input type="text" class="form-control" name="connecteur_quantite">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">État</label>
+                                    <label class="form-label">État Connecteur</label>
                                     <select class="form-select" name="connecteur_etat">
                                         <option value="">Sélectionner...</option>
                                         <option value="Neuf">Neuf</option>
@@ -251,17 +225,21 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Cable Path Tab Pane -->
-                        <div class="tab-pane fade" id="form-chemincable" role="tabpanel" aria-labelledby="form-chemincable-tab">
-                            <h5 class="form-section-title">Informations Chemin de Câble</h5>
+                <!-- Cable Path Tab -->
+                <div class="tab-pane fade" id="chemincable" role="tabpanel" aria-labelledby="chemincable-tab">
+                    <div class="card rounded-card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Suivi des Chemins de Câbles</h5>
                             <div class="row g-3">
                                 <div class="col-md-3">
-                                    <label class="form-label">Longueur (m)</label>
+                                    <label class="form-label">Longueur Chemin (m)</label>
                                     <input type="text" class="form-control" name="chemin_cable_longueur">
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Type</label>
+                                    <label class="form-label">Type Chemin</label>
                                     <select class="form-select" name="chemin_cable_type">
                                         <option value="">Sélectionner...</option>
                                         <option value="Dalle">Dalle</option>
@@ -271,7 +249,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Section</label>
+                                    <label class="form-label">Section Chemin</label>
                                     <input type="text" class="form-control" name="chemin_cable_section">
                                 </div>
                                 <div class="col-md-3">
@@ -280,190 +258,135 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Ground & Cables Tab Pane -->
-                        <div class="tab-pane fade" id="form-terre-ac-dc" role="tabpanel" aria-labelledby="form-terre-ac-dc-tab">
-                            <h5 class="form-section-title">Mise à la Terre & Câbles AC/DC</h5>
+                    </div>
+                </div>
+                
+                <!-- Terre & Cables Tab -->
+                <div class="tab-pane fade" id="terre-cables" role="tabpanel" aria-labelledby="terre-cables-tab">
+                    <div class="card rounded-card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Suivi de la Mise à la Terre et Câbles AC/DC</h5>
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="form-label">Longueur Terre (m)</label>
                                     <input type="text" class="form-control" name="terre_longueur">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Section Câble AC (mm²)</label>
+                                    <label class="form-label">Section AC (mm²)</label>
                                     <input type="text" class="form-control" name="cableac_section">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Longueur Câble AC (m)</label>
+                                    <label class="form-label">Longueur AC (m)</label>
                                     <input type="text" class="form-control" name="cableac_longueur">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Section Câble DC (mm²)</label>
+                                    <label class="form-label">Section DC (mm²)</label>
                                     <input type="text" class="form-control" name="cabledc_section">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Longueur Câble DC (m)</label>
+                                    <label class="form-label">Longueur DC (m)</label>
                                     <input type="text" class="form-control" name="cabledc_longueur">
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Progress & Conditions Tab Pane -->
-                        <div class="tab-pane fade" id="form-avancement" role="tabpanel" aria-labelledby="form-avancement-tab">
-                            <h5 class="form-section-title">Avancement des Travaux & Conditions</h5>
-                            <div class="row g-3">
-                                <div class="col-md-3">
-                                    <label class="form-label">Câbles DC Tirés (m)</label>
-                                    <input type="text" class="form-control" name="cables_dctires">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Câbles AC Tirés (m)</label>
-                                    <input type="text" class="form-control" name="cables_actires">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Câbles Terre Tirés (m)</label>
-                                    <input type="text" class="form-control" name="cables_terretires">
-                                </div>
+                <!-- Avancement Tab -->
+                <div class="tab-pane fade" id="avancement" role="tabpanel" aria-labelledby="avancement-tab">
+                    <div class="card rounded-card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Suivi de l'Avancement et Conditions</h5>
+                             <div class="row g-3">
+                                <div class="col-md-3"><label class="form-label">Câbles DC Tirés (m)</label><input type="text" class="form-control" name="cables_dctires"></div>
+                                <div class="col-md-3"><label class="form-label">Câbles AC Tirés (m)</label><input type="text" class="form-control" name="cables_actires"></div>
+                                <div class="col-md-3"><label class="form-label">Câbles Terre Tirés (m)</label><input type="text" class="form-control" name="cables_terretires"></div>
                                 <div class="col-md-3">
                                     <label class="form-label">Conditions Météo</label>
                                     <select class="form-select" name="weather_conditions">
                                         <option value="">Sélectionner...</option>
-                                        <option value="Ensoleillé">Ensoleillé</option>
-                                        <option value="Nuageux">Nuageux</option>
-                                        <option value="Pluvieux">Pluvieux</option>
-                                        <option value="Venteux">Venteux</option>
-                                        <option value="Orageux">Orageux</option>
-                                        <option value="Neige">Neige</option>
+                                        <option value="Ensoleillé">Ensoleillé</option><option value="Nuageux">Nuageux</option>
+                                        <option value="Pluvieux">Pluvieux</option><option value="Venteux">Venteux</option>
+                                        <option value="Orageux">Orageux</option><option value="Neige">Neige</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Température (°C)</label>
-                                    <input type="number" class="form-control" name="temperature" step="0.1">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Heures de Travail</label>
-                                    <input type="number" class="form-control" name="work_hours" step="0.5" min="0">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Nombre de Personnel</label>
-                                    <input type="number" class="form-control" name="staff_count" min="0">
-                                </div>
-                                <div class="col-md-12">
-                                    <label class="form-label">Problèmes Rencontrés / Observations</label>
-                                    <textarea class="form-control" name="problems" rows="3"></textarea>
-                                </div>
+                                <div class="col-md-3"><label class="form-label">Température (°C)</label><input type="number" class="form-control" name="temperature" step="0.1"></div>
+                                <div class="col-md-3"><label class="form-label">Heures de Travail</label><input type="number" class="form-control" name="work_hours" step="0.5" min="0"></div>
+                                <div class="col-md-3"><label class="form-label">Nombre de Personnel</label><input type="number" class="form-control" name="staff_count" min="0"></div>
+                                <div class="col-md-12"><label class="form-label">Problèmes Rencontrés / Observations</label><textarea class="form-control" name="problems" rows="3"></textarea></div>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Final Measurements Tab Pane -->
-                        <div class="tab-pane fade" id="form-fin" role="tabpanel" aria-labelledby="form-fin-tab">
-                            <h5 class="form-section-title">Tableau des Tensions Finales et Mesures</h5>
+                <!-- Fin Tab -->
+                <div class="tab-pane fade" id="fin" role="tabpanel" aria-labelledby="fin-tab">
+                    <div class="card rounded-card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Tableau des Tensions Finales et Mesures</h5>
                             <div class="row g-3">
-                                <div class="col-md-3">
-                                    <label class="form-label">Zone</label>
-                                    <input type="text" class="form-control" name="fin_zone">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">String</label>
-                                    <input type="text" class="form-control" name="fin_string">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Tension DC (V)</label>
-                                    <input type="text" class="form-control" name="fin_tension_dc">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Courant DC (A)</label>
-                                    <input type="text" class="form-control" name="fin_courant_dc">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Tension AC (V)</label>
-                                    <input type="text" class="form-control" name="fin_tension_ac">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Puissance (W)</label>
-                                    <input type="text" class="form-control" name="fin_puissance">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Date de Mesure</label>
-                                    <input type="datetime-local" class="form-control" name="fin_date">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Technicien</label>
-                                    <input type="text" class="form-control" name="fin_technicien">
-                                </div>
+                                <div class="col-md-3"><label class="form-label">Zone</label><input type="text" class="form-control" name="fin_zone"></div>
+                                <div class="col-md-3"><label class="form-label">String</label><input type="text" class="form-control" name="fin_string"></div>
+                                <div class="col-md-3"><label class="form-label">Tension DC (V)</label><input type="text" class="form-control" name="fin_tension_dc"></div>
+                                <div class="col-md-3"><label class="form-label">Courant DC (A)</label><input type="text" class="form-control" name="fin_courant_dc"></div>
+                                <div class="col-md-3"><label class="form-label">Tension AC (V)</label><input type="text" class="form-control" name="fin_tension_ac"></div>
+                                <div class="col-md-3"><label class="form-label">Puissance (W)</label><input type="text" class="form-control" name="fin_puissance"></div>
+                                <div class="col-md-3"><label class="form-label">Date de Mesure</label><input type="datetime-local" class="form-control" name="fin_date"></div>
+                                <div class="col-md-3"><label class="form-label">Technicien</label><input type="text" class="form-control" name="fin_technicien"></div>
                                 <div class="col-md-12">
                                     <label class="form-label">Status Final</label>
                                     <select class="form-select" name="fin_status">
                                         <option value="">Sélectionner...</option>
-                                        <option value="Conforme">Conforme</option>
-                                        <option value="Non Conforme">Non Conforme</option>
-                                        <option value="À Vérifier">À Vérifier</option>
-                                        <option value="En Attente">En Attente</option>
+                                        <option value="Conforme">Conforme</option><option value="Non Conforme">Non Conforme</option>
+                                        <option value="À Vérifier">À Vérifier</option><option value="En Attente">En Attente</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- General Photos Tab Pane -->
-                        <div class="tab-pane fade" id="form-photos" role="tabpanel" aria-labelledby="form-photos-tab">
-                            <h5 class="form-section-title">Photos Générales du Chantier</h5>
-                             <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i> Vous pouvez ajouter plusieurs photos.
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Ajouter des photos (multiples possibles)</label>
-                                <input type="file" class="form-control" name="photo_chantier[]" multiple accept="image/*,.png,.jpg,.jpeg,.gif">
-                                <small class="form-text text-muted">Extensions autorisées: .png, .jpg, .jpeg, .gif. Taille max: 16MB total.</small>
-                            </div>
-                        </div>
-                    </div> <!-- End Tab Content -->
-
-                    <div class="mt-4 pt-3 border-top">
-                        <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>Enregistrer l'Entrée</button>
-                        <button type="reset" class="btn btn-secondary btn-lg"><i class="fas fa-undo me-2"></i>Réinitialiser le Formulaire</button>
                     </div>
-                </form>
+                </div>
+            </div> <!-- End Tab Content -->
+
+            <div class="mt-4 p-3 border-top bg-light">
+                <button type="submit" class="btn btn-primary btn-lg">Enregistrer Toute l'Entrée</button>
+                <button type="reset" class="btn btn-secondary btn-lg">Réinitialiser Formulaire</button>
             </div>
-        </div>
+        </form> <!-- End Combined Form -->
 
 
-        <!-- History Section -->
-        <div class="card rounded-card">
+        <!-- History Section (Separate Card) -->
+        <div class="card rounded-card mt-5">
             <div class="card-body">
-                <h3 class="card-title">Historique des Entrées</h3>
+                <h3 class="card-title mb-4">Historique Complet des Entrées</h3>
                 
                 <div class="row mb-3 align-items-end">
                     <div class="col-md-4">
-                        <label for="searchHistoryInput" class="form-label">Recherche rapide</label>
-                        <input type="text" class="form-control" id="searchHistoryInput" placeholder="Filtrer par mot-clé...">
+                        <label for="searchHistoryGlobal" class="form-label">Recherche rapide</label>
+                        <input type="text" class="form-control" id="searchHistoryGlobal" placeholder="Filtrer par mot-clé...">
                     </div>
                     <div class="col-md-3">
-                        <label for="filterStartDate" class="form-label">Date de début</label>
-                        <input type="date" class="form-control" id="filterStartDate" title="Date de début">
+                        <label for="filterStartDateGlobal" class="form-label">Date de début</label>
+                        <input type="date" class="form-control" id="filterStartDateGlobal" title="Date de début">
                     </div>
                     <div class="col-md-3">
-                        <label for="filterEndDate" class="form-label">Date de fin</label>
-                        <input type="date" class="form-control" id="filterEndDate" title="Date de fin">
+                        <label for="filterEndDateGlobal" class="form-label">Date de fin</label>
+                        <input type="date" class="form-control" id="filterEndDateGlobal" title="Date de fin">
                     </div>
                     <div class="col-md-2 d-grid">
-                         <button class="btn btn-outline-secondary" type="button" id="applyDateFilterButton" title="Appliquer filtre date"><i class="fas fa-filter me-1"></i>Filtrer</button>
+                         <button class="btn btn-outline-secondary" type="button" id="applyDateFilterGlobalButton" title="Appliquer filtre date"><i class="fas fa-filter me-1"></i>Filtrer</button>
                     </div>
                 </div>
-
+                
                 <div class="mb-3">
-                    <a href="{{ url_for('telecharger_historique_csv') }}" class="btn btn-success">
-                        <i class="fas fa-file-csv me-1"></i> Télécharger CSV
-                    </a>
+                    <a href="{{ url_for('telecharger_historique_csv') }}" class="btn btn-success"><i class="fas fa-file-csv me-1"></i> CSV</a>
                     {% if current_user.role == 'admin' %}
-                    <a href="{{ url_for('telecharger_historique_pdf') }}" class="btn btn-danger">
-                        <i class="fas fa-file-pdf me-1"></i> Télécharger PDF (Admin)
-                    </a>
+                    <a href="{{ url_for('telecharger_historique_pdf') }}" class="btn btn-danger"><i class="fas fa-file-pdf me-1"></i> PDF</a>
                     {% endif %}
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover table-bordered" id="historyTable">
-                        <thead class="table-primary">
+                    <table class="table table-striped table-hover table-bordered" id="historyTableGlobal">
+                        <thead class="table-dark"> {# Darker header for history #}
                             <tr>
                                 <th>Date</th>
                                 <th>Utilisateur</th>
@@ -472,12 +395,12 @@
                                 <th>Réf. Équip.</th>
                                 <th>Problèmes (extrait)</th>
                                 <th>Statut Final</th>
-                                <th>Photos</th>
+                                <th>Nb Photos</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% if entries %}
+                            {% if entries %} {# 'entries' comes from render_template in index() route #}
                                 {% for entry in entries %}
                                 <tr data-entry-id="{{ entry.id }}">
                                     <td>{{ entry.date }}</td>
@@ -488,228 +411,156 @@
                                     <td title="{{ entry.problems }}">{{ (entry.problems[:30] + '...') if entry.problems and entry.problems|length > 30 else (entry.problems or '') }}</td>
                                     <td>{{ entry.fin_status or '' }}</td>
                                     <td>
-                                        {% if entry.images %}
-                                            <span class="badge bg-info">{{ entry.images|length }} image(s)</span>
+                                        {% if entry.images and entry.images|length > 0 %}
+                                            <span class="badge bg-info">{{ entry.images|length }}</span>
                                         {% else %}
                                             <span class="badge bg-secondary">0</span>
                                         {% endif %}
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-                                            <a href="{{ url_for('modify_history', entry_id=entry.id) }}" class="btn btn-warning" title="Modifier">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
+                                            <a href="{{ url_for('modify_history', entry_id=entry.id) }}" class="btn btn-warning" title="Modifier"><i class="fas fa-edit"></i></a>
                                             {% if current_user.role == 'admin' %}
-                                            <button type="button" class="btn btn-danger" title="Supprimer" onclick="confirmDeleteEntry({{ entry.id }})">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            <button type="button" class="btn btn-danger" title="Supprimer" onclick="confirmGlobalDeleteEntry({{ entry.id }})"><i class="fas fa-trash"></i></button>
                                             {% endif %}
                                             {% if entry.images and entry.images|length > 0 %}
-                                            <button type="button" class="btn btn-info" title="Voir Images" onclick="viewEntryImages({{ entry.id }})">
-                                                <i class="fas fa-images"></i>
-                                            </button>
+                                            <button type="button" class="btn btn-info" title="Voir Images" onclick="viewGlobalEntryImages({{ entry.id }})"><i class="fas fa-images"></i></button>
                                             {% endif %}
                                         </div>
                                     </td>
                                 </tr>
                                 {% endfor %}
                             {% else %}
-                                <tr>
-                                    <td colspan="9" class="text-center">Aucune entrée dans l'historique.</td>
-                                </tr>
+                                <tr><td colspan="9" class="text-center">Aucune entrée trouvée.</td></tr>
                             {% endif %}
                         </tbody>
                     </table>
                 </div>
-                 <div class="text-muted mt-2 text-end">
-                    <small><i class="fas fa-arrows-alt-h"></i> Faites défiler horizontalement si nécessaire</small>
+                <div class="text-muted mt-2 text-end">
+                    <small><i class="fas fa-arrows-alt-h"></i> Scroll horizontal si nécessaire</small>
                 </div>
 
-
-                <!-- Pagination -->
+                <!-- Pagination for History Table -->
                 {% if pagination and pagination.pages > 1 %}
-                <nav aria-label="Page navigation" class="mt-4">
+                <nav aria-label="Historique navigation" class="mt-4">
                     <ul class="pagination justify-content-center">
-                        <li class="page-item {{ 'disabled' if not pagination.has_prev }}">
-                            <a class="page-link" href="{{ url_for('index', page=pagination.prev_num, start_date=request.args.get('start_date'), end_date=request.args.get('end_date')) if pagination.has_prev else '#'}}">Précédent</a>
-                        </li>
+                        <li class="page-item {{ 'disabled' if not pagination.has_prev }}"><a class="page-link" href="{{ url_for('index', page=pagination.prev_num, start_date=request.args.get('start_date'), end_date=request.args.get('end_date')) if pagination.has_prev else '#'}}">Précédent</a></li>
                         {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
-                            {% if page_num %}
-                                <li class="page-item {{ 'active' if page_num == pagination.page }}">
-                                    <a class="page-link" href="{{ url_for('index', page=page_num, start_date=request.args.get('start_date'), end_date=request.args.get('end_date')) }}">{{ page_num }}</a>
-                                </li>
-                            {% else %}
-                                <li class="page-item disabled"><span class="page-link">...</span></li>
-                            {% endif %}
+                            {% if page_num %}<li class="page-item {{ 'active' if page_num == pagination.page }}"><a class="page-link" href="{{ url_for('index', page=page_num, start_date=request.args.get('start_date'), end_date=request.args.get('end_date')) }}">{{ page_num }}</a></li>
+                            {% else %}<li class="page-item disabled"><span class="page-link">...</span></li>{% endif %}
                         {% endfor %}
-                        <li class="page-item {{ 'disabled' if not pagination.has_next }}">
-                            <a class="page-link" href="{{ url_for('index', page=pagination.next_num, start_date=request.args.get('start_date'), end_date=request.args.get('end_date')) if pagination.has_next else '#'}}">Suivant</a>
-                        </li>
+                        <li class="page-item {{ 'disabled' if not pagination.has_next }}"><a class="page-link" href="{{ url_for('index', page=pagination.next_num, start_date=request.args.get('start_date'), end_date=request.args.get('end_date')) if pagination.has_next else '#'}}">Suivant</a></li>
                     </ul>
                 </nav>
                 {% endif %}
             </div>
         </div>
-    </div> <!-- End Container -->
+    </div> <!-- End Container-fluid -->
 
-    <!-- Image Viewing Modal -->
-    <div class="modal fade" id="viewImagesModal" tabindex="-1" aria-labelledby="viewImagesModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-xl modal-dialog-centered"> {# modal-xl for larger modal #}
+    <!-- Image Viewing Modal (for History Table) -->
+    <div class="modal fade" id="viewGlobalImagesModal" tabindex="-1" aria-labelledby="viewGlobalImagesModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="viewImagesModalLabel">Images de l'Entrée</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body" id="modalImageCarouselContainer">
-            {# Carousel will be dynamically injected here #}
-            <p class="text-center">Chargement des images...</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-          </div>
+          <div class="modal-header"><h5 class="modal-title" id="viewGlobalImagesModalLabel">Images</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+          <div class="modal-body" id="modalGlobalImageCarouselContainer"><p class="text-center">Chargement...</p></div>
+          <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button></div>
         </div>
       </div>
     </div>
 
-    <!-- Hidden form for deletion -->
-    <form id="deleteEntryForm" method="POST" style="display:none;">
-        {# If using Flask-WTF for CSRF protection: <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> #}
+    <!-- Hidden form for deletion (for History Table) -->
+    <form id="deleteGlobalEntryForm" method="POST" style="display:none;">
+        {# CSRF Token: <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> #}
     </form>
-
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Standard Bootstrap form validation
+        // Bootstrap form validation
         (function () {
             'use strict';
             var forms = document.querySelectorAll('.needs-validation');
-            Array.prototype.slice.call(forms)
-                .forEach(function (form) {
-                    form.addEventListener('submit', function (event) {
-                        if (!form.checkValidity()) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
-                        form.classList.add('was-validated');
-                    }, false);
-                });
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) { event.preventDefault(); event.stopPropagation(); }
+                    form.classList.add('was-validated');
+                }, false);
+            });
         })();
 
-        // History table client-side search
-        const searchHistoryInput = document.getElementById('searchHistoryInput');
-        if (searchHistoryInput) {
-            searchHistoryInput.addEventListener('keyup', function() {
-                const searchTerm = searchHistoryInput.value.toLowerCase();
-                const historyTableRows = document.querySelectorAll('#historyTable tbody tr');
-                historyTableRows.forEach(row => {
-                    const rowText = row.textContent.toLowerCase();
-                    row.style.display = rowText.includes(searchTerm) ? '' : 'none';
+        // Client-side search for History Table
+        const searchGlobalInput = document.getElementById('searchHistoryGlobal');
+        if (searchGlobalInput) {
+            searchGlobalInput.addEventListener('keyup', function() {
+                const term = searchGlobalInput.value.toLowerCase();
+                document.querySelectorAll('#historyTableGlobal tbody tr').forEach(row => {
+                    row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
                 });
             });
         }
         
-        // Date range filter
-        document.getElementById('applyDateFilterButton')?.addEventListener('click', function() {
-            const startDate = document.getElementById('filterStartDate').value;
-            const endDate = document.getElementById('filterEndDate').value;
-            let url = new URL("{{ url_for('index') }}", window.location.origin); // Base URL for index
-            url.searchParams.delete('page'); // Reset to page 1 for new filter
-
+        // Date range filter for History Table
+        document.getElementById('applyDateFilterGlobalButton')?.addEventListener('click', function() {
+            const startDate = document.getElementById('filterStartDateGlobal').value;
+            const endDate = document.getElementById('filterEndDateGlobal').value;
+            let url = new URL("{{ url_for('index') }}", window.location.origin);
+            url.searchParams.delete('page'); // Reset page for new filter
             if (startDate) url.searchParams.set('start_date', startDate);
             if (endDate) url.searchParams.set('end_date', endDate);
-            
             window.location.href = url.toString();
         });
 
-        // Delete entry confirmation
-        function confirmDeleteEntry(entryId) {
-            if (confirm('Êtes-vous sûr de vouloir supprimer cette entrée? Cette action est irréversible.')) {
-                const form = document.getElementById('deleteEntryForm');
-                form.action = `/delete-history/${entryId}`; 
-                // Important: For CSRF protection with Flask-WTF, ensure the token is in this form.
-                // Example if you have a global csrf_token() function in Jinja:
-                // const csrfInput = form.querySelector('input[name="csrf_token"]');
-                // if (!csrfInput) { // Add CSRF token if not present
-                //    const token = document.createElement('input');
-                //    token.type = 'hidden';
-                //    token.name = 'csrf_token';
-                //    token.value = '{{ csrf_token() if csrf_token else "" }}'; // Get from global or meta tag
-                //    form.appendChild(token);
-                // }
+        // Delete entry confirmation for History Table
+        function confirmGlobalDeleteEntry(entryId) {
+            if (confirm('Supprimer cette entrée? Irréversible.')) {
+                const form = document.getElementById('deleteGlobalEntryForm');
+                form.action = `/delete-history/${entryId}`;
                 form.submit();
             }
         }
 
-        // View entry images in a modal
-        async function viewEntryImages(entryId) {
-            const modalImageCarouselContainer = document.getElementById('modalImageCarouselContainer');
-            const modalTitle = document.getElementById('viewImagesModalLabel');
-            modalTitle.textContent = `Images de l'Entrée #${entryId}`;
-            modalImageCarouselContainer.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Chargement...</span></div></div>';
+        // View images for History Table
+        async function viewGlobalEntryImages(entryId) {
+            const modalContainer = document.getElementById('modalGlobalImageCarouselContainer');
+            const modalTitle = document.getElementById('viewGlobalImagesModalLabel');
+            modalTitle.textContent = `Images - Entrée #${entryId}`;
+            modalContainer.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Chargement...</span></div></div>';
             
-            const imageModal = new bootstrap.Modal(document.getElementById('viewImagesModal'));
+            const imageModal = new bootstrap.Modal(document.getElementById('viewGlobalImagesModal'));
             imageModal.show();
 
-            try {
-                // This requires an API endpoint to fetch image IDs for a given entry.
-                // Let's assume your `SuiviJournalier` object (named `entry` in the loop)
-                // has an `images` attribute which is a list of `SuiviJournalierImage` objects,
-                // and each image object has an `id`.
-                // We can't directly access Python objects here. So, an API is best.
-                // For now, as a simplified approach, we'll just show a message.
-                // If you can pass the image IDs to the JS (e.g., via data attributes), that's another way.
+            let imagesHtml = '<p class="text-center text-muted">Aucune image disponible ou API non implémentée.</p>';
+            
+            {# This relies on `entries_for_js` being passed from Python, containing entry data with image IDs #}
+            {# Make sure in app.py, index() route: #}
+            {# entries_on_page_dicts = [entry.to_dict() for entry in pagination.items] # }
+            {# return render_template('index.html', ..., entries_for_js=entries_on_page_dicts, datetime=datetime) #}
+            {% if entries_for_js %}
+            const allEntriesData = {{ entries_for_js|tojson|safe }};
+            const entryData = allEntriesData.find(e => e.id === entryId);
 
-                // Placeholder: You would fetch actual image IDs/data here.
-                // For example: const response = await fetch(`/api/entry/${entryId}/images`);
-                // const imageData = await response.json(); // Assuming it returns a list like [{id: 1, filename: 'foo.jpg'}, ...]
-                
-                // Simulating finding the entry from the server-rendered list (not ideal but for demo)
-                let imagesHtml = '<p class="text-center text-muted">Aucune image trouvée ou la fonctionnalité d\'affichage d\'images n\'est pas encore entièrement implémentée via API.</p>';
-                
-                {% if entries %}
-                const allEntries = {{ entries|tojson|safe }}; // Pass entries as JSON to JS
-                const currentEntry = allEntries.find(e => e.id === entryId);
-
-                if (currentEntry && currentEntry.images && currentEntry.images.length > 0) {
-                    imagesHtml = `<div id="carouselEntryImages${entryId}" class="carousel slide" data-bs-ride="carousel">
-                                    <div class="carousel-indicators">`;
-                    currentEntry.images.forEach((img, index) => {
-                        imagesHtml += `<button type="button" data-bs-target="#carouselEntryImages${entryId}" data-bs-slide-to="${index}" class="${index === 0 ? 'active' : ''}" aria-current="${index === 0 ? 'true' : 'false'}" aria-label="Image ${index + 1}"></button>`;
-                    });
-                    imagesHtml += `   </div>
-                                    <div class="carousel-inner">`;
-                    currentEntry.images.forEach((img, index) => {
-                        imagesHtml += `<div class="carousel-item ${index === 0 ? 'active' : ''}">
-                                         <img src="/image/${img.id}" class="d-block w-100" alt="${img.filename || 'Image ' + (index+1) }" style="max-height: 70vh; object-fit: contain;">
-                                         <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 p-2 rounded">
-                                           <h5>${img.filename || 'Image ' + (index+1)}</h5>
-                                         </div>
-                                       </div>`;
-                    });
-                    imagesHtml += `   </div>
-                                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselEntryImages${entryId}" data-bs-slide="prev">
-                                      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                      <span class="visually-hidden">Précédent</span>
-                                    </button>
-                                    <button class="carousel-control-next" type="button" data-bs-target="#carouselEntryImages${entryId}" data-bs-slide="next">
-                                      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                      <span class="visually-hidden">Suivant</span>
-                                    </button>
-                                  </div>`;
-                }
-                {% endif %}
-                
-                modalImageCarouselContainer.innerHTML = imagesHtml;
-
-            } catch (error) {
-                console.error("Erreur lors de la construction du carrousel d'images:", error);
-                modalImageCarouselContainer.innerHTML = '<p class="text-center text-danger">Impossible de charger les images. Une erreur est survenue.</p>';
+            if (entryData && entryData.images && entryData.images.length > 0) {
+                imagesHtml = `<div id="carouselGlobalImages${entryId}" class="carousel slide" data-bs-ride="carousel"><div class="carousel-indicators">`;
+                entryData.images.forEach((img, index) => {
+                    imagesHtml += `<button type="button" data-bs-target="#carouselGlobalImages${entryId}" data-bs-slide-to="${index}" class="${index === 0 ? 'active' : ''}" aria-current="${index === 0 ? 'true' : 'false'}" aria-label="Image ${index + 1}"></button>`;
+                });
+                imagesHtml += `</div><div class="carousel-inner">`;
+                entryData.images.forEach((img, index) => {
+                    imagesHtml += `<div class="carousel-item ${index === 0 ? 'active' : ''}">
+                                     <img src="/image/${img.id}" class="d-block w-100" alt="${img.filename || 'Image ' + (index+1)}" style="max-height: 75vh; object-fit: contain;">
+                                     ${img.filename ? `<div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 p-1 rounded"><small>${img.filename}</small></div>` : ''}
+                                   </div>`;
+                });
+                imagesHtml += `</div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselGlobalImages${entryId}" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Précédent</span></button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carouselGlobalImages${entryId}" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Suivant</span></button>
+                              </div>`;
             }
+            {% else %}
+                console.warn("Variable 'entries_for_js' non trouvée. L'affichage dynamique des images dans le modal ne fonctionnera pas sans elle.");
+            {% endif %}
+            
+            modalContainer.innerHTML = imagesHtml;
         }
-
-        // Ensure `datetime` is available if used in the template for default date
-        // This would typically be passed from Flask: `render_template('index.html', datetime=datetime)`
-        // If not, the value for the date input will be empty.
     </script>
 </body>
 </html>
