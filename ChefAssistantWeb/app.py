@@ -1,4 +1,3 @@
-
 import os
 import csv
 from flask import Flask, render_template, request, redirect, url_for, flash, Response, send_file, session, abort
@@ -27,7 +26,7 @@ app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))
 # Database configuration: Use environment variable for DATABASE_URL
 # Fallback to a local SQLite database for development if DATABASE_URL is not set
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-    'DATABASE_URL', 
+    'DATABASE_URL',
     'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), 'site.db')
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -57,6 +56,10 @@ class SuiviJournalier(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.String(50), default=lambda: datetime.now().strftime('%Y-%m-%d %H:%M'))
     utilisateur = db.Column(db.String(255))
+
+    # --- MODIFIED FOR NOM DU CHANTIER --- START
+    nom_du_chantier = db.Column(db.String(255), nullable=True)
+    # --- MODIFIED FOR NOM DU CHANTIER --- END
 
     # Fields from the form, nullable=True allows them to be empty
     equipement_type = db.Column(db.String(255), nullable=True)
@@ -137,13 +140,17 @@ def save_to_csv(data_dict):
     file_exists = os.path.isfile(filepath)
     # Define fieldnames based on your SuiviJournalier model for consistency
     fieldnames = [
-        "date", "utilisateur", "equipement_type", "equipement_reference", "equipement_etat", 
+        "date", "utilisateur",
+        # --- MODIFIED FOR NOM DU CHANTIER --- START
+        "nom_du_chantier",
+        # --- MODIFIED FOR NOM DU CHANTIER --- END
+        "equipement_type", "equipement_reference", "equipement_etat",
         "equipement_date_reception", "equipement_nombre_1", "equipement_nombre_2", "equipement_nombre_3",
-        "connecteur_type", "connecteur_quantite", "connecteur_etat", "chemin_cable_longueur", 
+        "connecteur_type", "connecteur_quantite", "connecteur_etat", "chemin_cable_longueur",
         "chemin_cable_type", "chemin_cable_section", "chemin_cable_profondeur", "terre_longueur",
         "cableac_section", "cableac_longueur", "cabledc_section", "cabledc_longueur", "shelter_nombre",
         "cables_dctires", "cables_actires", "cables_terretires", "problems", "fin_zone", "fin_string",
-        "fin_tension_dc", "fin_courant_dc", "fin_tension_ac", "fin_puissance", "fin_date", 
+        "fin_tension_dc", "fin_courant_dc", "fin_tension_ac", "fin_puissance", "fin_date",
         "fin_technicien", "fin_status", "photo_chantier_filenames" # For image filenames
     ]
     try:
@@ -202,6 +209,9 @@ def suivi_journalier():
         data_to_save = {
             "utilisateur": current_user.id,
             "date": datetime.now().strftime('%Y-%m-%d %H:%M'), # Set date on server-side
+            # --- MODIFIED FOR NOM DU CHANTIER --- START
+            "nom_du_chantier": request.form.get("nom_du_chantier"),
+            # --- MODIFIED FOR NOM DU CHANTIER --- END
             "equipement_type": request.form.get("equipement_type_1"), # Assuming first machine's data is primary
             "equipement_reference": request.form.get("equipement_reference_1"),
             "equipement_etat": request.form.get("equipement_etat_1"),
@@ -209,7 +219,7 @@ def suivi_journalier():
             "equipement_nombre_1": request.form.get("equipement_nombre_1"),
             "equipement_nombre_2": request.form.get("equipement_nombre_2"), # Store other machine counts if needed
             "equipement_nombre_3": request.form.get("equipement_nombre_3"),
-            
+
             "connecteur_type": request.form.get("connecteur_type"),
             "connecteur_quantite": request.form.get("connecteur_quantite"),
             "connecteur_etat": request.form.get("connecteur_etat"),
@@ -225,7 +235,7 @@ def suivi_journalier():
             "cabledc_section": request.form.get("cabledc_section"),
             "cabledc_longueur": request.form.get("cabledc_longueur"),
             "shelter_nombre": request.form.get("shelter_nombre", type=int) if request.form.get("shelter_nombre") else None,
-            
+
             "cables_dctires": request.form.get("cables_dctires"),
             "cables_actires": request.form.get("cables_actires"),
             "cables_terretires": request.form.get("cables_terretires"),
@@ -241,7 +251,7 @@ def suivi_journalier():
             "fin_technicien": request.form.get("fin_technicien"),
             "fin_status": request.form.get("fin_status"),
         }
-        
+
         # Filter out None values if you prefer not to store them, or let DB handle defaults/nullability
         # data_to_save = {k: v for k, v in data_to_save.items() if v is not None}
 
@@ -263,7 +273,7 @@ def suivi_journalier():
                 )
                 db.session.add(img)
                 image_filenames_for_csv.append(photo.filename)
-        
+
         db.session.commit()
         flash("Entrée enregistrée avec succès.", "success")
 
@@ -276,7 +286,7 @@ def suivi_journalier():
         db.session.rollback()
         app.logger.error(f"Error in suivi_journalier: {str(e)}")
         flash(f"❌ Erreur Serveur lors de l'enregistrement: {str(e)}", "danger")
-    
+
     return redirect(url_for('index'))
 
 
@@ -298,14 +308,18 @@ def modify_history(entry_id):
                 if col_name in request.form: # Check if field is in form data
                     if col_name == 'id' or col_name == 'date' or col_name == 'utilisateur': # Protect certain fields
                         continue
-                    
+
                     value = request.form.get(col_name)
                     # Handle type conversion for integer fields like shelter_nombre
                     if col_name == "shelter_nombre":
                         value = int(value) if value and value.strip() else None # Ensure value is not empty string before int conversion
-                    
+                    # --- MODIFIED FOR NOM DU CHANTIER --- START
+                    # No special handling needed for nom_du_chantier as it's a string,
+                    # but this is where you would add it if necessary.
+                    # The generic setattr below handles it.
+                    # --- MODIFIED FOR NOM DU CHANTIER --- END
                     setattr(entry, col_name, value)
-            
+
             # Handle image deletion
             delete_ids_str = request.form.get('delete_images', '') # Comes as '1,2,3'
             if delete_ids_str:
@@ -314,7 +328,7 @@ def modify_history(entry_id):
                     img_to_delete = SuiviJournalierImage.query.get(img_id_to_delete)
                     if img_to_delete and img_to_delete.suivi_id == entry.id: # Ensure image belongs to entry
                         db.session.delete(img_to_delete)
-            
+
             # Handle new image uploads
             photos = request.files.getlist('photo_chantier[]')
             for photo in photos:
@@ -326,7 +340,7 @@ def modify_history(entry_id):
                         data=photo.read()
                     )
                     db.session.add(img)
-            
+
             db.session.commit()
             flash("Entrée modifiée avec succès.", "success")
             return redirect(url_for('index'))
@@ -334,7 +348,7 @@ def modify_history(entry_id):
             db.session.rollback()
             app.logger.error(f"Error modifying history entry {entry_id}: {str(e)}")
             flash(f"Erreur lors de la modification : {str(e)}", "danger")
-            
+
     return render_template('modify_history.html', entry=entry)
 
 @app.route('/delete-history/<int:entry_id>', methods=['POST']) # Should be POST for destructive actions
@@ -373,10 +387,14 @@ def telecharger_historique():
         rows = SuiviJournalier.query.order_by(SuiviJournalier.date.desc()).all()
     else:
         rows = SuiviJournalier.query.filter_by(utilisateur=current_user.id).order_by(SuiviJournalier.date.desc()).all()
-    
+
     # Dynamically get fieldnames from the model, excluding 'id', and add one for image filenames
+    # --- MODIFIED FOR NOM DU CHANTIER --- START
+    # The dynamic fieldname generation below will automatically pick up 'nom_du_chantier'
+    # from the model. No change needed here for fieldnames list directly.
+    # --- MODIFIED FOR NOM DU CHANTIER --- END
     fieldnames = [col.name for col in SuiviJournalier.__table__.columns if col.name not in ['id']] + ['images_filenames']
-    
+
     csv_buffer = StringIO()
     writer = csv.writer(csv_buffer, delimiter=';')
     writer.writerow(fieldnames) # Write header
@@ -392,7 +410,7 @@ def telecharger_historique():
             else:
                 row_data.append("") # Should not happen if fieldnames are from model
         writer.writerow(row_data)
-        
+
     csv_buffer.seek(0) # Rewind the buffer
     return Response(
         csv_buffer.getvalue(), # Use getvalue() for StringIO
@@ -408,16 +426,16 @@ def telecharger_historique_pdf():
         return redirect(url_for('index'))
 
     rows = SuiviJournalier.query.order_by(SuiviJournalier.date.desc()).all()
-    
+
     pdf_buffer = BytesIO()
     # Use landscape for more horizontal space
-    doc = SimpleDocTemplate(pdf_buffer, pagesize=landscape(letter), topMargin=0.5*inch, bottomMargin=0.5*inch, leftMargin=0.3*inch, rightMargin=0.3*inch)
+    doc = SimpleDocTemplate(pdf_buffer, pagesize=landscape(letter), topMargin=0.5*inch, bottomMargin=0.5*inch, leftMargin=0.2*inch, rightMargin=0.2*inch) # Adjusted margins slightly
     elements = []
     styles = getSampleStyleSheet()
-    
+
     # Custom style for smaller body text to fit more content
-    small_body_style = ParagraphStyle('smallBodyText', parent=styles['Normal'], fontSize=7)
-    small_bold_style = ParagraphStyle('smallBoldText', parent=styles['Normal'], fontSize=7, fontName='Helvetica-Bold')
+    small_body_style = ParagraphStyle('smallBodyText', parent=styles['Normal'], fontSize=6) # Made font even smaller
+    small_bold_style = ParagraphStyle('smallBoldText', parent=styles['Normal'], fontSize=6, fontName='Helvetica-Bold') # Made font even smaller
 
 
     title_style = styles['h1']
@@ -425,20 +443,21 @@ def telecharger_historique_pdf():
     elements.append(Paragraph("Historique des Suivi Journaliers", title_style))
     elements.append(Spacer(1, 0.2*inch))
 
+    # --- MODIFIED FOR NOM DU CHANTIER --- START
     # Define fieldnames for the PDF table, can be a subset or reordered
-    # Keep it manageable for PDF width
     pdf_fieldnames = [
-        "date", "utilisateur", "equipement_type", "equip_ref", "equip_etat", "equip_date_recept",
-        "cables_dc", "cables_ac", "cables_terre", "problems", "fin_stat", "img_count" 
+        "date", "utilisateur", "nom_chantier", "equipement_type", "equip_ref", "equip_etat", "equip_date_recept",
+        "cables_dc", "cables_ac", "cables_terre", "problems", "fin_stat", "img_count"
     ]
-    
+
     # Create more readable headers for PDF
     pdf_headers = {
-        "date": "Date", "utilisateur": "Utilisateur", "equipement_type": "Type Équip.", 
+        "date": "Date", "utilisateur": "Util.", "nom_chantier": "Nom Chantier", "equipement_type": "Type Équip.",
         "equip_ref": "Réf. Équip.", "equip_etat": "État Équip.", "equip_date_recept": "Date Récept.",
-        "cables_dc": "Câbles DC Tirés", "cables_ac": "Câbles AC Tirés", "cables_terre": "Câbles Terre Tirés",
-        "problems": "Problèmes", "fin_stat": "Statut Fin", "img_count": "Nb. Images"
+        "cables_dc": "Câbles DC", "cables_ac": "Câbles AC", "cables_terre": "Câbles Terre",
+        "problems": "Problèmes", "fin_stat": "Statut Fin", "img_count": "Imgs"
     }
+    # --- MODIFIED FOR NOM DU CHANTIER --- END
 
     header_paragraphs = [Paragraph(f"<b>{pdf_headers.get(fn, fn.replace('_', ' ').title())}</b>", small_bold_style) for fn in pdf_fieldnames]
     data_for_table = [header_paragraphs]
@@ -449,6 +468,10 @@ def telecharger_historique_pdf():
             cell_content_str = ""
             if field == 'img_count':
                 cell_content_str = str(len(row.images))
+            # --- MODIFIED FOR NOM DU CHANTIER --- START
+            elif field == 'nom_chantier':
+                 cell_content_str = str(getattr(row, "nom_du_chantier", ""))
+            # --- MODIFIED FOR NOM DU CHANTIER --- END
             elif field == 'equip_ref':
                  cell_content_str = str(getattr(row, "equipement_reference", ""))
             elif field == 'equip_etat':
@@ -465,40 +488,46 @@ def telecharger_historique_pdf():
                  cell_content_str = str(getattr(row, "fin_status", ""))
             elif hasattr(row, field):
                 cell_content_str = str(getattr(row, field, ""))
-            
+
             # Truncate long text for PDF to prevent overflow
-            max_len = 25
+            max_len = 20 # Adjusted max_len for smaller font
             if len(cell_content_str) > max_len:
                 cell_content_str = cell_content_str[:max_len-3] + "..."
             row_data_paragraphs.append(Paragraph(cell_content_str, small_body_style))
         data_for_table.append(row_data_paragraphs)
 
     if len(data_for_table) > 1: # If there's data beyond header
+        # --- MODIFIED FOR NOM DU CHANTIER --- START
         # Adjust column widths (example, you'll need to fine-tune)
-        # Total width available is approx 10 inches (landscape letter minus margins)
+        # Total width available is approx 10.6 inches (landscape letter minus margins 0.2*2)
         col_widths = [
-            1.0*inch, 0.8*inch, 0.8*inch, 0.8*inch, 0.7*inch, 0.8*inch, # date, util, equip_type, ref, etat, date_recept
-            0.7*inch, 0.7*inch, 0.7*inch, 1.5*inch, 0.7*inch, 0.6*inch  # dc, ac, terre, problems, fin_stat, img_count
-        ] 
-        
-        table = Table(data_for_table, colWidths=col_widths, repeatRows=1) 
+            0.9*inch, 0.7*inch, 0.9*inch,  # date, util, nom_chantier
+            0.7*inch, 0.7*inch, 0.6*inch, 0.7*inch, # equip_type, ref, etat, date_recept
+            0.6*inch, 0.6*inch, 0.6*inch,  # dc, ac, terre
+            1.5*inch, 0.6*inch, 0.5*inch  # problems, fin_stat, img_count
+        ]
+        # Ensure sum of col_widths is <= available page width
+        # Current sum: 0.9+0.7+0.9+0.7+0.7+0.6+0.7+0.6+0.6+0.6+1.5+0.6+0.5 = 10.2 inches. This should fit.
+        # --- MODIFIED FOR NOM DU CHANTIER --- END
+
+        table = Table(data_for_table, colWidths=col_widths, repeatRows=1)
         table_style = TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.darkslategray),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 7), # Header font size
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-            ('TOPPADDING', (0, 0), (-1, 0), 8),
+            ('FONTSIZE', (0, 0), (-1, 0), 6), # Header font size
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 6), # Adjusted padding
+            ('TOPPADDING', (0, 0), (-1, 0), 6),    # Adjusted padding
             ('BACKGROUND', (0, 1), (-1, -1), colors.lightgrey), # Row background
             ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
-            ('FONTSIZE', (0, 1), (-1, -1), 7), # Data font size
+            ('FONTSIZE', (0, 1), (-1, -1), 6), # Data font size
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('LEFTPADDING', (0,0), (-1,-1), 4),
-            ('RIGHTPADDING', (0,0), (-1,-1), 4),
-            ('TOPPADDING', (0,1), (-1,-1), 4),
-            ('BOTTOMPADDING', (0,1), (-1,-1), 4),
+            ('LEFTPADDING', (0,0), (-1,-1), 3), # Adjusted padding
+            ('RIGHTPADDING', (0,0), (-1,-1), 3),# Adjusted padding
+            ('TOPPADDING', (0,1), (-1,-1), 3),   # Adjusted padding
+            ('BOTTOMPADDING', (0,1), (-1,-1), 3),# Adjusted padding
         ])
         table.setStyle(table_style)
         elements.append(table)
@@ -516,7 +545,7 @@ def admin_panel():
     if current_user.role != "admin":
         flash("Accès refusé : Administrateur seulement.", "danger")
         return redirect(url_for('index'))
-    
+
     if request.method == 'POST':
         action = request.form.get('action')
         username = request.form.get('username')
