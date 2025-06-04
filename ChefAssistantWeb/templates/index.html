@@ -138,6 +138,15 @@
                 <form method="POST" action="{{ url_for('suivi_journalier') }}" enctype="multipart/form-data">
                   <input type="hidden" name="section" value="equipements">
                   
+                  <!-- ADDED NOM DU CHANTIER FIELD - START -->
+                  <div class="row mb-3">
+                    <div class="col-md-12">
+                      <label for="nom_du_chantier" class="form-label">Nom du chantier</label>
+                      <input type="text" class="form-control" id="nom_du_chantier" name="nom_du_chantier" placeholder="Entrez le nom du chantier">
+                    </div>
+                  </div>
+                  <!-- ADDED NOM DU CHANTIER FIELD - END -->
+                  
                   <div class="row mb-2 fw-bold text-center">
                     <div class="col-md-3">Type de machine</div>
                     <div class="col-md-3">Référence</div>
@@ -571,6 +580,9 @@
                 <tr>
                   <th>Date</th>
                   <th>Utilisateur</th>
+                  <!-- ADDED NOM DU CHANTIER HEADER - START -->
+                  <th>Nom du Chantier</th>
+                  <!-- ADDED NOM DU CHANTIER HEADER - END -->
                   <th>Type Equipement</th>
                   <th>Référence Equipement</th>
                   <th>État Equipement</th>
@@ -597,6 +609,9 @@
                 <tr>
                   <td>{{ row.date|default('') }}</td>
                   <td>{{ row.utilisateur|default('') }}</td>
+                  <!-- ADDED NOM DU CHANTIER DATA - START -->
+                  <td>{{ row.nom_du_chantier|default('') }}</td>
+                  <!-- ADDED NOM DU CHANTIER DATA - END -->
                   <td>{{ row.equipement_type|default('') }}</td>
                   <td>{{ row.equipement_reference|default('') }}</td>
                   <td>{{ row.equipement_etat|default('') }}</td>
