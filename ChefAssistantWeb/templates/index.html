@@ -57,9 +57,13 @@
             background-color: #003366;
             border-color: #003366;
         }
-        .btn-danger {
-            background-color: #dc3545;
-            border-color: #dc3545;
+        .btn-danger { /* Standard danger color */
+             /* background-color: #C00000; Red TSB */
+             /* border-color: #C00000; */
+        }
+        .btn-success { /* Standard success color */
+            /* background-color: #00B050; Green TSB */
+            /* border-color: #00B050; */
         }
         .table-primary {
             background-color: #004A99 !important; /* For table header */
@@ -135,7 +139,7 @@
             <div class="card-body">
                 <h3 class="card-title">Nouvelle Entrée de Suivi Journalier</h3>
                 <form method="POST" action="{{ url_for('add_suivi_journalier_entry') }}" enctype="multipart/form-data" class="needs-validation" novalidate>
-                    <!-- If using Flask-WTF for CSRF protection: <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> -->
+                    {# If using Flask-WTF for CSRF protection: <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> #}
                     
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -145,7 +149,9 @@
                         </div>
                          <div class="col-md-6">
                             <label for="date_entree" class="form-label">Date de l'entrée</label>
-                            <input type="text" class="form-control" id="date_entree" name="date" value="{{ datetime.now().strftime('%Y-%m-%d %H:%M') }}" readonly>
+                            {# Assuming 'datetime' is passed to the template context for datetime.now() #}
+                            <input type="text" class="form-control" id="date_entree" name="date" 
+                                   value="{{ datetime.now().strftime('%Y-%m-%d %H:%M') if datetime else '' }}" readonly>
                             <small class="form-text text-muted">Généré automatiquement.</small>
                         </div>
                     </div>
@@ -402,12 +408,12 @@
                         <div class="tab-pane fade" id="form-photos" role="tabpanel" aria-labelledby="form-photos-tab">
                             <h5 class="form-section-title">Photos Générales du Chantier</h5>
                              <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i> Vous pouvez ajouter plusieurs photos. Les photos spécifiques à une section peuvent être ajoutées plus tard en modifiant l'entrée.
+                                <i class="fas fa-info-circle"></i> Vous pouvez ajouter plusieurs photos.
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Ajouter des photos (multiples possibles)</label>
-                                <input type="file" class="form-control" name="photo_chantier[]" multiple accept="image/*">
-                                <small class="form-text text-muted">Extensions autorisées: .png, .jpg, .jpeg, .gif</small>
+                                <input type="file" class="form-control" name="photo_chantier[]" multiple accept="image/*,.png,.jpg,.jpeg,.gif">
+                                <small class="form-text text-muted">Extensions autorisées: .png, .jpg, .jpeg, .gif. Taille max: 16MB total.</small>
                             </div>
                         </div>
                     </div> <!-- End Tab Content -->
@@ -426,18 +432,21 @@
             <div class="card-body">
                 <h3 class="card-title">Historique des Entrées</h3>
                 
-                <div class="row mb-3">
-                    <div class="col-md-5">
-                        <input type="text" class="form-control" id="searchHistoryInput" placeholder="Rechercher dans l'historique...">
+                <div class="row mb-3 align-items-end">
+                    <div class="col-md-4">
+                        <label for="searchHistoryInput" class="form-label">Recherche rapide</label>
+                        <input type="text" class="form-control" id="searchHistoryInput" placeholder="Filtrer par mot-clé...">
                     </div>
                     <div class="col-md-3">
+                        <label for="filterStartDate" class="form-label">Date de début</label>
                         <input type="date" class="form-control" id="filterStartDate" title="Date de début">
                     </div>
                     <div class="col-md-3">
+                        <label for="filterEndDate" class="form-label">Date de fin</label>
                         <input type="date" class="form-control" id="filterEndDate" title="Date de fin">
                     </div>
-                    <div class="col-md-1 d-grid">
-                         <button class="btn btn-outline-secondary" type="button" id="applyDateFilterButton" title="Appliquer filtre date"><i class="fas fa-filter"></i></button>
+                    <div class="col-md-2 d-grid">
+                         <button class="btn btn-outline-secondary" type="button" id="applyDateFilterButton" title="Appliquer filtre date"><i class="fas fa-filter me-1"></i>Filtrer</button>
                     </div>
                 </div>
 
@@ -459,10 +468,9 @@
                                 <th>Date</th>
                                 <th>Utilisateur</th>
                                 <th>Chantier</th>
-                                <!-- Add more columns if needed for a quick overview, or rely on modify for details -->
                                 <th>Type Équip.</th>
                                 <th>Réf. Équip.</th>
-                                <th>Problèmes</th>
+                                <th>Problèmes (extrait)</th>
                                 <th>Statut Final</th>
                                 <th>Photos</th>
                                 <th>Actions</th>
@@ -496,8 +504,7 @@
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                             {% endif %}
-                                            <!-- Button to view images (you'll need a modal or separate page) -->
-                                            {% if entry.images %}
+                                            {% if entry.images and entry.images|length > 0 %}
                                             <button type="button" class="btn btn-info" title="Voir Images" onclick="viewEntryImages({{ entry.id }})">
                                                 <i class="fas fa-images"></i>
                                             </button>
@@ -545,16 +552,17 @@
         </div>
     </div> <!-- End Container -->
 
-    <!-- Image Viewing Modal (Example Structure) -->
+    <!-- Image Viewing Modal -->
     <div class="modal fade" id="viewImagesModal" tabindex="-1" aria-labelledby="viewImagesModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-dialog modal-xl modal-dialog-centered"> {# modal-xl for larger modal #}
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="viewImagesModalLabel">Images de l'Entrée</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body" id="modalImageCarouselContainer">
-            <!-- Carousel will be injected here by JavaScript -->
+            {# Carousel will be dynamically injected here #}
+            <p class="text-center">Chargement des images...</p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
@@ -565,7 +573,7 @@
 
     <!-- Hidden form for deletion -->
     <form id="deleteEntryForm" method="POST" style="display:none;">
-        <!-- CSRF token if used: <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> -->
+        {# If using Flask-WTF for CSRF protection: <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> #}
     </form>
 
 
@@ -587,22 +595,16 @@
                 });
         })();
 
-        // History table search (client-side basic search)
-        const searchInput = document.getElementById('searchHistoryInput');
-        const historyTable = document.getElementById('historyTable');
-        const tableRows = historyTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-
-        if (searchInput) {
-            searchInput.addEventListener('keyup', function() {
-                const searchTerm = searchInput.value.toLowerCase();
-                for (let i = 0; i < tableRows.length; i++) {
-                    const rowText = tableRows[i].textContent.toLowerCase();
-                    if (rowText.includes(searchTerm)) {
-                        tableRows[i].style.display = '';
-                    } else {
-                        tableRows[i].style.display = 'none';
-                    }
-                }
+        // History table client-side search
+        const searchHistoryInput = document.getElementById('searchHistoryInput');
+        if (searchHistoryInput) {
+            searchHistoryInput.addEventListener('keyup', function() {
+                const searchTerm = searchHistoryInput.value.toLowerCase();
+                const historyTableRows = document.querySelectorAll('#historyTable tbody tr');
+                historyTableRows.forEach(row => {
+                    const rowText = row.textContent.toLowerCase();
+                    row.style.display = rowText.includes(searchTerm) ? '' : 'none';
+                });
             });
         }
         
@@ -610,14 +612,11 @@
         document.getElementById('applyDateFilterButton')?.addEventListener('click', function() {
             const startDate = document.getElementById('filterStartDate').value;
             const endDate = document.getElementById('filterEndDate').value;
-            let url = new URL(window.location.href);
+            let url = new URL("{{ url_for('index') }}", window.location.origin); // Base URL for index
             url.searchParams.delete('page'); // Reset to page 1 for new filter
 
             if (startDate) url.searchParams.set('start_date', startDate);
-            else url.searchParams.delete('start_date');
-            
             if (endDate) url.searchParams.set('end_date', endDate);
-            else url.searchParams.delete('end_date');
             
             window.location.href = url.toString();
         });
@@ -627,81 +626,90 @@
             if (confirm('Êtes-vous sûr de vouloir supprimer cette entrée? Cette action est irréversible.')) {
                 const form = document.getElementById('deleteEntryForm');
                 form.action = `/delete-history/${entryId}`; 
-                // If using CSRF with Flask-WTF, ensure the token is in this form or sent via JS.
+                // Important: For CSRF protection with Flask-WTF, ensure the token is in this form.
+                // Example if you have a global csrf_token() function in Jinja:
+                // const csrfInput = form.querySelector('input[name="csrf_token"]');
+                // if (!csrfInput) { // Add CSRF token if not present
+                //    const token = document.createElement('input');
+                //    token.type = 'hidden';
+                //    token.name = 'csrf_token';
+                //    token.value = '{{ csrf_token() if csrf_token else "" }}'; // Get from global or meta tag
+                //    form.appendChild(token);
+                // }
                 form.submit();
             }
         }
 
-        // View images function (loads images into a modal)
+        // View entry images in a modal
         async function viewEntryImages(entryId) {
-            // This is a more complex part. You need a backend endpoint that returns image URLs for an entry.
-            // Or, if images are few, you could embed their data directly in the page (not recommended for many/large images).
-            // For now, let's assume you have image URLs (e.g. /image/<image_id>)
             const modalImageCarouselContainer = document.getElementById('modalImageCarouselContainer');
-            modalImageCarouselContainer.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'; // Loading spinner
+            const modalTitle = document.getElementById('viewImagesModalLabel');
+            modalTitle.textContent = `Images de l'Entrée #${entryId}`;
+            modalImageCarouselContainer.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Chargement...</span></div></div>';
+            
+            const imageModal = new bootstrap.Modal(document.getElementById('viewImagesModal'));
+            imageModal.show();
 
             try {
-                // We need to fetch the image details for the entry.
-                // Let's assume the entry object in the template has image IDs.
-                // This part needs backend support to list image IDs for an entry or an endpoint.
-                // For a simple demo, let's try to find images linked in the current row:
-                const entryRow = document.querySelector(`tr[data-entry-id='${entryId}']`);
-                if (!entryRow) {
-                    modalImageCarouselContainer.innerHTML = '<p class="text-danger">Impossible de trouver les images pour cette entrée.</p>';
-                    new bootstrap.Modal(document.getElementById('viewImagesModal')).show();
-                    return;
-                }
-                
-                // This is a placeholder. Ideally, you'd fetch a list of image IDs for the entry.
-                // Then construct img tags pointing to `{{ url_for('get_image', image_id=IMAGE_ID_HERE) }}`
-                // For now, let's just say "Image viewing feature to be fully implemented"
-                // If your 'entry.images' in the Python template passed image objects with 'id', you could pre-render this.
-                // Example: if entry.images was passed to the template as a list of image objects with an 'id' attribute:
-                
-                // const images = {{ entries.iter().find(|e| e.id == entryId).images_json_or_similar }}; // This line won't work directly in JS
-                // This needs to be smarter. For now, a placeholder:
+                // This requires an API endpoint to fetch image IDs for a given entry.
+                // Let's assume your `SuiviJournalier` object (named `entry` in the loop)
+                // has an `images` attribute which is a list of `SuiviJournalierImage` objects,
+                // and each image object has an `id`.
+                // We can't directly access Python objects here. So, an API is best.
+                // For now, as a simplified approach, we'll just show a message.
+                // If you can pass the image IDs to the JS (e.g., via data attributes), that's another way.
 
-                // Simulate fetching image URLs (replace with actual logic)
-                // We'll create a dummy carousel for now.
-                // In a real app, you'd fetch the SuiviJournalier entry's image list via an API endpoint.
-                // Then for each image, the src would be {{ url_for('get_image', image_id=img.id) }}
+                // Placeholder: You would fetch actual image IDs/data here.
+                // For example: const response = await fetch(`/api/entry/${entryId}/images`);
+                // const imageData = await response.json(); // Assuming it returns a list like [{id: 1, filename: 'foo.jpg'}, ...]
                 
-                let carouselHTML = `<div id="imageCarousel${entryId}" class="carousel slide" data-bs-ride="carousel">
-                                      <div class="carousel-inner">`;
+                // Simulating finding the entry from the server-rendered list (not ideal but for demo)
+                let imagesHtml = '<p class="text-center text-muted">Aucune image trouvée ou la fonctionnalité d\'affichage d\'images n\'est pas encore entièrement implémentée via API.</p>';
                 
-                // This is the tricky part: getting the image IDs or URLs to JS.
-                // One way is to embed them as data attributes in the button or row.
-                // e.g., in the button: data-image-ids="[id1, id2, id3]"
-                // For simplicity, we'll just show a message.
-                // You would need to fetch these IDs from the server for the given entryId
-                // For example: fetch(`/api/entry/${entryId}/images`).then(res => res.json()).then(images => { ... build carousel ... })
-                
-                // Find the entry object from the server-side rendered `entries` (if available to JS)
-                // This is complex without a direct JS object or an API call.
-                // For the purpose of this example, let's assume we have a (simplified) way to get image count
-                const imageBadge = entryRow.querySelector('.badge.bg-info');
-                let imageCount = 0;
-                if (imageBadge) {
-                    imageCount = parseInt(imageBadge.textContent) || 0;
-                }
+                {% if entries %}
+                const allEntries = {{ entries|tojson|safe }}; // Pass entries as JSON to JS
+                const currentEntry = allEntries.find(e => e.id === entryId);
 
-                if (imageCount > 0) {
-                     modalImageCarouselContainer.innerHTML = `<p class="text-center">Cette entrée contient ${imageCount} image(s). <br/>Pour les afficher, vous devez créer un endpoint API pour récupérer les IDs des images associées à l'entrée ${entryId}, puis construire le carrousel dynamiquement ici en utilisant <code><img src="/image/IMAGE_ID"></code> pour chaque image.</p><p class="text-center">Alternativement, modifiez le template pour que la page <code>modify_history.html</code> affiche les images directement.</p>`;
-
-                } else {
-                    carouselHTML = '<p class="text-center">Aucune image associée à cette entrée.</p>';
-                    modalImageCarouselContainer.innerHTML = carouselHTML;
+                if (currentEntry && currentEntry.images && currentEntry.images.length > 0) {
+                    imagesHtml = `<div id="carouselEntryImages${entryId}" class="carousel slide" data-bs-ride="carousel">
+                                    <div class="carousel-indicators">`;
+                    currentEntry.images.forEach((img, index) => {
+                        imagesHtml += `<button type="button" data-bs-target="#carouselEntryImages${entryId}" data-bs-slide-to="${index}" class="${index === 0 ? 'active' : ''}" aria-current="${index === 0 ? 'true' : 'false'}" aria-label="Image ${index + 1}"></button>`;
+                    });
+                    imagesHtml += `   </div>
+                                    <div class="carousel-inner">`;
+                    currentEntry.images.forEach((img, index) => {
+                        imagesHtml += `<div class="carousel-item ${index === 0 ? 'active' : ''}">
+                                         <img src="/image/${img.id}" class="d-block w-100" alt="${img.filename || 'Image ' + (index+1) }" style="max-height: 70vh; object-fit: contain;">
+                                         <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 p-2 rounded">
+                                           <h5>${img.filename || 'Image ' + (index+1)}</h5>
+                                         </div>
+                                       </div>`;
+                    });
+                    imagesHtml += `   </div>
+                                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselEntryImages${entryId}" data-bs-slide="prev">
+                                      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                      <span class="visually-hidden">Précédent</span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" data-bs-target="#carouselEntryImages${entryId}" data-bs-slide="next">
+                                      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                      <span class="visually-hidden">Suivant</span>
+                                    </button>
+                                  </div>`;
                 }
+                {% endif %}
                 
-                new bootstrap.Modal(document.getElementById('viewImagesModal')).show();
+                modalImageCarouselContainer.innerHTML = imagesHtml;
 
             } catch (error) {
-                console.error("Error fetching images:", error);
-                modalImageCarouselContainer.innerHTML = '<p class="text-danger">Erreur lors du chargement des images.</p>';
-                new bootstrap.Modal(document.getElementById('viewImagesModal')).show();
+                console.error("Erreur lors de la construction du carrousel d'images:", error);
+                modalImageCarouselContainer.innerHTML = '<p class="text-center text-danger">Impossible de charger les images. Une erreur est survenue.</p>';
             }
         }
 
+        // Ensure `datetime` is available if used in the template for default date
+        // This would typically be passed from Flask: `render_template('index.html', datetime=datetime)`
+        // If not, the value for the date input will be empty.
     </script>
 </body>
 </html>
