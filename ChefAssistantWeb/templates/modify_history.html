@@ -1,144 +1,376 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {# Assuming you have a base.html with Bootstrap CSS/JS linked #}
+
+{% block head_extra %}
+<style>
+    body { background: #f6f8fa; }
+    .main-app {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 1.5rem;
+    }
+    .header h1 {
+        font-size: 1.8rem;
+        color: #357abd;
+        margin: 0;
+    }
+    .logout-btn { /* Re-using from index.html for consistency */
+        background: #eaf1fb;
+        color: #357abd;
+        border: none;
+        border-radius: 0.6rem;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        transition: background .2s;
+        text-decoration: none; /* For anchor tag */
+    }
+    .logout-btn:hover {
+        background: #357abd;
+        color: white;
+    }
+    .form-control, .form-select {
+        margin-bottom: 0.5rem; /* Spacing below inputs */
+    }
+    label {
+        font-weight: 500;
+        margin-bottom: 0.2rem;
+        display: block;
+    }
+    h4.mt-4 {
+        color: #357abd;
+        border-bottom: 2px solid #357abd;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
 {% block body %}
-<div class="main-app" style="display:block;">
+<div class="main-app">
     <div class="header">
-        <h1>Modifier l'Entrée</h1>
+        <h1>Modifier l'Entrée #{{ entry.id }}</h1>
         <a href="{{ url_for('index') }}">
-            <button class="logout-btn">Retour</button>
+            <button class="logout-btn">Retour à l'accueil</button>
         </a>
     </div>
     <div class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
         <form method="POST" enctype="multipart/form-data">
+            <p class="text-muted"><strong>Date de création :</strong> {{ entry.date }} | <strong>Utilisateur :</strong> {{ entry.utilisateur }}</p>
+            <p class="text-muted"><strong>Type de Chantier (enregistré) :</strong> {{ entry.chantier_type | default('Non spécifié') }}</p>
+
+
             <!-- Réception du Chantier -->
             <h4 class="mt-4">Réception du Chantier</h4>
-            <div class="row mb-3">
-                <div class="col-md-4"><label>Type Équipement</label><input type="text" class="form-control" name="equipement_type" value="{{ entry.equipement_type or '' }}"></div>
-                <div class="col-md-4"><label>Référence</label><input type="text" class="form-control" name="equipement_reference" value="{{ entry.equipement_reference or '' }}"></div>
-                <div class="col-md-4"><label>État</label><input type="text" class="form-control" name="equipement_etat" value="{{ entry.equipement_etat or '' }}"></div>
+            <div class="mb-3">
+                <label for="nom_du_chantier_modify">Nom du chantier</label>
+                <input type="text" class="form-control" id="nom_du_chantier_modify" name="nom_du_chantier" value="{{ entry.nom_du_chantier or '' }}">
             </div>
             <div class="row mb-3">
-                <div class="col-md-4"><label>Date Réception</label><input type="date" class="form-control" name="equipement_date_reception" value="{{ entry.equipement_date_reception or '' }}"></div>
-                <div class="col-md-4"><label>Nombre 1</label><input type="text" class="form-control" name="equipement_nombre_1" value="{{ entry.equipement_nombre_1 or '' }}"></div>
-                <div class="col-md-4"><label>Nombre 2</label><input type="text" class="form-control" name="equipement_nombre_2" value="{{ entry.equipement_nombre_2 or '' }}"></div>
-            </div>
-            <div class="mb-3"><label>Nombre 3</label><input type="text" class="form-control" name="equipement_nombre_3" value="{{ entry.equipement_nombre_3 or '' }}"></div>
-            <div class="row mb-3">
-                <div class="col-md-4"><label>Type Connecteur</label><input type="text" class="form-control" name="connecteur_type" value="{{ entry.connecteur_type or '' }}"></div>
-                <div class="col-md-4"><label>Quantité</label><input type="text" class="form-control" name="connecteur_quantite" value="{{ entry.connecteur_quantite or '' }}"></div>
-                <div class="col-md-4"><label>État</label><input type="text" class="form-control" name="connecteur_etat" value="{{ entry.connecteur_etat or '' }}"></div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-md-3"><label>Longueur Chemin Câble</label><input type="text" class="form-control" name="chemin_cable_longueur" value="{{ entry.chemin_cable_longueur or '' }}"></div>
-                <div class="col-md-3"><label>Type</label><input type="text" class="form-control" name="chemin_cable_type" value="{{ entry.chemin_cable_type or '' }}"></div>
-                <div class="col-md-3"><label>Section</label><input type="text" class="form-control" name="chemin_cable_section" value="{{ entry.chemin_cable_section or '' }}"></div>
-                <div class="col-md-3"><label>Profondeur</label><input type="text" class="form-control" name="chemin_cable_profondeur" value="{{ entry.chemin_cable_profondeur or '' }}"></div>
-            </div>
-            <div class="mb-3"><label>Longueur Terre</label><input type="text" class="form-control" name="terre_longueur" value="{{ entry.terre_longueur or '' }}"></div>
-            <div class="row mb-3">
-                <div class="col-md-6"><label>Section Câble AC</label><input type="text" class="form-control" name="cableac_section" value="{{ entry.cableac_section or '' }}"></div>
-                <div class="col-md-6"><label>Longueur Câble AC</label><input type="text" class="form-control" name="cableac_longueur" value="{{ entry.cableac_longueur or '' }}"></div>
+                <div class="col-md-4">
+                    <label for="equipement_type">Type Équipement</label>
+                    <input type="text" class="form-control" id="equipement_type" name="equipement_type" value="{{ entry.equipement_type or '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="equipement_reference">Référence</label>
+                    <input type="text" class="form-control" id="equipement_reference" name="equipement_reference" value="{{ entry.equipement_reference or '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="equipement_etat">État Équipement</label>
+                    <select class="form-select" id="equipement_etat" name="equipement_etat">
+                        <option value="Bon état" {% if entry.equipement_etat == "Bon état" %}selected{% endif %}>Bon état</option>
+                        <option value="À vérifier" {% if entry.equipement_etat == "À vérifier" %}selected{% endif %}>À vérifier</option>
+                        <option value="Défaillant" {% if entry.equipement_etat == "Défaillant" %}selected{% endif %}>Défaillant</option>
+                        <option value="" {% if not entry.equipement_etat %}selected{% endif %}>Non spécifié</option>
+                    </select>
+                </div>
             </div>
             <div class="row mb-3">
-                <div class="col-md-6"><label>Section Câble DC</label><input type="text" class="form-control" name="cabledc_section" value="{{ entry.cabledc_section or '' }}"></div>
-                <div class="col-md-6"><label>Longueur Câble DC</label><input type="text" class="form-control" name="cabledc_longueur" value="{{ entry.cabledc_longueur or '' }}"></div>
+                <div class="col-md-4">
+                    <label for="equipement_date_reception">Date Réception</label>
+                    <input type="date" class="form-control" id="equipement_date_reception" name="equipement_date_reception" value="{{ entry.equipement_date_reception or '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="equipement_nombre_1">Nombre Équip. 1</label>
+                    <input type="number" class="form-control" id="equipement_nombre_1" name="equipement_nombre_1" value="{{ entry.equipement_nombre_1 if entry.equipement_nombre_1 is not none else '' }}" min="0">
+                </div>
+                <div class="col-md-4">
+                    <label for="equipement_nombre_2">Nombre Équip. 2</label>
+                    <input type="number" class="form-control" id="equipement_nombre_2" name="equipement_nombre_2" value="{{ entry.equipement_nombre_2 if entry.equipement_nombre_2 is not none else '' }}" min="0">
+                </div>
             </div>
+            <div class="mb-3 col-md-4"> {# Placed in col-md-4 for alignment if needed #}
+                <label for="equipement_nombre_3">Nombre Équip. 3</label>
+                <input type="number" class="form-control" id="equipement_nombre_3" name="equipement_nombre_3" value="{{ entry.equipement_nombre_3 if entry.equipement_nombre_3 is not none else '' }}" min="0">
+            </div>
+            
+            <hr>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="connecteur_type">Type Connecteur</label>
+                    <input type="text" class="form-control" id="connecteur_type" name="connecteur_type" value="{{ entry.connecteur_type or '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="connecteur_quantite">Quantité Connecteur</label>
+                    <input type="number" class="form-control" id="connecteur_quantite" name="connecteur_quantite" value="{{ entry.connecteur_quantite if entry.connecteur_quantite is not none else '' }}" min="0">
+                </div>
+                <div class="col-md-4">
+                    <label for="connecteur_etat">État Connecteur</label>
+                     <select class="form-select" id="connecteur_etat" name="connecteur_etat">
+                        <option value="Bon état" {% if entry.connecteur_etat == "Bon état" %}selected{% endif %}>Bon état</option>
+                        <option value="À vérifier" {% if entry.connecteur_etat == "À vérifier" %}selected{% endif %}>À vérifier</option>
+                        <option value="Défaillant" {% if entry.connecteur_etat == "Défaillant" %}selected{% endif %}>Défaillant</option>
+                        <option value="" {% if not entry.connecteur_etat %}selected{% endif %}>Non spécifié</option>
+                    </select>
+                </div>
+            </div>
+
+            <hr>
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label for="chemin_cable_type">Type Chemin Câble</label>
+                    <input type="text" class="form-control" id="chemin_cable_type" name="chemin_cable_type" value="{{ entry.chemin_cable_type or '' }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="chemin_cable_longueur">Longueur Ch. Câble (m)</label>
+                    <input type="number" class="form-control" id="chemin_cable_longueur" name="chemin_cable_longueur" value="{{ entry.chemin_cable_longueur if entry.chemin_cable_longueur is not none else '' }}" min="0" step="any">
+                </div>
+                <div class="col-md-3">
+                    <label for="chemin_cable_section">Section Ch. Câble</label>
+                    <input type="text" class="form-control" id="chemin_cable_section" name="chemin_cable_section" value="{{ entry.chemin_cable_section or '' }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="chemin_cable_profondeur">Profondeur (cm)</label>
+                    <input type="number" class="form-control" id="chemin_cable_profondeur" name="chemin_cable_profondeur" value="{{ entry.chemin_cable_profondeur if entry.chemin_cable_profondeur is not none else '' }}" min="0" step="any">
+                </div>
+            </div>
+
+            <hr>
+            <div class="mb-3 col-md-4">
+                <label for="terre_longueur">Longueur Terre (m)</label>
+                <input type="number" class="form-control" id="terre_longueur" name="terre_longueur" value="{{ entry.terre_longueur if entry.terre_longueur is not none else '' }}" min="0" step="any">
+            </div>
+
+            <hr>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="cableac_section">Section Câble AC</label>
+                    <input type="text" class="form-control" id="cableac_section" name="cableac_section" value="{{ entry.cableac_section or '' }}">
+                </div>
+                <div class="col-md-6">
+                    <label for="cableac_longueur">Longueur Câble AC (m)</label>
+                    <input type="number" class="form-control" id="cableac_longueur" name="cableac_longueur" value="{{ entry.cableac_longueur if entry.cableac_longueur is not none else '' }}" min="0" step="any">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="cabledc_section">Section Câble DC</label>
+                    <input type="text" class="form-control" id="cabledc_section" name="cabledc_section" value="{{ entry.cabledc_section or '' }}">
+                </div>
+                <div class="col-md-6">
+                    <label for="cabledc_longueur">Longueur Câble DC (m)</label>
+                    <input type="number" class="form-control" id="cabledc_longueur" name="cabledc_longueur" value="{{ entry.cabledc_longueur if entry.cabledc_longueur is not none else '' }}" min="0" step="any">
+                </div>
+            </div>
+            <div class="mb-3 col-md-4">
+                <label for="shelter_nombre">Nombre Shelter</label>
+                <input type="number" class="form-control" id="shelter_nombre" name="shelter_nombre" value="{{ entry.shelter_nombre if entry.shelter_nombre is not none else '' }}" min="0">
+            </div>
+
 
             <!-- Avancement du Chantier -->
             <h4 class="mt-4">Avancement du Chantier</h4>
             <div class="row mb-3">
-                <div class="col-md-4"><label>Câble DC tiré</label><input type="text" class="form-control" name="cables_dctires" value="{{ entry.cables_dctires or '' }}"></div>
-                <div class="col-md-4"><label>Câble AC tiré</label><input type="text" class="form-control" name="cables_actires" value="{{ entry.cables_actires or '' }}"></div>
-                <div class="col-md-4"><label>Câble Terre tiré</label><input type="text" class="form-control" name="cables_terretires" value="{{ entry.cables_terretires or '' }}"></div>
+                <div class="col-md-4">
+                    <label for="cables_dctires">Câble DC tiré (m)</label>
+                    <input type="number" class="form-control" id="cables_dctires" name="cables_dctires" value="{{ entry.cables_dctires if entry.cables_dctires is not none else '' }}" min="0" step="any">
+                </div>
+                <div class="col-md-4">
+                    <label for="cables_actires">Câble AC tiré (m)</label>
+                    <input type="number" class="form-control" id="cables_actires" name="cables_actires" value="{{ entry.cables_actires if entry.cables_actires is not none else '' }}" min="0" step="any">
+                </div>
+                <div class="col-md-4">
+                    <label for="cables_terretires">Câble Terre tiré (m)</label>
+                    <input type="number" class="form-control" id="cables_terretires" name="cables_terretires" value="{{ entry.cables_terretires if entry.cables_terretires is not none else '' }}" min="0" step="any">
+                </div>
             </div>
+
+            <!-- CONDITIONAL FIELDS FOR AVANCEMENT (MODIFY PAGE) - START -->
+            {% if entry.chantier_type == 'centrale-sol' or entry.chantier_type == 'ombriere' %}
+            <div class="mb-3">
+              <label for="interconnexion_modify">Interconnexion</label>
+              <input type="text" class="form-control" id="interconnexion_modify" name="interconnexion" value="{{ entry.interconnexion or '' }}">
+            </div>
+            {% elif entry.chantier_type == 'toiture' %}
+            <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="nombre_panneaux_modify">Nombre panneaux posés</label>
+                  <input type="number" class="form-control" id="nombre_panneaux_modify" name="nombre_panneaux" value="{{ entry.nombre_panneaux if entry.nombre_panneaux is not none else '' }}" min="0">
+                </div>
+                <div class="col-md-6">
+                  <label for="nombre_rail_modify">Nombre rail posé (m)</label>
+                  <input type="number" class="form-control" id="nombre_rail_modify" name="nombre_rail" value="{{ entry.nombre_rail if entry.nombre_rail is not none else '' }}" min="0" step="any">
+                </div>
+            </div>
+            {% endif %}
+            <!-- CONDITIONAL FIELDS FOR AVANCEMENT (MODIFY PAGE) - END -->
+            
+            <div class="mb-3">
+                <label for="problems_modify">Problèmes / Observations</label>
+                <textarea class="form-control" id="problems_modify" name="problems" rows="3">{{ entry.problems or '' }}</textarea>
+            </div>
+
+
             <!-- Fin du Chantier -->
             <h4 class="mt-4">Fin du Chantier</h4>
             <div class="row mb-3">
-                <div class="col-md-3"><label>Zone</label><input type="text" class="form-control" name="fin_zone" value="{{ entry.fin_zone or '' }}"></div>
-                <div class="col-md-3"><label>String</label><input type="text" class="form-control" name="fin_string" value="{{ entry.fin_string or '' }}"></div>
-                <div class="col-md-3"><label>Tension DC</label><input type="text" class="form-control" name="fin_tension_dc" value="{{ entry.fin_tension_dc or '' }}"></div>
-                <div class="col-md-3"><label>Courant DC</label><input type="text" class="form-control" name="fin_courant_dc" value="{{ entry.fin_courant_dc or '' }}"></div>
+                <div class="col-md-3"><label for="fin_zone">Zone</label><input type="text" id="fin_zone" class="form-control" name="fin_zone" value="{{ entry.fin_zone or '' }}"></div>
+                <div class="col-md-3"><label for="fin_string">String</label><input type="text" id="fin_string" class="form-control" name="fin_string" value="{{ entry.fin_string or '' }}"></div>
+                <div class="col-md-3"><label for="fin_tension_dc">Tension DC (V)</label><input type="number" id="fin_tension_dc" class="form-control" name="fin_tension_dc" value="{{ entry.fin_tension_dc if entry.fin_tension_dc is not none else '' }}" step="any"></div>
+                <div class="col-md-3"><label for="fin_courant_dc">Courant DC (A)</label><input type="number" id="fin_courant_dc" class="form-control" name="fin_courant_dc" value="{{ entry.fin_courant_dc if entry.fin_courant_dc is not none else '' }}" step="any"></div>
             </div>
             <div class="row mb-3">
-                <div class="col-md-3"><label>Tension AC</label><input type="text" class="form-control" name="fin_tension_ac" value="{{ entry.fin_tension_ac or '' }}"></div>
-                <div class="col-md-3"><label>Puissance</label><input type="text" class="form-control" name="fin_puissance" value="{{ entry.fin_puissance or '' }}"></div>
-                <div class="col-md-3"><label>Date</label><input type="date" class="form-control" name="fin_date" value="{{ entry.fin_date or '' }}"></div>
-                <div class="col-md-3"><label>Technicien</label><input type="text" class="form-control" name="fin_technicien" value="{{ entry.fin_technicien or '' }}"></div>
+                <div class="col-md-3"><label for="fin_tension_ac">Tension AC (V)</label><input type="number" id="fin_tension_ac" class="form-control" name="fin_tension_ac" value="{{ entry.fin_tension_ac if entry.fin_tension_ac is not none else '' }}" step="any"></div>
+                <div class="col-md-3"><label for="fin_puissance">Puissance (W)</label><input type="number" id="fin_puissance" class="form-control" name="fin_puissance" value="{{ entry.fin_puissance if entry.fin_puissance is not none else '' }}" step="any"></div>
+                <div class="col-md-3"><label for="fin_date">Date Mesure</label><input type="date" id="fin_date" class="form-control" name="fin_date" value="{{ entry.fin_date or '' }}"></div>
+                <div class="col-md-3"><label for="fin_technicien">Technicien</label><input type="text" id="fin_technicien" class="form-control" name="fin_technicien" value="{{ entry.fin_technicien or '' }}"></div>
             </div>
-            <div class="mb-3">
-                <label>Status</label>
-                <select class="form-select" name="fin_status">
+            <div class="mb-3 col-md-4">
+                <label for="fin_status">Statut</label>
+                <select class="form-select" id="fin_status" name="fin_status">
                     <option value="Validé" {% if entry.fin_status == "Validé" %}selected{% endif %}>Validé</option>
                     <option value="Non Validé" {% if entry.fin_status == "Non Validé" %}selected{% endif %}>Non Validé</option>
+                    <option value="En attente" {% if entry.fin_status == "En attente" %}selected{% endif %}>En attente</option>
+                    <option value="" {% if not entry.fin_status %}selected{% endif %}>Non spécifié</option>
                 </select>
             </div>
 
             <!-- Images -->
             <h4 class="mt-4">Images</h4>
-            {% for image in entry.images %}
-                <div class="input-group mb-2">
-                    <span class="form-control">{{ image.filename }}</span>
-                    <button type="button" class="btn btn-danger remove-image" data-image-id="{{ image.id }}">Supprimer</button>
-                </div>
-            {% endfor %}
-            <div id="photos-container">
+            <div id="existing-images-container">
+            {% if entry.images %}
+                <p>Images existantes :</p>
+                {% for image in entry.images %}
+                    <div class="input-group mb-2" id="existing-image-{{ image.id }}">
+                        <span class="form-control">
+                            <a href="{{ url_for('get_image', image_id=image.id) }}" target="_blank">{{ image.filename }}</a>
+                        </span>
+                        <button type="button" class="btn btn-outline-danger remove-existing-image-btn" data-image-id="{{ image.id }}">Supprimer cette image</button>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>Aucune image existante pour cette entrée.</p>
+            {% endif %}
+            </div>
+
+            <p class="mt-3">Ajouter de nouvelles images :</p>
+            <div id="photos-container-modify">
                 <div class="input-group mb-2">
                     <input type="file" class="form-control" name="photo_chantier[]" accept="image/*">
-                    <button class="btn btn-danger remove-photo-btn" type="button" style="display:none;">Supprimer</button>
+                    <button class="btn btn-danger remove-new-photo-btn" type="button" style="display:none;">Enlever</button>
                 </div>
             </div>
-            <button type="button" class="btn btn-secondary" id="add-photo-btn">Ajouter une photo</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="add-photo-btn-modify">Ajouter un champ photo</button>
+            <input type="hidden" name="delete_images" id="delete_images_input" value=""> {# Changed id to be unique #}
 
-            <input type="hidden" name="delete_images" id="delete_images" value="">
-            <div class="mt-4">
-                <button type="submit" class="btn btn-primary">Enregistrer les Modifications</button>
+            <div class="mt-4 text-center">
+                <button type="submit" class="btn btn-primary btn-lg">Enregistrer les Modifications</button>
             </div>
         </form>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const photosContainer = document.getElementById('photos-container');
-            const addPhotoBtn = document.getElementById('add-photo-btn');
-            const deleteImagesInput = document.getElementById('delete_images');
+    document.addEventListener('DOMContentLoaded', function() {
+        const photosContainerModify = document.getElementById('photos-container-modify');
+        const addPhotoBtnModify = document.getElementById('add-photo-btn-modify');
+        const deleteImagesInput = document.getElementById('delete_images_input');
 
-            addPhotoBtn.addEventListener('click', function() {
-                const newInputGroup = document.createElement('div');
-                newInputGroup.className = 'input-group mb-2';
-
-                const fileInput = document.createElement('input');
-                fileInput.type = 'file';
-                fileInput.className = 'form-control';
-                fileInput.name = 'photo_chantier[]';
-                fileInput.accept = 'image/*';
-
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'btn btn-danger remove-photo-btn';
-                removeBtn.type = 'button';
-                removeBtn.textContent = 'Supprimer';
-
-                removeBtn.addEventListener('click', function() {
-                    newInputGroup.remove();
-                });
-
-                newInputGroup.appendChild(fileInput);
-                newInputGroup.appendChild(removeBtn);
-                photosContainer.appendChild(newInputGroup);
-
-                document.querySelectorAll('.remove-photo-btn').forEach(btn => btn.style.display = '');
+        function updateNewPhotoRemoveButtonsVisibility() {
+            const allNewPhotoInputs = photosContainerModify.querySelectorAll('.input-group');
+            allNewPhotoInputs.forEach((group) => {
+                const removeBtn = group.querySelector('.remove-new-photo-btn');
+                if (removeBtn) {
+                    removeBtn.style.display = allNewPhotoInputs.length > 1 || group.querySelector('input[type="file"]').files.length > 0 || group.querySelector('input[type="file"]').value !== '' ? '' : 'none';
+                }
             });
+             // Hide button if only one empty input field
+            if (allNewPhotoInputs.length === 1 && allNewPhotoInputs[0].querySelector('input[type="file"]').value === '') {
+                 const firstRemoveBtn = allNewPhotoInputs[0].querySelector('.remove-new-photo-btn');
+                 if(firstRemoveBtn) firstRemoveBtn.style.display = 'none';
+            }
+        }
 
-            document.querySelectorAll('.remove-image').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const imageId = this.getAttribute('data-image-id');
-                    let deleteIds = deleteImagesInput.value.split(',').filter(id => id);
-                    if (!deleteIds.includes(imageId)) {
-                        deleteIds.push(imageId);
-                    }
-                    deleteImagesInput.value = deleteIds.join(',');
-                    this.parentElement.remove();
-                });
+
+        addPhotoBtnModify.addEventListener('click', function() {
+            const newInputGroup = document.createElement('div');
+            newInputGroup.className = 'input-group mb-2';
+            newInputGroup.innerHTML = `
+                <input type="file" class="form-control" name="photo_chantier[]" accept="image/*">
+                <button class="btn btn-danger remove-new-photo-btn" type="button">Enlever</button>`;
+            photosContainerModify.appendChild(newInputGroup);
+            
+            newInputGroup.querySelector('.remove-new-photo-btn').addEventListener('click', function() {
+                this.parentElement.remove();
+                updateNewPhotoRemoveButtonsVisibility();
+            });
+            newInputGroup.querySelector('input[type="file"]').addEventListener('change', updateNewPhotoRemoveButtonsVisibility);
+            updateNewPhotoRemoveButtonsVisibility();
+        });
+
+        // Event listener for existing remove buttons (for newly added photo fields)
+        photosContainerModify.addEventListener('click', function(event) {
+            if (event.target.classList.contains('remove-new-photo-btn')) {
+                event.target.closest('.input-group').remove();
+                updateNewPhotoRemoveButtonsVisibility();
+            }
+        });
+         // Add change listener to initially present file input
+        const initialFileInput = photosContainerModify.querySelector('input[type="file"]');
+        if (initialFileInput) {
+            initialFileInput.addEventListener('change', updateNewPhotoRemoveButtonsVisibility);
+        }
+
+
+        // Handling deletion of EXISTING images
+        document.querySelectorAll('.remove-existing-image-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const imageId = this.getAttribute('data-image-id');
+                let currentDeleteIds = deleteImagesInput.value ? deleteImagesInput.value.split(',') : [];
+                if (!currentDeleteIds.includes(imageId)) {
+                    currentDeleteIds.push(imageId);
+                }
+                deleteImagesInput.value = currentDeleteIds.join(',');
+                // Optionally hide or strike-through the row instead of removing,
+                // so user knows it's marked for deletion.
+                // this.parentElement.style.textDecoration = 'line-through';
+                // this.disabled = true;
+                // this.textContent = 'Marqué pour suppression';
+                document.getElementById(`existing-image-${imageId}`).remove(); // Removes from view
+                alert(`L'image ${imageId} sera supprimée lors de l'enregistrement.`);
             });
         });
+        updateNewPhotoRemoveButtonsVisibility(); // Initial call
+    });
     </script>
 </div>
 {% endblock %}
