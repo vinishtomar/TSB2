@@ -1,10 +1,10 @@
 import os
 import csv
-from flask import Flask, render_template, request, redirect, url_for, flash, Response, send_file, session, abort # Added session
+from flask import Flask, render_template, request, redirect, url_for, flash, Response, send_file, session, abort 
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import distinct # Added for distinct queries
+from sqlalchemy import distinct 
 from io import StringIO, BytesIO
 from datetime import datetime
 from reportlab.lib.pagesizes import letter, landscape
@@ -80,6 +80,7 @@ class SuiviJournalier(db.Model):
     cabledc_section = db.Column(db.String(255), nullable=True)
     cabledc_longueur = db.Column(db.String(255), nullable=True)
     shelter_nombre = db.Column(db.Integer, nullable=True)
+    onduleur_nombre = db.Column(db.Integer, nullable=True) # Added Onduleur Nombre
     cables_dctires = db.Column(db.String(255), nullable=True)
     cables_actires = db.Column(db.String(255), nullable=True)
     cables_terretires = db.Column(db.String(255), nullable=True)
@@ -119,55 +120,39 @@ with app.app_context():
 @login_required
 def index():
     base_query = SuiviJournalier.query
-
-    # Apply user-specific filter for non-admins first
     if current_user.role != "admin":
         base_query = base_query.filter(SuiviJournalier.utilisateur == current_user.id)
 
-    # Get filter parameters from request.args
     filter_utilisateur_req = request.args.get('filter_utilisateur')
     filter_nom_chantier_req = request.args.get('filter_nom_chantier')
     active_tab_from_url = request.args.get('active_tab', 'reception') 
 
-    # Apply filters if they are present
     if filter_utilisateur_req:
-        # Admin can filter by any user, non-admin's filter_utilisateur is ignored or pre-set to self
         if current_user.role == "admin":
             base_query = base_query.filter(SuiviJournalier.utilisateur == filter_utilisateur_req)
-        # else: # non-admin can only see their own, already filtered
-            # pass
     if filter_nom_chantier_req:
         base_query = base_query.filter(SuiviJournalier.nom_du_chantier == filter_nom_chantier_req)
 
     all_lignes = base_query.order_by(SuiviJournalier.date.desc()).all()
 
-    # For populating filter dropdowns
     distinct_users = []
     distinct_nom_chantiers = []
-
     if current_user.role == "admin":
-        # Admins see all distinct users and chantiers from the (potentially already filtered by admin's choice) base
-        # For dropdowns, we want all possible options, so query without user/chantier filters applied yet.
         distinct_users_query = db.session.query(distinct(SuiviJournalier.utilisateur)).order_by(SuiviJournalier.utilisateur).all()
         distinct_users = [user[0] for user in distinct_users_query if user[0]]
-
         distinct_nom_chantiers_query = db.session.query(distinct(SuiviJournalier.nom_du_chantier))\
             .filter(SuiviJournalier.nom_du_chantier.isnot(None), SuiviJournalier.nom_du_chantier != '')\
             .order_by(SuiviJournalier.nom_du_chantier).all()
         distinct_nom_chantiers = [name[0] for name in distinct_nom_chantiers_query if name[0]]
     else:
-        # Non-admins only see their own name (if they have entries)
-        # and chantiers they have worked on.
         user_has_entries = SuiviJournalier.query.filter_by(utilisateur=current_user.id).first()
         if user_has_entries:
             distinct_users = [current_user.id]
-        
         distinct_nom_chantiers_user_query = db.session.query(distinct(SuiviJournalier.nom_du_chantier))\
             .filter(SuiviJournalier.utilisateur == current_user.id)\
             .filter(SuiviJournalier.nom_du_chantier.isnot(None), SuiviJournalier.nom_du_chantier != '')\
             .order_by(SuiviJournalier.nom_du_chantier).all()
         distinct_nom_chantiers = [name[0] for name in distinct_nom_chantiers_user_query if name[0]]
-
 
     return render_template('index.html',
                            all_lignes=all_lignes,
@@ -187,7 +172,6 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         chantier_type_from_form = request.form.get('chantier_type')
-
         user_from_db = DBUser.query.filter_by(id=username).first()
         if user_from_db and bcrypt.check_password_hash(user_from_db.password_hash, password):
             user_obj = User(user_from_db.id, user_from_db.role)
@@ -209,7 +193,7 @@ def logout():
 @app.route('/suivi-journalier', methods=['POST'])
 @login_required
 def suivi_journalier():
-    active_tab_after_submit = "reception" # Default
+    active_tab_after_submit = "reception" 
     try:
         data_to_save = {
             "utilisateur": current_user.id,
@@ -236,23 +220,25 @@ def suivi_journalier():
             "cabledc_section": request.form.get("cabledc_section"),
             "cabledc_longueur": request.form.get("cabledc_longueur"),
             "shelter_nombre": request.form.get("shelter_nombre", type=int) if request.form.get("shelter_nombre") else None,
+            "onduleur_nombre": request.form.get("onduleur_nombre", type=int) if request.form.get("onduleur_nombre") else None, # Added Onduleur Nombre
             "cables_dctires": request.form.get("cables_dctires"),
             "cables_actires": request.form.get("cables_actires"),
             "cables_terretires": request.form.get("cables_terretires"),
             "problems": request.form.get("problems"),
-            "fin_zone": request.form.get("fin_zone"), # This will only get the first element if multiple are submitted with same name
-            "fin_string": request.form.get("fin_string"),
-            "fin_tension_dc": request.form.get("fin_tension_dc"),
-            "fin_courant_dc": request.form.get("fin_courant_dc"),
-            "fin_tension_ac": request.form.get("fin_tension_ac"),
-            "fin_puissance": request.form.get("fin_puissance"),
-            "fin_date": request.form.get("fin_date"),
-            "fin_technicien": request.form.get("fin_technicien"),
-            "fin_status": request.form.get("fin_status"),
+            "fin_zone": request.form.getlist("fin_zone[]")[0] if request.form.getlist("fin_zone[]") else None,
+            "fin_string": request.form.getlist("fin_string[]")[0] if request.form.getlist("fin_string[]") else None,
+            "fin_tension_dc": request.form.getlist("fin_tension_dc[]")[0] if request.form.getlist("fin_tension_dc[]") else None,
+            "fin_courant_dc": request.form.getlist("fin_courant_dc[]")[0] if request.form.getlist("fin_courant_dc[]") else None,
+            "fin_tension_ac": request.form.getlist("fin_tension_ac[]")[0] if request.form.getlist("fin_tension_ac[]") else None,
+            "fin_puissance": request.form.getlist("fin_puissance[]")[0] if request.form.getlist("fin_puissance[]") else None,
+            "fin_date": request.form.getlist("fin_date[]")[0] if request.form.getlist("fin_date[]") else None,
+            "fin_technicien": request.form.getlist("fin_technicien[]")[0] if request.form.getlist("fin_technicien[]") else None,
+            "fin_status": request.form.getlist("fin_status[]")[0] if request.form.getlist("fin_status[]") else None,
         }
 
         section = request.form.get("section")
-        if section in ["equipements", "connecteur", "chemin_cable", "terre", "cable_ac", "cable_dc"]:
+        # Updated section list for active_tab_after_submit
+        if section in ["equipements", "connecteur", "chemin_cable", "terre", "cable_ac", "cable_dc", "onduleur_nombre", "shelter_nombre_reception"]:
             active_tab_after_submit = "reception"
         elif section == "avancement":
             active_tab_after_submit = "avancement"
@@ -264,25 +250,11 @@ def suivi_journalier():
                 data_to_save["nombre_rail"] = request.form.get("nombre_rail", type=int) if request.form.get("nombre_rail") else None
         elif section == "fin":
             active_tab_after_submit = "fin"
-            # Note: The current model saves only one "fin" entry.
-            # If multiple rows are submitted from the "Fin du Chantier" table,
-            # you'll need to adjust the logic here to handle request.form.getlist()
-            # and likely change the database model or create related tables for multiple "fin" entries per SuiviJournalier.
-            # For now, it saves the first row's data.
-            data_to_save["fin_zone"] = request.form.getlist("fin_zone[]")[0] if request.form.getlist("fin_zone[]") else None
-            data_to_save["fin_string"] = request.form.getlist("fin_string[]")[0] if request.form.getlist("fin_string[]") else None
-            data_to_save["fin_tension_dc"] = request.form.getlist("fin_tension_dc[]")[0] if request.form.getlist("fin_tension_dc[]") else None
-            data_to_save["fin_courant_dc"] = request.form.getlist("fin_courant_dc[]")[0] if request.form.getlist("fin_courant_dc[]") else None
-            data_to_save["fin_tension_ac"] = request.form.getlist("fin_tension_ac[]")[0] if request.form.getlist("fin_tension_ac[]") else None
-            data_to_save["fin_puissance"] = request.form.getlist("fin_puissance[]")[0] if request.form.getlist("fin_puissance[]") else None
-            data_to_save["fin_date"] = request.form.getlist("fin_date[]")[0] if request.form.getlist("fin_date[]") else None
-            data_to_save["fin_technicien"] = request.form.getlist("fin_technicien[]")[0] if request.form.getlist("fin_technicien[]") else None
-            data_to_save["fin_status"] = request.form.getlist("fin_status[]")[0] if request.form.getlist("fin_status[]") else None
-
+            # The existing logic for fin_ fields already uses getlist()[0]
 
         entry = SuiviJournalier(**data_to_save)
         db.session.add(entry)
-        db.session.flush() # to get entry.id for images
+        db.session.flush() 
 
         photos = request.files.getlist('photo_chantier[]')
         for photo in photos:
@@ -323,11 +295,8 @@ def modify_history(entry_id):
                         continue
                     
                     value = request.form.get(col_name)
-                    if col_name == "shelter_nombre":
-                        value = int(value) if value and value.strip() else None
-                    elif col_name == "nombre_panneaux":
-                        value = int(value) if value and value.strip() else None
-                    elif col_name == "nombre_rail":
+                    # Type conversion for Integer fields, including the new onduleur_nombre
+                    if col_name in ["shelter_nombre", "nombre_panneaux", "nombre_rail", "onduleur_nombre"]:
                         value = int(value) if value and value.strip() else None
                     setattr(entry, col_name, value)
             
@@ -390,21 +359,18 @@ def delete_history(entry_id):
 @login_required
 def get_image(image_id):
     image = SuiviJournalierImage.query.get_or_404(image_id)
-    # Ensure user has permission to view image (admin or owner of parent entry)
     if current_user.role != 'admin' and (not image.suivi or image.suivi.utilisateur != current_user.id):
         abort(403)
     return send_file(BytesIO(image.data), mimetype=image.content_type)
 
 def _get_filtered_rows():
-    """Helper function to get rows based on current user and request filters."""
     base_query = SuiviJournalier.query
-    
     filter_utilisateur_req = request.args.get('filter_utilisateur')
     filter_nom_chantier_req = request.args.get('filter_nom_chantier')
 
     if current_user.role != "admin":
         base_query = base_query.filter(SuiviJournalier.utilisateur == current_user.id)
-    elif filter_utilisateur_req: # Admin can filter by user
+    elif filter_utilisateur_req: 
         base_query = base_query.filter(SuiviJournalier.utilisateur == filter_utilisateur_req)
     
     if filter_nom_chantier_req:
@@ -416,7 +382,7 @@ def _get_filtered_rows():
 @login_required
 def telecharger_historique():
     rows = _get_filtered_rows()
-    
+    # The field 'onduleur_nombre' will be automatically included by the list comprehension
     fieldnames = [col.name for col in SuiviJournalier.__table__.columns if col.name not in ['id']] + ['images_filenames']
     
     csv_buffer = StringIO()
@@ -436,8 +402,6 @@ def telecharger_historique():
         writer.writerow(row_data)
         
     csv_buffer.seek(0)
-    
-    # Create a dynamic filename based on filters
     filename_parts = [current_user.id if current_user.role != "admin" else "admin"]
     filter_utilisateur_req = request.args.get('filter_utilisateur')
     filter_nom_chantier_req = request.args.get('filter_nom_chantier')
@@ -446,7 +410,6 @@ def telecharger_historique():
     if filter_nom_chantier_req:
         filename_parts.append(f"chantier_{filter_nom_chantier_req.replace(' ','_')}")
     filename_parts.append("historique_suivi.csv")
-    
     download_filename = "_".join(filename_parts)
 
     return Response(
@@ -458,34 +421,29 @@ def telecharger_historique():
 @app.route('/telecharger-historique-pdf')
 @login_required
 def telecharger_historique_pdf():
-    if current_user.role != "admin": # PDF global for admin only, can be adapted for filtered
+    if current_user.role != "admin": 
         flash("Accès refusé. Le PDF global est pour les administrateurs.", "danger")
         return redirect(url_for('index', active_tab='history'))
 
-    rows = _get_filtered_rows() # Use helper to get potentially filtered rows
+    rows = _get_filtered_rows() 
     
     pdf_buffer = BytesIO()
-    doc = SimpleDocTemplate(pdf_buffer, pagesize=landscape(letter), topMargin=0.5*inch, bottomMargin=0.5*inch, leftMargin=0.1*inch, rightMargin=0.1*inch) 
+    doc = SimpleDocTemplate(pdf_buffer, pagesize=landscape(letter), topMargin=0.5*inch, bottomMargin=0.5*inch, leftMargin=0.05*inch, rightMargin=0.05*inch) # Adjusted margins for more columns
     elements = []
     styles = getSampleStyleSheet()
     
-    small_body_style = ParagraphStyle('smallBodyText', parent=styles['Normal'], fontSize=5) 
-    small_bold_style = ParagraphStyle('smallBoldText', parent=styles['Normal'], fontSize=5, fontName='Helvetica-Bold')
+    small_body_style = ParagraphStyle('smallBodyText', parent=styles['Normal'], fontSize=4) # Even smaller for more cols
+    small_bold_style = ParagraphStyle('smallBoldText', parent=styles['Normal'], fontSize=4, fontName='Helvetica-Bold')
 
     title_style = styles['h1']
     title_style.alignment = 1
-    
     filter_utilisateur_req = request.args.get('filter_utilisateur')
     filter_nom_chantier_req = request.args.get('filter_nom_chantier')
-    
     title_text = "Historique des Suivi Journaliers"
     if filter_utilisateur_req or filter_nom_chantier_req:
         title_text += " (Filtré)"
-        if filter_utilisateur_req:
-            title_text += f" - Utilisateur: {filter_utilisateur_req}"
-        if filter_nom_chantier_req:
-            title_text += f" - Chantier: {filter_nom_chantier_req}"
-            
+        if filter_utilisateur_req: title_text += f" - Utilisateur: {filter_utilisateur_req}"
+        if filter_nom_chantier_req: title_text += f" - Chantier: {filter_nom_chantier_req}"
     elements.append(Paragraph(title_text, title_style))
     elements.append(Spacer(1, 0.2*inch))
 
@@ -493,14 +451,18 @@ def telecharger_historique_pdf():
         "date", "util", "nom_chantier", "type_chantier", 
         "equip_type", "equip_ref", "equip_etat",
         "cables_dc", "cables_ac", "cables_terre",
+        "nb_onduleur", # Added Nb Onduleur
+        "nb_shelter", # Existing Shelter
         "interconnexion", "nb_panneaux", "nb_rail",      
         "problems", "fin_stat", "img_count" 
     ]
     
     pdf_headers = {
-        "date": "Date", "util": "Util.", "nom_chantier": "Nom Chant.", "type_chantier": "Type Chant.",
+        "date": "Date", "util": "Util.", "nom_chantier": "Nom Chant.", "type_chantier": "Type C.",
         "equip_type": "Type Éq.", "equip_ref": "Réf. Éq.", "equip_etat": "État Éq.",
-        "cables_dc": "DC Tiré", "cables_ac": "AC Tiré", "cables_terre": "Terre Tiré",
+        "cables_dc": "DC Tiré", "cables_ac": "AC Tiré", "cables_terre": "Terre T.",
+        "nb_onduleur": "Nb Ond.", # Added Nb Onduleur
+        "nb_shelter": "Nb Shel.", # Existing Shelter
         "interconnexion": "Interco.", "nb_panneaux": "Nb Pan.", "nb_rail": "Nb Rail",
         "problems": "Problèmes", "fin_stat": "Stat. Fin", "img_count": "Imgs"
     }
@@ -523,6 +485,8 @@ def telecharger_historique_pdf():
             elif field_key == 'cables_dc': actual_attr = "cables_dctires"
             elif field_key == 'cables_ac': actual_attr = "cables_actires"
             elif field_key == 'cables_terre': actual_attr = "cables_terretires"
+            elif field_key == 'nb_onduleur': actual_attr = "onduleur_nombre" # Added Nb Onduleur
+            elif field_key == 'nb_shelter': actual_attr = "shelter_nombre"   # Existing Shelter
             elif field_key == 'interconnexion':
                 if row.chantier_type in ['centrale-sol', 'ombriere']: actual_attr = "interconnexion"
                 else: cell_content_str = "-" 
@@ -539,31 +503,35 @@ def telecharger_historique_pdf():
             if actual_attr and hasattr(row, actual_attr):
                  cell_content_str = str(getattr(row, actual_attr, ""))
             
-            max_len = 15 
+            max_len = 12 # Adjusted for very small font and more columns
             if len(cell_content_str) > max_len:
                 cell_content_str = cell_content_str[:max_len-3] + "..."
             row_data_paragraphs.append(Paragraph(cell_content_str, small_body_style))
         data_for_table.append(row_data_paragraphs)
 
     if len(data_for_table) > 1:
+        # Adjusted col_widths (total 18 columns, ~10.8 inches available)
+        # Average 0.6 inch per column. Some need more, some less.
         col_widths = [
-            0.7*inch, 0.5*inch, 0.7*inch, 0.6*inch, 
-            0.6*inch, 0.6*inch, 0.5*inch,          
-            0.5*inch, 0.5*inch, 0.5*inch,          
-            0.7*inch, 0.5*inch, 0.5*inch,          
-            1.2*inch, 0.6*inch, 0.5*inch           
-        ] 
+            0.6*inch, 0.4*inch, 0.6*inch, 0.5*inch,  # date, util, nom_chantier, type_chantier
+            0.5*inch, 0.5*inch, 0.4*inch,           # equip_type, ref, etat
+            0.4*inch, 0.4*inch, 0.4*inch,           # dc, ac, terre
+            0.4*inch, 0.4*inch,                     # nb_onduleur, nb_shelter
+            0.6*inch, 0.4*inch, 0.4*inch,           # interco, nb_pan, nb_rail
+            1.0*inch, 0.5*inch, 0.4*inch            # problems, fin_stat, img_count
+        ] # Sum ~10.4 inches, adjust as needed
         
         table = Table(data_for_table, colWidths=col_widths, repeatRows=1) 
         table_style = TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.darkslategray), ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'), ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'), ('FONTSIZE', (0, 0), (-1, 0), 5),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 4), ('TOPPADDING', (0, 0), (-1, 0), 4),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'), ('FONTSIZE', (0, 0), (-1, 0), 4), # Adjusted font size
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 3), ('TOPPADDING', (0, 0), (-1, 0), 3),
             ('BACKGROUND', (0, 1), (-1, -1), colors.lightgrey), ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
-            ('FONTSIZE', (0, 1), (-1, -1), 5), ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('LEFTPADDING', (0,0), (-1,-1), 2), ('RIGHTPADDING', (0,0), (-1,-1), 2),
-            ('TOPPADDING', (0,1), (-1,-1), 2), ('BOTTOMPADDING', (0,1), (-1,-1), 2),
+            ('FONTSIZE', (0, 1), (-1, -1), 4), # Adjusted font size
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('LEFTPADDING', (0,0), (-1,-1), 1), ('RIGHTPADDING', (0,0), (-1,-1), 1),
+            ('TOPPADDING', (0,1), (-1,-1), 1), ('BOTTOMPADDING', (0,1), (-1,-1), 1),
         ])
         table.setStyle(table_style)
         elements.append(table)
@@ -572,15 +540,10 @@ def telecharger_historique_pdf():
 
     doc.build(elements)
     pdf_buffer.seek(0)
-    
-    # Create a dynamic filename for PDF based on filters
     filename_parts_pdf = ["historique_suivi"]
-    if filter_utilisateur_req:
-        filename_parts_pdf.append(f"user_{filter_utilisateur_req.replace(' ','_')}")
-    if filter_nom_chantier_req:
-        filename_parts_pdf.append(f"chantier_{filter_nom_chantier_req.replace(' ','_')}")
+    if filter_utilisateur_req: filename_parts_pdf.append(f"user_{filter_utilisateur_req.replace(' ','_')}")
+    if filter_nom_chantier_req: filename_parts_pdf.append(f"chantier_{filter_nom_chantier_req.replace(' ','_')}")
     filename_parts_pdf.append(".pdf")
-    
     pdf_download_filename = "_".join(filename_parts_pdf)
 
     return send_file(pdf_buffer, mimetype='application/pdf', as_attachment=True, download_name=pdf_download_filename)
@@ -613,12 +576,6 @@ def admin_panel():
             else:
                 user_to_delete = DBUser.query.filter_by(id=username).first()
                 if user_to_delete:
-                    # Before deleting user, consider what to do with their SuiviJournalier entries
-                    # Option 1: Set utilisateur to NULL or a placeholder
-                    # SuiviJournalier.query.filter_by(utilisateur=username).update({"utilisateur": None})
-                    # Option 2: Delete entries (cascade delete if FK is set up, or manual delete)
-                    # SuiviJournalier.query.filter_by(utilisateur=username).delete()
-                    # For now, we'll just delete the user. Data will remain associated with the old username string.
                     db.session.delete(user_to_delete)
                     db.session.commit()
                     flash(f"🗑️ Utilisateur '{username}' supprimé.", "success")
@@ -630,7 +587,6 @@ def admin_panel():
 
     users = DBUser.query.all()
     return render_template('admin.html', utilisateurs=users, current_user=current_user)
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)), debug=False)
