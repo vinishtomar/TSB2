@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+         <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -162,19 +163,25 @@
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="cable-dc-tab" data-bs-toggle="pill" data-bs-target="#cable-dc" type="button" role="tab" aria-controls="cable-dc" aria-selected="false">Câble DC</button>
               </li>
+              <!-- START: Added Onduleur nombre and Shelter nombre tabs -->
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="onduleur-nombre-reception-tab" data-bs-toggle="pill" data-bs-target="#onduleur-nombre-reception-pane" type="button" role="tab" aria-controls="onduleur-nombre-reception-pane" aria-selected="false">Onduleur Nombre</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="shelter-nombre-reception-nav-tab" data-bs-toggle="pill" data-bs-target="#shelter-nombre-reception-pane" type="button" role="tab" aria-controls="shelter-nombre-reception-pane" aria-selected="false">Shelter Nombre</button>
+              </li>
+              <!-- END: Added Onduleur nombre and Shelter nombre tabs -->
             </ul>
             <div class="tab-content" id="receptionSubTabContent">
               <div class="tab-pane fade show active" id="equipements" role="tabpanel" aria-labelledby="equipements-tab">
                 <form method="POST" action="{{ url_for('suivi_journalier') }}" enctype="multipart/form-data">
                   <input type="hidden" name="section" value="equipements">
-                  
                   <div class="row mb-3">
                     <div class="col-md-12">
-                      <label for="nom_du_chantier_reception" class="form-label">Nom du chantier</label> <!-- Changed id to avoid conflict if same id is used elsewhere -->
+                      <label for="nom_du_chantier_reception" class="form-label">Nom du chantier</label>
                       <input type="text" class="form-control" id="nom_du_chantier_reception" name="nom_du_chantier" placeholder="Entrez le nom du chantier">
                     </div>
                   </div>
-                  
                   <div class="row mb-2 fw-bold text-center">
                     <div class="col-md-3">Type de machine</div>
                     <div class="col-md-3">Référence</div>
@@ -182,7 +189,6 @@
                     <div class="col-md-2">Date de réception</div>
                     <div class="col-md-2">Nombre</div>
                   </div>
-                  <!-- Equipement Row 1 -->
                   <div class="row mb-2">
                     <div class="col-md-3">
                       <label for="equipement_type_1" class="form-label visually-hidden">Type de machine 1</label>
@@ -214,7 +220,6 @@
                       <input type="number" class="form-control" id="equipement_nombre_1" name="equipement_nombre_1" min="0" value="1">
                     </div>
                   </div>
-                  <!-- Equipement Row 2 -->
                   <div class="row mb-2">
                     <div class="col-md-3">
                       <select class="form-select" name="equipement_type_2">
@@ -233,7 +238,6 @@
                     <div class="col-md-2"><input type="date" class="form-control" name="equipement_date_reception_2"></div>
                     <div class="col-md-2"><input type="number" class="form-control" name="equipement_nombre_2" min="0" value="1"></div>
                   </div>
-                  <!-- Equipement Row 3 -->
                   <div class="row mb-3">
                     <div class="col-md-3">
                       <select class="form-select" name="equipement_type_3">
@@ -298,7 +302,7 @@
                         updateRemoveButtonsVisibility();
                       });
                     });
-                    updateRemoveButtonsVisibility(); // Initial check
+                    updateRemoveButtonsVisibility(); 
                   });
                 </script>
               </div>
@@ -399,17 +403,51 @@
                       <input type="number" class="form-control" id="cabledc_longueur" name="cabledc_longueur" min="0" step="any">
                     </div>
                   </div>
+                  <!-- START: Removed Shelter nombre from Câble DC form -->
+                  <!-- 
                   <div class="row mb-3">
                     <div class="col-md-6">
                       <label for="shelter_nombre" class="form-label">Shelter nombre</label>
                       <input type="number" class="form-control" id="shelter_nombre" name="shelter_nombre" min="0">
                     </div>
                   </div>
+                   -->
+                  <!-- END: Removed Shelter nombre from Câble DC form -->
                   <div class="mt-3">
                     <button type="submit" class="btn btn-primary">Enregistrer Câble DC</button>
                   </div>
                 </form>
               </div>
+              <!-- START: Added Onduleur nombre and Shelter nombre tab panes -->
+              <div class="tab-pane fade" id="onduleur-nombre-reception-pane" role="tabpanel" aria-labelledby="onduleur-nombre-reception-tab">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}">
+                  <input type="hidden" name="section" value="onduleur_nombre">
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label for="onduleur_nombre_input" class="form-label">Nombre d'Onduleurs</label>
+                      <input type="number" class="form-control" id="onduleur_nombre_input" name="onduleur_nombre" min="0">
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer Nombre Onduleurs</button>
+                  </div>
+                </form>
+              </div>
+              <div class="tab-pane fade" id="shelter-nombre-reception-pane" role="tabpanel" aria-labelledby="shelter-nombre-reception-nav-tab">
+                <form method="POST" action="{{ url_for('suivi_journalier') }}">
+                  <input type="hidden" name="section" value="shelter_nombre_reception">
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label for="shelter_nombre_reception_input" class="form-label">Shelter nombre</label>
+                      <input type="number" class="form-control" id="shelter_nombre_reception_input" name="shelter_nombre" min="0">
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer Nombre Shelter</button>
+                  </div>
+                </form>
+              </div>
+              <!-- END: Added Onduleur nombre and Shelter nombre tab panes -->
             </div>
           </div>
         </div>
@@ -421,7 +459,6 @@
             <div class="card-title mb-4">Avancement du Chantier</div>
             <form method="POST" action="{{ url_for('suivi_journalier') }}">
               <input type="hidden" name="section" value="avancement">
-              
               <div class="row mb-3">
                 <div class="col-md-4">
                   <label for="cables_dctires" class="form-label">Câble DC tiré (m)</label>
@@ -436,8 +473,6 @@
                   <input type="number" class="form-control" id="cables_terretires" name="cables_terretires" min="0" step="any">
                 </div>
               </div>
-
-              <!-- CONDITIONAL FIELDS FOR AVANCEMENT DU CHANTIER - START -->
               {% if session.chantier_type == 'centrale-sol' or session.chantier_type == 'ombriere' %}
               <div class="row mb-3">
                 <div class="col-md-12">
@@ -457,8 +492,6 @@
                 </div>
               </div>
               {% endif %}
-              <!-- CONDITIONAL FIELDS FOR AVANCEMENT DU CHANTIER - END -->
-
               <div class="row mb-3">
                 <div class="col-md-12">
                   <label for="problems" class="form-label">Problèmes rencontrés / Observations</label>
@@ -523,7 +556,6 @@
               <div class="mt-3">
                 <button type="button" class="btn btn-secondary btn-sm" id="addRowFinBtn">Ajouter ligne</button>
                 <button type="submit" class="btn btn-primary">Enregistrer Fin de Chantier</button>
-                <!-- <button type="button" class="btn btn-success" id="exportPdfBtn">Exporter PDF Relevés</button> -->
               </div>
             </form>
              <script>
@@ -567,7 +599,7 @@
                         updateRemoveButtonsFinVisibility();
                     });
                 });
-                updateRemoveButtonsFinVisibility(); // Initial check
+                updateRemoveButtonsFinVisibility(); 
               });
             </script>
           </div>
@@ -578,8 +610,6 @@
       <div class="tab-pane fade {% if is_filtering or active_tab == 'history' %}show active{% endif %}" id="history" role="tabpanel" aria-labelledby="history-tab">
       <div class="card rounded-card mb-3">
         <div class="card-body">
-          
-          <!-- START: Filter Form -->
           <form method="GET" action="{{ url_for('index') }}" class="mb-4 p-3 border rounded bg-light">
             <input type="hidden" name="active_tab" value="history">
             <div class="row g-3 align-items-end">
@@ -609,9 +639,7 @@
                 </div>
             </div>
           </form>
-          <!-- END: Filter Form -->
-
-          <div class="d-flex justify-content-between align-items-center mb-3"> <!-- Reduced mb from 4 to 3 -->
+          <div class="d-flex justify-content-between align-items-center mb-3"> 
             <div class="card-title mb-0">Historique des Entrées</div>
             <div>
                 <a href="{{ url_for('telecharger_historique', filter_utilisateur=current_filter_utilisateur, filter_nom_chantier=current_filter_nom_chantier) }}" class="btn btn-sm btn-primary">Télécharger CSV Filtré</a>
@@ -645,6 +673,7 @@
                   <th>Long. AC</th>
                   <th>Sect. DC</th>
                   <th>Long. DC</th>
+                  <th>Nb Onduleur</th> <!-- Added Nb Onduleur column -->
                   <th>Nb Shelter</th>
                   <th>Images</th>
                   <th>Action</th>
@@ -652,7 +681,7 @@
               </thead>
               <tbody>
                 {% for row in all_lignes|default([]) %}
-                  {% if row.equipement_type or row.connecteur_type or row.chemin_cable_type or row.terre_longueur or row.cableac_section or row.cabledc_section %}
+                  {% if row.equipement_type or row.connecteur_type or row.chemin_cable_type or row.terre_longueur or row.cableac_section or row.cabledc_section or row.onduleur_nombre or row.shelter_nombre %}
                   <tr>
                     <td>{{ row.date|default('') }}</td>
                     <td>{{ row.utilisateur|default('') }}</td>
@@ -661,7 +690,7 @@
                     <td>{{ row.equipement_reference|default('') }}</td>
                     <td>{{ row.equipement_etat|default('') }}</td>
                     <td>{{ row.equipement_date_reception|default('') }}</td>
-                    <td>{{ row.equipement_nombre_1|default('') }}</td> {# Simplified to show one count #}
+                    <td>{{ row.equipement_nombre_1|default('') }}</td> 
                     <td>{{ row.connecteur_type|default('') }}</td>
                     <td>{{ row.connecteur_quantite|default('') }}</td>
                     <td>{{ row.connecteur_etat|default('') }}</td>
@@ -674,6 +703,7 @@
                     <td>{{ row.cableac_longueur|default('') }}</td>
                     <td>{{ row.cabledc_section|default('') }}</td>
                     <td>{{ row.cabledc_longueur|default('') }}</td>
+                    <td>{{ row.onduleur_nombre|default('') }}</td> <!-- Added data for Nb Onduleur -->
                     <td>{{ row.shelter_nombre|default('') }}</td>
                     <td>
                       {% if row.images %}
@@ -783,7 +813,7 @@
               </thead>
               <tbody>
                 {% for row in all_lignes|default([]) %}
-                {% if row.fin_zone or row.fin_string %} {# Check if there's fin data #}
+                {% if row.fin_zone or row.fin_string %} 
                 <tr>
                   <td>{{ row.date|default('') }}</td>
                   <td>{{ row.utilisateur|default('') }}</td>
@@ -811,8 +841,8 @@
         </div>
       </div>
     </div>
-    {% endif %} {# End Admin History Tab #}
-    </div> <!-- End mainTabContent -->
+    {% endif %} 
+    </div> 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
