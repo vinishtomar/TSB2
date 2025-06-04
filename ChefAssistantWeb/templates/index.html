@@ -435,7 +435,7 @@
                             {% endif %}
                         </tbody>
                     </table>
-                </div>
+                </div> <!-- Closing .table-responsive -->
                 <div class="text-muted mt-2 text-end">
                     <small><i class="fas fa-arrows-alt-h"></i> Scroll horizontal si nécessaire</small>
                 </div>
@@ -453,8 +453,8 @@
                     </ul>
                 </nav>
                 {% endif %}
-            </div>
-        </div>
+            </div> <!-- Closing card-body for History -->
+        </div> <!-- Closing card for History -->
     </div> <!-- End Container-fluid -->
 
     <!-- Image Viewing Modal (for History Table) -->
@@ -513,7 +513,7 @@
         function confirmGlobalDeleteEntry(entryId) {
             if (confirm('Supprimer cette entrée? Irréversible.')) {
                 const form = document.getElementById('deleteGlobalEntryForm');
-                form.action = `/delete-history/${entryId}`;
+                form.action = `/delete-history/${entryId}`; // This URL should match your Flask route
                 form.submit();
             }
         }
