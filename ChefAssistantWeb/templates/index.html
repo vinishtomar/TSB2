@@ -96,7 +96,7 @@
             {% else %}🛠️
             {% endif %}
            </span>
-           Suivi de Chantier - 
+           Suivi de Chantier -
            {% if session.chantier_type == 'centrale-sol' %}Centrale au Sol
            {% elif session.chantier_type == 'ombriere' %}Ombrière
            {% elif session.chantier_type == 'toiture' %}Toiture
@@ -120,25 +120,26 @@
         {% endwith %}
     </div>
 
+    {% set is_filtering = request.args.get('filter_utilisateur') or request.args.get('filter_nom_chantier') %}
     <ul class="nav nav-tabs px-4 pt-3" id="mainTab" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="reception-tab" data-bs-toggle="tab" data-bs-target="#reception" type="button" role="tab" aria-controls="reception" aria-selected="true">Réception du Chantier</button>
+        <button class="nav-link {% if not is_filtering and active_tab == 'reception' %}active{% endif %}" id="reception-tab" data-bs-toggle="tab" data-bs-target="#reception" type="button" role="tab" aria-controls="reception" aria-selected="{% if not is_filtering and active_tab == 'reception' %}true{% else %}false{% endif %}">Réception du Chantier</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="avancement-tab" data-bs-toggle="tab" data-bs-target="#avancement" type="button" role="tab" aria-controls="avancement" aria-selected="false">Avancement du Chantier</button>
+        <button class="nav-link {% if not is_filtering and active_tab == 'avancement' %}active{% endif %}" id="avancement-tab" data-bs-toggle="tab" data-bs-target="#avancement" type="button" role="tab" aria-controls="avancement" aria-selected="{% if not is_filtering and active_tab == 'avancement' %}true{% else %}false{% endif %}">Avancement du Chantier</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="fin-tab" data-bs-toggle="tab" data-bs-target="#fin" type="button" role="tab" aria-controls="fin" aria-selected="false">Fin du Chantier</button>
+        <button class="nav-link {% if not is_filtering and active_tab == 'fin' %}active{% endif %}" id="fin-tab" data-bs-toggle="tab" data-bs-target="#fin" type="button" role="tab" aria-controls="fin" aria-selected="{% if not is_filtering and active_tab == 'fin' %}true{% else %}false{% endif %}">Fin du Chantier</button>
       </li>
       {% if current_user and current_user.role == "admin" %}
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">Historique</button>
+        <button class="nav-link {% if is_filtering or active_tab == 'history' %}active{% endif %}" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="{% if is_filtering or active_tab == 'history' %}true{% else %}false{% endif %}">Historique</button>
       </li>
       {% endif %}
     </ul>
 
     <div class="tab-content container-fluid pt-4" id="mainTabContent">
-      <div class="tab-pane fade show active" id="reception" role="tabpanel" aria-labelledby="reception-tab">
+      <div class="tab-pane fade {% if not is_filtering and active_tab == 'reception' %}show active{% endif %}" id="reception" role="tabpanel" aria-labelledby="reception-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Réception du Chantier</div>
@@ -414,7 +415,7 @@
         </div>
       </div>
 
-      <div class="tab-pane fade" id="avancement" role="tabpanel" aria-labelledby="avancement-tab">
+      <div class="tab-pane fade {% if not is_filtering and active_tab == 'avancement' %}show active{% endif %}" id="avancement" role="tabpanel" aria-labelledby="avancement-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Avancement du Chantier</div>
@@ -472,7 +473,7 @@
         </div>
       </div>
       
-      <div class="tab-pane fade" id="fin" role="tabpanel" aria-labelledby="fin-tab">
+      <div class="tab-pane fade {% if not is_filtering and active_tab == 'fin' %}show active{% endif %}" id="fin" role="tabpanel" aria-labelledby="fin-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Fin du Chantier - Tableau des Tensions</div>
@@ -574,14 +575,47 @@
       </div>
 
       {% if current_user and current_user.role == "admin" %}
-      <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+      <div class="tab-pane fade {% if is_filtering or active_tab == 'history' %}show active{% endif %}" id="history" role="tabpanel" aria-labelledby="history-tab">
       <div class="card rounded-card mb-3">
         <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center mb-4">
+          
+          <!-- START: Filter Form -->
+          <form method="GET" action="{{ url_for('index') }}" class="mb-4 p-3 border rounded bg-light">
+            <input type="hidden" name="active_tab" value="history">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="filter_utilisateur" class="form-label">Filtrer par Utilisateur</label>
+                    <select name="filter_utilisateur" id="filter_utilisateur" class="form-select form-select-sm">
+                        <option value="">Tous les utilisateurs</option>
+                        {% for user_opt in distinct_users %}
+                        <option value="{{ user_opt }}" {% if current_filter_utilisateur == user_opt %}selected{% endif %}>{{ user_opt }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="filter_nom_chantier" class="form-label">Filtrer par Nom Chantier</label>
+                    <select name="filter_nom_chantier" id="filter_nom_chantier" class="form-select form-select-sm">
+                        <option value="">Tous les chantiers</option>
+                        {% for chantier_opt in distinct_nom_chantiers %}
+                        <option value="{{ chantier_opt }}" {% if current_filter_nom_chantier == chantier_opt %}selected{% endif %}>{{ chantier_opt }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-auto">
+                    <button type="submit" class="btn btn-sm btn-primary">Filtrer</button>
+                </div>
+                <div class="col-md-auto">
+                    <a href="{{ url_for('index', active_tab='history') }}" class="btn btn-sm btn-secondary">Réinitialiser</a>
+                </div>
+            </div>
+          </form>
+          <!-- END: Filter Form -->
+
+          <div class="d-flex justify-content-between align-items-center mb-3"> <!-- Reduced mb from 4 to 3 -->
             <div class="card-title mb-0">Historique des Entrées</div>
             <div>
-                <a href="{{ url_for('telecharger_historique') }}" class="btn btn-sm btn-primary">Télécharger CSV Global</a>
-                <a href="{{ url_for('telecharger_historique_pdf') }}" class="btn btn-sm btn-success">Télécharger PDF Global</a>
+                <a href="{{ url_for('telecharger_historique', filter_utilisateur=current_filter_utilisateur, filter_nom_chantier=current_filter_nom_chantier) }}" class="btn btn-sm btn-primary">Télécharger CSV Filtré</a>
+                <a href="{{ url_for('telecharger_historique_pdf', filter_utilisateur=current_filter_utilisateur, filter_nom_chantier=current_filter_nom_chantier) }}" class="btn btn-sm btn-success">Télécharger PDF Filtré</a>
             </div>
           </div>
           
