@@ -10,8 +10,7 @@
         .main-header {
             background: linear-gradient(90deg, #4a90e2, #357abd);
             color: white;
-            padding: 1.5rem 2rem;
-            /* font-size: 2rem; /* Adjusted because the logo takes up space */
+            padding: 1rem 2rem; /* Potentially adjust padding if logo is much larger */
             font-weight: bold;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             display: flex;
@@ -21,8 +20,7 @@
         .header-title {
             display: flex;
             align-items: center;
-            /* gap: 0.8rem; /* Gap is less needed if image has margin */
-            font-size: 1.8rem; /* Slightly reduced to accommodate logo well */
+            font-size: 1.8rem; /* This might need to be adjusted based on final logo size */
             font-weight: 700;
         }
         .logout-btn {
@@ -89,9 +87,9 @@
 <body>
     <header class="main-header">
         <div class="header-title">
-           <!-- START: Corrected TSB Logo path -->
-           <img src="{{ url_for('static', filename='tsb-logo.png') }}" alt="TSB Énergie Logo" style="height: 40px; margin-right: 15px; vertical-align: middle;">
-           <!-- END: Corrected TSB Logo path -->
+           <!-- START: Increased TSB Logo size -->
+           <img src="{{ url_for('static', filename='tsb-logo.png') }}" alt="TSB Énergie Logo" style="height: 55px; margin-right: 15px; vertical-align: middle;">
+           <!-- END: Increased TSB Logo size -->
            Suivi de Chantier - 
            {% if session.chantier_type == 'centrale-sol' %}Centrale au Sol
            {% elif session.chantier_type == 'ombriere' %}Ombrière
