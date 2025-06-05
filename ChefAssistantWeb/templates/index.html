@@ -59,7 +59,7 @@
         .table thead th {
             background-color: #357abd;
             color: white;
-            font-size: 0.90rem; 
+            font-size: 0.90rem;
             white-space: nowrap;
         }
         .table tbody tr:nth-child(even) {
@@ -67,20 +67,20 @@
         }
         .table td, .table th {
             vertical-align: middle !important;
-            padding: 0.4rem; 
-            font-size: 0.85rem; 
+            padding: 0.4rem;
+            font-size: 0.85rem;
         }
         .nowrap {
             white-space: nowrap;
         }
         .history-table {
-            font-size: 0.85rem; 
+            font-size: 0.85rem;
             overflow-x: auto;
         }
-        .modify-btn, .delete-btn { 
+        .modify-btn, .delete-btn {
             padding: 0.2rem 0.5rem;
             font-size: 0.8rem;
-            margin-right: 0.2rem; 
+            margin-right: 0.2rem;
         }
     </style>
 </head>
@@ -88,7 +88,7 @@
     <header class="main-header">
         <div class="header-title">
            <img src="{{ url_for('static', filename='tsb-logo.png') }}" alt="TSB Énergie Logo" style="height: 55px; margin-right: 15px; vertical-align: middle;">
-           Suivi de Chantier - 
+           Suivi de Chantier -
            {% if session.chantier_type == 'centrale-sol' %}Centrale au Sol
            {% elif session.chantier_type == 'ombriere' %}Ombrière
            {% elif session.chantier_type == 'toiture' %}Toiture
@@ -130,44 +130,48 @@
     </ul>
 
     <div class="tab-content container-fluid pt-4" id="mainTabContent">
+      <!-- Réception du Chantier Tab Pane -->
       <div class="tab-pane fade {% if not is_filtering and active_tab == 'reception' %}show active{% endif %}" id="reception" role="tabpanel" aria-labelledby="reception-tab">
-        <div class="card rounded-card mb-3">
-          <div class="card-body">
-            <div class="card-title mb-4">Réception du Chantier</div>
-            <ul class="nav subnav nav-pills mb-4" id="receptionSubTab" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="equipements-tab" data-bs-toggle="pill" data-bs-target="#equipements" type="button" role="tab" aria-controls="equipements" aria-selected="true">Équipements</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="connecteur-tab" data-bs-toggle="pill" data-bs-target="#connecteur" type="button" role="tab" aria-controls="connecteur" aria-selected="false">Connecteur</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="chemin-cable-tab" data-bs-toggle="pill" data-bs-target="#chemin-cable" type="button" role="tab" aria-controls="chemin-cable" aria-selected="false">Chemin de Câble</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="terre-tab" data-bs-toggle="pill" data-bs-target="#terre" type="button" role="tab" aria-controls="terre" aria-selected="false">Terre</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="cable-ac-tab" data-bs-toggle="pill" data-bs-target="#cable-ac" type="button" role="tab" aria-controls="cable-ac" aria-selected="false">Câble AC</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="cable-dc-tab" data-bs-toggle="pill" data-bs-target="#cable-dc" type="button" role="tab" aria-controls="cable-dc" aria-selected="false">Câble DC</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="onduleur-nombre-reception-tab" data-bs-toggle="pill" data-bs-target="#onduleur-nombre-reception-pane" type="button" role="tab" aria-controls="onduleur-nombre-reception-pane" aria-selected="false">Onduleur Nombre</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="shelter-nombre-reception-nav-tab" data-bs-toggle="pill" data-bs-target="#shelter-nombre-reception-pane" type="button" role="tab" aria-controls="shelter-nombre-reception-pane" aria-selected="false">Shelter Nombre</button>
-              </li>
-            </ul>
-            <div class="tab-content" id="receptionSubTabContent">
-              <div class="tab-pane fade show active" id="equipements" role="tabpanel" aria-labelledby="equipements-tab">
-                <form method="POST" action="{{ url_for('suivi_journalier') }}" enctype="multipart/form-data">
-                  <input type="hidden" name="section" value="equipements">
+        <!-- SINGLE FORM FOR THE ENTIRE RECEPTION SECTION -->
+        <form method="POST" action="{{ url_for('suivi_journalier') }}" enctype="multipart/form-data">
+          <input type="hidden" name="section" value="reception_complete">
+
+          <div class="card rounded-card mb-3">
+            <div class="card-body">
+              <div class="card-title mb-4">Réception du Chantier</div>
+              <ul class="nav subnav nav-pills mb-4" id="receptionSubTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link active" id="equipements-tab" data-bs-toggle="pill" data-bs-target="#equipements" type="button" role="tab" aria-controls="equipements" aria-selected="true">Équipements</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="connecteur-tab" data-bs-toggle="pill" data-bs-target="#connecteur" type="button" role="tab" aria-controls="connecteur" aria-selected="false">Connecteur</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="chemin-cable-tab" data-bs-toggle="pill" data-bs-target="#chemin-cable" type="button" role="tab" aria-controls="chemin-cable" aria-selected="false">Chemin de Câble</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="terre-tab" data-bs-toggle="pill" data-bs-target="#terre" type="button" role="tab" aria-controls="terre" aria-selected="false">Terre</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="cable-ac-tab" data-bs-toggle="pill" data-bs-target="#cable-ac" type="button" role="tab" aria-controls="cable-ac" aria-selected="false">Câble AC</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="cable-dc-tab" data-bs-toggle="pill" data-bs-target="#cable-dc" type="button" role="tab" aria-controls="cable-dc" aria-selected="false">Câble DC</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="onduleur-nombre-reception-tab" data-bs-toggle="pill" data-bs-target="#onduleur-nombre-reception-pane" type="button" role="tab" aria-controls="onduleur-nombre-reception-pane" aria-selected="false">Onduleur Nombre</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="shelter-nombre-reception-nav-tab" data-bs-toggle="pill" data-bs-target="#shelter-nombre-reception-pane" type="button" role="tab" aria-controls="shelter-nombre-reception-pane" aria-selected="false">Shelter Nombre</button>
+                </li>
+              </ul>
+              <div class="tab-content" id="receptionSubTabContent">
+                <!-- Équipements Sub-Tab Content -->
+                <div class="tab-pane fade show active" id="equipements" role="tabpanel" aria-labelledby="equipements-tab">
                   <div class="row mb-3">
                     <div class="col-md-12">
                       <label for="nom_du_chantier_reception" class="form-label">Nom du chantier</label>
-                      <input type="text" class="form-control" id="nom_du_chantier_reception" name="nom_du_chantier" placeholder="Entrez le nom du chantier">
+                      <input type="text" class="form-control" id="nom_du_chantier_reception" name="nom_du_chantier_reception" placeholder="Entrez le nom du chantier">
                     </div>
                   </div>
                   <div class="row mb-2 fw-bold text-center">
@@ -254,49 +258,46 @@
                     </div>
                     <button type="button" class="btn btn-secondary btn-sm" id="add-photo-btn">Ajouter une photo</button>
                   </div>
-                  <div class="mt-3">
-                    <button type="submit" class="btn btn-primary">Enregistrer Équipements</button>
-                  </div>
-                </form>
-                <script>
-                  document.addEventListener('DOMContentLoaded', function() {
-                    const photosContainer = document.getElementById('photos-container');
-                    const addPhotoBtn = document.getElementById('add-photo-btn');
-                    function updateRemoveButtonsVisibility() {
-                      const allPhotoInputs = photosContainer.querySelectorAll('.input-group');
-                      allPhotoInputs.forEach((group, index) => {
-                        const removeBtn = group.querySelector('.remove-photo-btn');
-                        if (removeBtn) {
-                          removeBtn.style.display = allPhotoInputs.length > 1 ? '' : 'none';
-                        }
-                      });
-                    }
-                    addPhotoBtn.addEventListener('click', function() {
-                      const newInputGroup = document.createElement('div');
-                      newInputGroup.className = 'input-group mb-2';
-                      newInputGroup.innerHTML = `
-                        <input type="file" class="form-control" name="photo_chantier[]" accept="image/*">
-                        <button class="btn btn-danger remove-photo-btn" type="button">Supprimer</button>`;
-                      photosContainer.appendChild(newInputGroup);
-                      newInputGroup.querySelector('.remove-photo-btn').addEventListener('click', function() {
-                        this.parentElement.remove();
-                        updateRemoveButtonsVisibility();
+                  <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                      const photosContainer = document.getElementById('photos-container');
+                      const addPhotoBtn = document.getElementById('add-photo-btn');
+                      function updateRemoveButtonsVisibility() {
+                        const allPhotoInputs = photosContainer.querySelectorAll('.input-group');
+                        allPhotoInputs.forEach((group, index) => {
+                          const removeBtn = group.querySelector('.remove-photo-btn');
+                          if (removeBtn) {
+                            removeBtn.style.display = allPhotoInputs.length > 1 ? '' : 'none';
+                          }
+                        });
+                      }
+                      if (addPhotoBtn) { // Check if button exists
+                        addPhotoBtn.addEventListener('click', function() {
+                          const newInputGroup = document.createElement('div');
+                          newInputGroup.className = 'input-group mb-2';
+                          newInputGroup.innerHTML = `
+                            <input type="file" class="form-control" name="photo_chantier[]" accept="image/*">
+                            <button class="btn btn-danger remove-photo-btn" type="button">Supprimer</button>`;
+                          photosContainer.appendChild(newInputGroup);
+                          newInputGroup.querySelector('.remove-photo-btn').addEventListener('click', function() {
+                            this.parentElement.remove();
+                            updateRemoveButtonsVisibility();
+                          });
+                          updateRemoveButtonsVisibility();
+                        });
+                      }
+                      photosContainer.querySelectorAll('.remove-photo-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                          this.parentElement.remove();
+                          updateRemoveButtonsVisibility();
+                        });
                       });
                       updateRemoveButtonsVisibility();
                     });
-                    photosContainer.querySelectorAll('.remove-photo-btn').forEach(btn => {
-                      btn.addEventListener('click', function() {
-                        this.parentElement.remove();
-                        updateRemoveButtonsVisibility();
-                      });
-                    });
-                    updateRemoveButtonsVisibility(); 
-                  });
-                </script>
-              </div>
-              <div class="tab-pane fade" id="connecteur" role="tabpanel" aria-labelledby="connecteur-tab">
-                <form method="POST" action="{{ url_for('suivi_journalier') }}">
-                  <input type="hidden" name="section" value="connecteur">
+                  </script>
+                </div>
+                <!-- Connecteur Sub-Tab Content -->
+                <div class="tab-pane fade" id="connecteur" role="tabpanel" aria-labelledby="connecteur-tab">
                   <div class="row mb-3">
                     <div class="col-md-4">
                       <label for="connecteur_type" class="form-label">Type de connecteur</label>
@@ -315,14 +316,9 @@
                       </select>
                     </div>
                   </div>
-                  <div class="mt-3">
-                    <button type="submit" class="btn btn-primary">Enregistrer Connecteur</button>
-                  </div>
-                </form>
-              </div>
-              <div class="tab-pane fade" id="chemin-cable" role="tabpanel" aria-labelledby="chemin-cable-tab">
-                <form method="POST" action="{{ url_for('suivi_journalier') }}">
-                  <input type="hidden" name="section" value="chemin_cable">
+                </div>
+                <!-- Chemin de Câble Sub-Tab Content -->
+                <div class="tab-pane fade" id="chemin-cable" role="tabpanel" aria-labelledby="chemin-cable-tab">
                   <div class="row mb-3">
                     <div class="col-md-3">
                       <label for="chemin_cable_type" class="form-label">Type de chemin</label>
@@ -341,28 +337,18 @@
                       <input type="number" class="form-control" id="chemin_cable_profondeur" name="chemin_cable_profondeur" min="0" step="any">
                     </div>
                   </div>
-                  <div class="mt-3">
-                    <button type="submit" class="btn btn-primary">Enregistrer Chemin Câble</button>
-                  </div>
-                </form>
-              </div>
-              <div class="tab-pane fade" id="terre" role="tabpanel" aria-labelledby="terre-tab">
-                <form method="POST" action="{{ url_for('suivi_journalier') }}">
-                  <input type="hidden" name="section" value="terre">
+                </div>
+                <!-- Terre Sub-Tab Content -->
+                <div class="tab-pane fade" id="terre" role="tabpanel" aria-labelledby="terre-tab">
                   <div class="row mb-3">
                     <div class="col-md-6">
                       <label for="terre_longueur" class="form-label">Longueur Terre (m)</label>
                       <input type="number" class="form-control" id="terre_longueur" name="terre_longueur" min="0" step="any">
                     </div>
                   </div>
-                  <div class="mt-3">
-                    <button type="submit" class="btn btn-primary">Enregistrer Terre</button>
-                  </div>
-                </form>
-              </div>
-              <div class="tab-pane fade" id="cable-ac" role="tabpanel" aria-labelledby="cable-ac-tab">
-                <form method="POST" action="{{ url_for('suivi_journalier') }}">
-                  <input type="hidden" name="section" value="cable_ac">
+                </div>
+                <!-- Câble AC Sub-Tab Content -->
+                <div class="tab-pane fade" id="cable-ac" role="tabpanel" aria-labelledby="cable-ac-tab">
                   <div class="row mb-3">
                     <div class="col-md-6">
                       <label for="cableac_section" class="form-label">Section Câble AC (mm²)</label>
@@ -373,14 +359,9 @@
                       <input type="number" class="form-control" id="cableac_longueur" name="cableac_longueur" min="0" step="any">
                     </div>
                   </div>
-                  <div class="mt-3">
-                    <button type="submit" class="btn btn-primary">Enregistrer Câble AC</button>
-                  </div>
-                </form>
-              </div>
-              <div class="tab-pane fade" id="cable-dc" role="tabpanel" aria-labelledby="cable-dc-tab">
-                <form method="POST" action="{{ url_for('suivi_journalier') }}">
-                  <input type="hidden" name="section" value="cable_dc">
+                </div>
+                <!-- Câble DC Sub-Tab Content -->
+                <div class="tab-pane fade" id="cable-dc" role="tabpanel" aria-labelledby="cable-dc-tab">
                   <div class="row mb-3">
                     <div class="col-md-6">
                       <label for="cabledc_section" class="form-label">Section Câble DC (mm²)</label>
@@ -391,60 +372,48 @@
                       <input type="number" class="form-control" id="cabledc_longueur" name="cabledc_longueur" min="0" step="any">
                     </div>
                   </div>
-                  <div class="mt-3">
-                    <button type="submit" class="btn btn-primary">Enregistrer Câble DC</button>
-                  </div>
-                </form>
-              </div>
-              <div class="tab-pane fade" id="onduleur-nombre-reception-pane" role="tabpanel" aria-labelledby="onduleur-nombre-reception-tab">
-                <form method="POST" action="{{ url_for('suivi_journalier') }}">
-                  <input type="hidden" name="section" value="onduleur_nombre">
+                </div>
+                <!-- Onduleur Nombre Sub-Tab Content -->
+                <div class="tab-pane fade" id="onduleur-nombre-reception-pane" role="tabpanel" aria-labelledby="onduleur-nombre-reception-tab">
                   <div class="row mb-3">
                     <div class="col-md-6">
-                      <label for="onduleur_nombre_input" class="form-label">Nombre d'Onduleurs</label>
-                      <input type="number" class="form-control" id="onduleur_nombre_input" name="onduleur_nombre" min="0">
+                      <label for="onduleur_nombre_reception_input" class="form-label">Nombre d'Onduleurs</label>
+                      <input type="number" class="form-control" id="onduleur_nombre_reception_input" name="onduleur_nombre_reception" min="0">
                     </div>
                   </div>
-                  <div class="mt-3">
-                    <button type="submit" class="btn btn-primary">Enregistrer Nombre Onduleurs</button>
-                  </div>
-                </form>
-              </div>
-              <div class="tab-pane fade" id="shelter-nombre-reception-pane" role="tabpanel" aria-labelledby="shelter-nombre-reception-nav-tab">
-                <form method="POST" action="{{ url_for('suivi_journalier') }}">
-                  <input type="hidden" name="section" value="shelter_nombre_reception">
+                </div>
+                <!-- Shelter Nombre Sub-Tab Content -->
+                <div class="tab-pane fade" id="shelter-nombre-reception-pane" role="tabpanel" aria-labelledby="shelter-nombre-reception-nav-tab">
                   <div class="row mb-3">
                     <div class="col-md-6">
                       <label for="shelter_nombre_reception_input" class="form-label">Shelter nombre</label>
-                      <input type="number" class="form-control" id="shelter_nombre_reception_input" name="shelter_nombre" min="0">
+                      <input type="number" class="form-control" id="shelter_nombre_reception_input" name="shelter_nombre_reception" min="0">
                     </div>
                   </div>
-                  <div class="mt-3">
-                    <button type="submit" class="btn btn-primary">Enregistrer Nombre Shelter</button>
+                  <!-- SINGLE SUBMIT BUTTON FOR THE ENTIRE RECEPTION FORM -->
+                  <div class="mt-4 pt-3 border-top">
+                    <button type="submit" class="btn btn-primary btn-lg">Enregistrer Toute la Réception</button>
                   </div>
-                </form>
-              </div>
+                </div>
+              </div> <!-- End receptionSubTabContent -->
             </div>
           </div>
-        </div>
-      </div>
+        </form> <!-- END OF THE SINGLE FORM FOR RECEPTION -->
+      </div> <!-- End reception tab-pane -->
 
+      <!-- Avancement du Chantier Tab Pane -->
       <div class="tab-pane fade {% if not is_filtering and active_tab == 'avancement' %}show active{% endif %}" id="avancement" role="tabpanel" aria-labelledby="avancement-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Avancement du Chantier</div>
             <form method="POST" action="{{ url_for('suivi_journalier') }}">
               <input type="hidden" name="section" value="avancement">
-              
-              <!-- START: Added Nom Chantier for Avancement -->
               <div class="row mb-3">
                 <div class="col-md-12">
                   <label for="nom_du_chantier_avancement" class="form-label">Nom du chantier</label>
-                  <input type="text" class="form-control" id="nom_du_chantier_avancement" name="nom_du_chantier" placeholder="Entrez le nom du chantier (si différent de réception)">
+                  <input type="text" class="form-control" id="nom_du_chantier_avancement" name="nom_du_chantier_avancement" placeholder="Entrez le nom du chantier (si différent de réception)">
                 </div>
               </div>
-              <!-- END: Added Nom Chantier for Avancement -->
-
               <div class="row mb-3">
                 <div class="col-md-4">
                   <label for="cables_dctires" class="form-label">Câble DC tiré (m)</label>
@@ -459,8 +428,6 @@
                   <input type="number" class="form-control" id="cables_terretires" name="cables_terretires" min="0" step="any">
                 </div>
               </div>
-
-              <!-- START: Added Equipe, Onduleur, Heure de travail -->
               <div class="row mb-3">
                 <div class="col-md-4">
                   <label for="equipe_avancement" class="form-label">Équipe</label>
@@ -475,8 +442,6 @@
                   <input type="text" class="form-control" id="onduleur_avancement" name="onduleur_avancement" placeholder="Statut, problèmes rencontrés">
                 </div>
               </div>
-              <!-- END: Added Equipe, Onduleur, Heure de travail -->
-
               {% if session.chantier_type == 'centrale-sol' or session.chantier_type == 'ombriere' %}
               <div class="row mb-3">
                 <div class="col-md-12">
@@ -509,24 +474,20 @@
           </div>
         </div>
       </div>
-      
+
+      <!-- Fin du Chantier Tab Pane -->
       <div class="tab-pane fade {% if not is_filtering and active_tab == 'fin' %}show active{% endif %}" id="fin" role="tabpanel" aria-labelledby="fin-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Fin du Chantier - Tableau des Tensions</div>
-            
             <form method="POST" action="{{ url_for('suivi_journalier') }}">
               <input type="hidden" name="section" value="fin">
-
-              <!-- START: Added Nom Chantier for Fin -->
               <div class="row mb-3">
                 <div class="col-md-12">
                   <label for="nom_du_chantier_fin" class="form-label">Nom du chantier</label>
-                  <input type="text" class="form-control" id="nom_du_chantier_fin" name="nom_du_chantier" placeholder="Confirmez le nom du chantier">
+                  <input type="text" class="form-control" id="nom_du_chantier_fin" name="nom_du_chantier_fin" placeholder="Confirmez le nom du chantier">
                 </div>
               </div>
-              <!-- END: Added Nom Chantier for Fin -->
-
               <p class="text-muted mb-3">Relevé final des tensions et mesures.</p>
               <div class="table-responsive">
                 <table class="table align-middle" id="finalTensionsTable">
@@ -584,37 +545,39 @@
                     if (removeBtn) removeBtn.style.display = rows.length > 1 ? '' : 'none';
                   });
                 }
-                addRowBtnFin.addEventListener('click', function() {
-                  const newRowHTML = `
-                    <td><input type="text" class="form-control form-control-sm" name="fin_zone[]"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="fin_string[]"></td>
-                    <td><input type="number" class="form-control form-control-sm" name="fin_tension_dc[]" step="any"></td>
-                    <td><input type="number" class="form-control form-control-sm" name="fin_courant_dc[]" step="any"></td>
-                    <td><input type="number" class="form-control form-control-sm" name="fin_tension_ac[]" step="any"></td>
-                    <td><input type="number" class="form-control form-control-sm" name="fin_puissance[]" step="any"></td>
-                    <td><input type="date" class="form-control form-control-sm" name="fin_date[]"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="fin_technicien[]"></td>
-                    <td>
-                      <select class="form-select form-select-sm" name="fin_status[]">
-                        <option value="Validé">Validé</option><option value="Non Validé">Non Validé</option><option value="En attente">En attente</option>
-                      </select>
-                    </td>
-                    <td><button type="button" class="btn btn-danger btn-sm remove-row-fin" title="Supprimer">✕</button></td>`;
-                  const tr = tbodyFin.insertRow();
-                  tr.innerHTML = newRowHTML;
-                  tr.querySelector('.remove-row-fin').addEventListener('click', function() {
-                    this.closest('tr').remove();
+                if(addRowBtnFin) { // Check if button exists
+                    addRowBtnFin.addEventListener('click', function() {
+                    const newRowHTML = `
+                        <td><input type="text" class="form-control form-control-sm" name="fin_zone[]"></td>
+                        <td><input type="text" class="form-control form-control-sm" name="fin_string[]"></td>
+                        <td><input type="number" class="form-control form-control-sm" name="fin_tension_dc[]" step="any"></td>
+                        <td><input type="number" class="form-control form-control-sm" name="fin_courant_dc[]" step="any"></td>
+                        <td><input type="number" class="form-control form-control-sm" name="fin_tension_ac[]" step="any"></td>
+                        <td><input type="number" class="form-control form-control-sm" name="fin_puissance[]" step="any"></td>
+                        <td><input type="date" class="form-control form-control-sm" name="fin_date[]"></td>
+                        <td><input type="text" class="form-control form-control-sm" name="fin_technicien[]"></td>
+                        <td>
+                        <select class="form-select form-select-sm" name="fin_status[]">
+                            <option value="Validé">Validé</option><option value="Non Validé">Non Validé</option><option value="En attente">En attente</option>
+                        </select>
+                        </td>
+                        <td><button type="button" class="btn btn-danger btn-sm remove-row-fin" title="Supprimer">✕</button></td>`;
+                    const tr = tbodyFin.insertRow();
+                    tr.innerHTML = newRowHTML;
+                    tr.querySelector('.remove-row-fin').addEventListener('click', function() {
+                        this.closest('tr').remove();
+                        updateRemoveButtonsFinVisibility();
+                    });
                     updateRemoveButtonsFinVisibility();
-                  });
-                  updateRemoveButtonsFinVisibility();
-                });
+                    });
+                }
                 tbodyFin.querySelectorAll('.remove-row-fin').forEach(btn => {
                     btn.addEventListener('click', function() {
                         this.closest('tr').remove();
                         updateRemoveButtonsFinVisibility();
                     });
                 });
-                updateRemoveButtonsFinVisibility(); 
+                updateRemoveButtonsFinVisibility();
               });
             </script>
           </div>
@@ -654,14 +617,14 @@
                 </div>
             </div>
           </form>
-          <div class="d-flex justify-content-between align-items-center mb-3"> 
+          <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="card-title mb-0">Historique des Entrées</div>
             <div>
                 <a href="{{ url_for('telecharger_historique', filter_utilisateur=current_filter_utilisateur, filter_nom_chantier=current_filter_nom_chantier) }}" class="btn btn-sm btn-primary">Télécharger CSV Filtré</a>
                 <a href="{{ url_for('telecharger_historique_pdf', filter_utilisateur=current_filter_utilisateur, filter_nom_chantier=current_filter_nom_chantier) }}" class="btn btn-sm btn-success">Télécharger PDF Filtré</a>
             </div>
           </div>
-          
+
           <h5 class="mt-4 mb-2">Réception du Chantier</h5>
           <div class="table-responsive history-table mb-4">
             <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes.</p>
@@ -696,7 +659,7 @@
               </thead>
               <tbody>
                 {% for row in all_lignes|default([]) %}
-                  {% if row.equipement_type or row.connecteur_type or row.chemin_cable_type or row.terre_longueur or row.cableac_section or row.cabledc_section or row.onduleur_nombre or row.shelter_nombre or (section == 'equipements' and row.nom_du_chantier) %}
+                  {% if row.equipement_type or row.connecteur_type or row.chemin_cable_type or row.terre_longueur or row.cableac_section or row.cabledc_section or row.onduleur_nombre or row.shelter_nombre %}
                   <tr>
                     <td>{{ row.date|default('') }}</td>
                     <td>{{ row.utilisateur|default('') }}</td>
@@ -705,7 +668,7 @@
                     <td>{{ row.equipement_reference|default('') }}</td>
                     <td>{{ row.equipement_etat|default('') }}</td>
                     <td>{{ row.equipement_date_reception|default('') }}</td>
-                    <td>{{ row.equipement_nombre_1|default('') }}</td> 
+                    <td>{{ row.equipement_nombre_1|default('') }}</td>
                     <td>{{ row.connecteur_type|default('') }}</td>
                     <td>{{ row.connecteur_quantite|default('') }}</td>
                     <td>{{ row.connecteur_etat|default('') }}</td>
@@ -718,7 +681,7 @@
                     <td>{{ row.cableac_longueur|default('') }}</td>
                     <td>{{ row.cabledc_section|default('') }}</td>
                     <td>{{ row.cabledc_longueur|default('') }}</td>
-                    <td>{{ row.onduleur_nombre|default('') }}</td> 
+                    <td>{{ row.onduleur_nombre|default('') }}</td>
                     <td>{{ row.shelter_nombre|default('') }}</td>
                     <td>
                       {% if row.images %}
@@ -750,11 +713,11 @@
                 <tr>
                   <th>Date</th>
                   <th>Utilisateur</th>
-                  <th>Nom Chantier</th> <!-- Added -->
+                  <th>Nom Chantier</th>
                   <th>Type Chantier</th>
-                  <th>Équipe</th> <!-- Added -->
-                  <th>Onduleur (Avanc.)</th> <!-- Added -->
-                  <th>Heures Travail</th> <!-- Added -->
+                  <th>Équipe</th>
+                  <th>Onduleur (Avanc.)</th>
+                  <th>Heures Travail</th>
                   <th>Câble DC (m)</th>
                   <th>Câble AC (m)</th>
                   <th>Câble Terre (m)</th>
@@ -767,15 +730,15 @@
               </thead>
               <tbody>
                 {% for row in all_lignes|default([]) %}
-                {% if row.cables_dctires or row.cables_actires or row.cables_terretires or row.problems or row.interconnexion or row.nombre_panneaux or row.nombre_rail or row.equipe or row.onduleur_details_avancement or row.heure_de_travail or (section == 'avancement' and row.nom_du_chantier) %}
+                {% if row.cables_dctires or row.cables_actires or row.cables_terretires or row.problems or row.interconnexion or row.nombre_panneaux or row.nombre_rail or row.equipe or row.onduleur_details_avancement or row.heure_de_travail %}
                 <tr>
                   <td>{{ row.date|default('') }}</td>
                   <td>{{ row.utilisateur|default('') }}</td>
-                  <td>{{ row.nom_du_chantier|default('') }}</td> <!-- Added -->
+                  <td>{{ row.nom_du_chantier|default('') }}</td>
                   <td>{{ row.chantier_type|default('N/A') }}</td>
-                  <td>{{ row.equipe|default('') }}</td> <!-- Added -->
-                  <td>{{ row.onduleur_details_avancement|default('') }}</td> <!-- Added -->
-                  <td>{{ row.heure_de_travail|default('') }}</td> <!-- Added -->
+                  <td>{{ row.equipe|default('') }}</td>
+                  <td>{{ row.onduleur_details_avancement|default('') }}</td>
+                  <td>{{ row.heure_de_travail|default('') }}</td>
                   <td>{{ row.cables_dctires|default('') }}</td>
                   <td>{{ row.cables_actires|default('') }}</td>
                   <td>{{ row.cables_terretires|default('') }}</td>
@@ -822,7 +785,7 @@
                 <tr>
                   <th>Date Entrée</th>
                   <th>Utilisateur</th>
-                  <th>Nom Chantier</th> <!-- Added -->
+                  <th>Nom Chantier</th>
                   <th>Zone</th>
                   <th>String</th>
                   <th>Tension DC (V)</th>
@@ -837,11 +800,11 @@
               </thead>
               <tbody>
                 {% for row in all_lignes|default([]) %}
-                {% if row.fin_zone or row.fin_string or (section == 'fin' and row.nom_du_chantier) %}
+                {% if row.fin_zone or row.fin_string %}
                 <tr>
                   <td>{{ row.date|default('') }}</td>
                   <td>{{ row.utilisateur|default('') }}</td>
-                  <td>{{ row.nom_du_chantier|default('') }}</td> <!-- Added -->
+                  <td>{{ row.nom_du_chantier|default('') }}</td>
                   <td>{{ row.fin_zone|default('') }}</td>
                   <td>{{ row.fin_string|default('') }}</td>
                   <td>{{ row.fin_tension_dc|default('') }}</td>
@@ -866,8 +829,8 @@
         </div>
       </div>
     </div>
-    {% endif %} 
-    </div> 
+    {% endif %}
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
