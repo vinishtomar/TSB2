@@ -23,19 +23,15 @@ login_manager.login_message_category = "info"
 
 app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))
 
-# --- !!! HARDCODED DATABASE URI - NOT RECOMMENDED FOR PRODUCTION !!! ---
-# If you later set DATABASE_URL in Render, it will override this if you change the code back.
-# For now, we are directly using your provided link.
 YOUR_DATABASE_LINK = "postgresql://tsb_jilz_user:WQuuirqxSdknwZjsvldYzD0DbhcOBzQ7@dpg-d0jjegmmcj7s73836lp0-a/tsb_jilz"
 app.config['SQLALCHEMY_DATABASE_URI'] = YOUR_DATABASE_LINK
-print(f"INFO: Using HARDCODED DATABASE_URL: {app.config['SQLALCHEMY_DATABASE_URI']}") # For confirmation
-# --- END OF HARDCODED DATABASE URI ---
+print(f"INFO: Using HARDCODED DATABASE_URL: {app.config['SQLALCHEMY_DATABASE_URI']}")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 # --- END OF TOP LEVEL CONFIGURATION ---
 
-class DBUser(db.Model): # This model remains the same, for user authentication
+class DBUser(db.Model):
     __tablename__ = 'db_user'
     id = db.Column(db.String(255), primary_key=True)
     password_hash = db.Column(db.String(255), nullable=False)
@@ -53,31 +49,31 @@ def load_user(user_id):
         return User(user_from_db.id, user_from_db.role)
     return None
 
-# --- NEW DATABASE MODEL: VinishSuivi ---
 class VinishSuivi(db.Model):
-    __tablename__ = 'vinish_database' # Your requested table name
+    __tablename__ = 'vinish_database'
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.String(50), default=lambda: datetime.now().strftime('%Y-%m-%d %H:%M'))
     utilisateur = db.Column(db.String(255))
     nom_du_chantier = db.Column(db.String(255), nullable=True)
 
-    chantier_type = db.Column(db.String(50), nullable=True)
-    interconnexion = db.Column(db.String(255), nullable=True)
-    nombre_panneaux = db.Column(db.Integer, nullable=True)
-    nombre_rail = db.Column(db.Integer, nullable=True)
-
-    equipement_type = db.Column(db.String(255), nullable=True)
-    equipement_reference = db.Column(db.String(255), nullable=True)
-    equipement_etat = db.Column(db.String(255), nullable=True)
-    equipement_date_reception = db.Column(db.String(255), nullable=True)
+    chantier_type = db.Column(db.String(50), nullable=True) # From session
+    
+    # Reception Fields
+    equipement_type = db.Column(db.String(255), nullable=True) # For equipement_type_1
+    equipement_reference = db.Column(db.String(255), nullable=True) # For equipement_reference_1
+    equipement_etat = db.Column(db.String(255), nullable=True) # For equipement_etat_1
+    equipement_date_reception = db.Column(db.String(255), nullable=True) # For equipement_date_reception_1
     equipement_nombre_1 = db.Column(db.String(10), nullable=True)
-    equipement_nombre_2 = db.Column(db.String(10), nullable=True)
-    equipement_nombre_3 = db.Column(db.String(10), nullable=True)
+    # Storing details for 2nd and 3rd equip line (if needed, expand model or use JSON)
+    # For now, these are for the 'nombre' inputs:
+    equipement_nombre_2 = db.Column(db.String(10), nullable=True) # Corresponds to HTML name="equipement_nombre_2"
+    equipement_nombre_3 = db.Column(db.String(10), nullable=True) # Corresponds to HTML name="equipement_nombre_3"
+
     connecteur_type = db.Column(db.String(255), nullable=True)
     connecteur_quantite = db.Column(db.String(255), nullable=True)
     connecteur_etat = db.Column(db.String(255), nullable=True)
-    chemin_cable_longueur = db.Column(db.String(255), nullable=True)
     chemin_cable_type = db.Column(db.String(255), nullable=True)
+    chemin_cable_longueur = db.Column(db.String(255), nullable=True)
     chemin_cable_section = db.Column(db.String(255), nullable=True)
     chemin_cable_profondeur = db.Column(db.String(255), nullable=True)
     terre_longueur = db.Column(db.String(255), nullable=True)
@@ -85,18 +81,22 @@ class VinishSuivi(db.Model):
     cableac_longueur = db.Column(db.String(255), nullable=True)
     cabledc_section = db.Column(db.String(255), nullable=True)
     cabledc_longueur = db.Column(db.String(255), nullable=True)
-    shelter_nombre = db.Column(db.Integer, nullable=True)
-    onduleur_nombre = db.Column(db.Integer, nullable=True)
+    onduleur_nombre = db.Column(db.Integer, nullable=True) # For onduleur_nombre_reception
+    shelter_nombre = db.Column(db.Integer, nullable=True) # For shelter_nombre_reception
 
-    equipe = db.Column(db.String(255), nullable=True)
-    onduleur_details_avancement = db.Column(db.Text, nullable=True)
-    heure_de_travail = db.Column(db.String(50), nullable=True)
-
+    # Avancement Fields
     cables_dctires = db.Column(db.String(255), nullable=True)
     cables_actires = db.Column(db.String(255), nullable=True)
     cables_terretires = db.Column(db.String(255), nullable=True)
+    equipe = db.Column(db.String(255), nullable=True)
+    onduleur_details_avancement = db.Column(db.Text, nullable=True)
+    heure_de_travail = db.Column(db.String(50), nullable=True)
+    interconnexion = db.Column(db.String(255), nullable=True) # Conditional (centrale-sol, ombriere)
+    nombre_panneaux = db.Column(db.Integer, nullable=True)    # Conditional (toiture)
+    nombre_rail = db.Column(db.Integer, nullable=True)       # Conditional (toiture)
     problems = db.Column(db.Text, nullable=True)
 
+    # Fin Fields
     fin_zone = db.Column(db.String(255), nullable=True)
     fin_string = db.Column(db.String(255), nullable=True)
     fin_tension_dc = db.Column(db.String(255), nullable=True)
@@ -107,14 +107,11 @@ class VinishSuivi(db.Model):
     fin_technicien = db.Column(db.String(255), nullable=True)
     fin_status = db.Column(db.String(255), nullable=True)
     
-    # Relationship to the new image table
     images = db.relationship('VinishSuiviImage', backref='suivi_entry', lazy=True, cascade="all, delete-orphan")
 
-# --- NEW IMAGE TABLE: VinishSuiviImage ---
 class VinishSuiviImage(db.Model):
-    __tablename__ = 'vinish_database_image' # New image table name
+    __tablename__ = 'vinish_database_image'
     id = db.Column(db.Integer, primary_key=True)
-    # Foreign key to the 'vinish_database' table
     suivi_entry_id = db.Column(db.Integer, db.ForeignKey('vinish_database.id'), nullable=False)
     filename = db.Column(db.String(255), nullable=False)
     content_type = db.Column(db.String(255), nullable=False)
@@ -130,17 +127,13 @@ def create_admin_user_if_not_exists():
         app.logger.info("Default admin user created.")
 
 with app.app_context():
-    db.create_all() # This will create 'db_user', 'vinish_database', and 'vinish_database_image' if they don't exist
+    db.create_all()
     create_admin_user_if_not_exists()
-
-# --- IMPORTANT: YOU NOW NEED TO MODIFY ALL YOUR ROUTES ---
-# --- TO USE VinishSuivi and VinishSuiviImage INSTEAD OF SuiviJournalier and SuiviJournalierImage ---
 
 @app.route('/')
 @login_required
 def index():
-    # --- MODIFIED TO USE VinishSuivi ---
-    base_query = VinishSuivi.query 
+    base_query = VinishSuivi.query
     if current_user.role != "admin":
         base_query = base_query.filter(VinishSuivi.utilisateur == current_user.id)
 
@@ -166,15 +159,17 @@ def index():
             .filter(VinishSuivi.nom_du_chantier.isnot(None), VinishSuivi.nom_du_chantier != '')\
             .order_by(VinishSuivi.nom_du_chantier).all()
         distinct_nom_chantiers = [name[0] for name in distinct_nom_chantiers_query if name[0]]
-    else:
+    else: # For non-admin users
         user_has_entries = VinishSuivi.query.filter_by(utilisateur=current_user.id).first()
         if user_has_entries:
-            distinct_users = [current_user.id]
+            distinct_users = [current_user.id] # Only self
+        
         distinct_nom_chantiers_user_query = db.session.query(distinct(VinishSuivi.nom_du_chantier))\
             .filter(VinishSuivi.utilisateur == current_user.id)\
             .filter(VinishSuivi.nom_du_chantier.isnot(None), VinishSuivi.nom_du_chantier != '')\
             .order_by(VinishSuivi.nom_du_chantier).all()
         distinct_nom_chantiers = [name[0] for name in distinct_nom_chantiers_user_query if name[0]]
+
 
     return render_template('index.html',
                            all_lignes=all_lignes,
@@ -215,99 +210,124 @@ def logout():
 @app.route('/suivi-journalier', methods=['POST'])
 @login_required
 def suivi_journalier():
-    active_tab_after_submit = "reception"
+    active_tab_after_submit = "reception" # Default
+    section = request.form.get("section")
+    
+    # Initialize with common data for all entry types
+    entry_data = {
+        "utilisateur": current_user.id,
+        "date": datetime.now().strftime('%Y-%m-%d %H:%M'),
+        "chantier_type": session.get('chantier_type'),
+        # Initialize all model fields to None to prevent KeyError when creating VinishSuivi object
+        "nom_du_chantier": None, "equipement_type": None, "equipement_reference": None,
+        "equipement_etat": None, "equipement_date_reception": None, "equipement_nombre_1": None,
+        "equipement_nombre_2": None, "equipement_nombre_3": None, "connecteur_type": None,
+        "connecteur_quantite": None, "connecteur_etat": None, "chemin_cable_type": None,
+        "chemin_cable_longueur": None, "chemin_cable_section": None, "chemin_cable_profondeur": None,
+        "terre_longueur": None, "cableac_section": None, "cableac_longueur": None,
+        "cabledc_section": None, "cabledc_longueur": None, "onduleur_nombre": None,
+        "shelter_nombre": None, "cables_dctires": None, "cables_actires": None,
+        "cables_terretires": None, "equipe": None, "onduleur_details_avancement": None,
+        "heure_de_travail": None, "interconnexion": None, "nombre_panneaux": None,
+        "nombre_rail": None, "problems": None, "fin_zone": None, "fin_string": None,
+        "fin_tension_dc": None, "fin_courant_dc": None, "fin_tension_ac": None,
+        "fin_puissance": None, "fin_date": None, "fin_technicien": None, "fin_status": None
+    }
+
     try:
-        data_to_save = {
-            "utilisateur": current_user.id,
-            "date": datetime.now().strftime('%Y-%m-%d %H:%M'),
-            "chantier_type": session.get('chantier_type'),
-            # ... (all other fields from request.form as before)
-            "equipement_type": request.form.get("equipement_type_1"),
-            "equipement_reference": request.form.get("equipement_reference_1"),
-            "equipement_etat": request.form.get("equipement_etat_1"),
-            "equipement_date_reception": request.form.get("equipement_date_reception_1"),
-            "equipement_nombre_1": request.form.get("equipement_nombre_1"),
-            "equipement_nombre_2": request.form.get("equipement_nombre_2"),
-            "equipement_nombre_3": request.form.get("equipement_nombre_3"),
-            "connecteur_type": request.form.get("connecteur_type"),
-            "connecteur_quantite": request.form.get("connecteur_quantite"),
-            "connecteur_etat": request.form.get("connecteur_etat"),
-            "chemin_cable_longueur": request.form.get("chemin_cable_longueur"),
-            "chemin_cable_type": request.form.get("chemin_cable_type"),
-            "chemin_cable_section": request.form.get("chemin_cable_section"),
-            "chemin_cable_profondeur": request.form.get("chemin_cable_profondeur"),
-            "terre_longueur": request.form.get("terre_longueur"),
-            "cableac_section": request.form.get("cableac_section"),
-            "cableac_longueur": request.form.get("cableac_longueur"),
-            "cabledc_section": request.form.get("cabledc_section"),
-            "cabledc_longueur": request.form.get("cabledc_longueur"),
-            "cables_dctires": request.form.get("cables_dctires"),
-            "cables_actires": request.form.get("cables_actires"),
-            "cables_terretires": request.form.get("cables_terretires"),
-            "problems": request.form.get("problems"),
-        }
-
-        section = request.form.get("section")
-
-        if request.form.get("nom_du_chantier"):
-            data_to_save["nom_du_chantier"] = request.form.get("nom_du_chantier")
-
-        if section in ["equipements", "connecteur", "chemin_cable", "terre", "cable_ac", "cable_dc", "onduleur_nombre", "shelter_nombre_reception"]:
+        if section == "reception_complete":
             active_tab_after_submit = "reception"
-            if section == "onduleur_nombre":
-                 data_to_save["onduleur_nombre"] = request.form.get("onduleur_nombre", type=int) if request.form.get("onduleur_nombre") else None
-            if section == "shelter_nombre_reception":
-                 data_to_save["shelter_nombre"] = request.form.get("shelter_nombre", type=int) if request.form.get("shelter_nombre") else None
-        
-        elif section == "avancement":
-            active_tab_after_submit = "avancement"
-            current_chantier_type = session.get('chantier_type')
-            if current_chantier_type in ['centrale-sol', 'ombriere']:
-                data_to_save["interconnexion"] = request.form.get("interconnexion")
-            elif current_chantier_type == 'toiture':
-                data_to_save["nombre_panneaux"] = request.form.get("nombre_panneaux", type=int) if request.form.get("nombre_panneaux") else None
-                data_to_save["nombre_rail"] = request.form.get("nombre_rail", type=int) if request.form.get("nombre_rail") else None
             
-            data_to_save["equipe"] = request.form.get("equipe_avancement")
-            data_to_save["onduleur_details_avancement"] = request.form.get("onduleur_avancement")
-            data_to_save["heure_de_travail"] = request.form.get("heure_travail_avancement")
+            entry_data.update({
+                "nom_du_chantier": request.form.get("nom_du_chantier_reception"),
+                "equipement_type": request.form.get("equipement_type_1"),
+                "equipement_reference": request.form.get("equipement_reference_1"),
+                "equipement_etat": request.form.get("equipement_etat_1"),
+                "equipement_date_reception": request.form.get("equipement_date_reception_1"),
+                "equipement_nombre_1": request.form.get("equipement_nombre_1"),
+                "equipement_nombre_2": request.form.get("equipement_nombre_2"), # from name="equipement_nombre_2"
+                "equipement_nombre_3": request.form.get("equipement_nombre_3"), # from name="equipement_nombre_3"
+                "connecteur_type": request.form.get("connecteur_type"),
+                "connecteur_quantite": request.form.get("connecteur_quantite"),
+                "connecteur_etat": request.form.get("connecteur_etat"),
+                "chemin_cable_type": request.form.get("chemin_cable_type"),
+                "chemin_cable_longueur": request.form.get("chemin_cable_longueur"),
+                "chemin_cable_section": request.form.get("chemin_cable_section"),
+                "chemin_cable_profondeur": request.form.get("chemin_cable_profondeur"),
+                "terre_longueur": request.form.get("terre_longueur"),
+                "cableac_section": request.form.get("cableac_section"),
+                "cableac_longueur": request.form.get("cableac_longueur"),
+                "cabledc_section": request.form.get("cabledc_section"),
+                "cabledc_longueur": request.form.get("cabledc_longueur"),
+                "onduleur_nombre": request.form.get("onduleur_nombre_reception", type=int) if request.form.get("onduleur_nombre_reception") else None,
+                "shelter_nombre": request.form.get("shelter_nombre_reception", type=int) if request.form.get("shelter_nombre_reception") else None,
+            })
+            
+            entry = VinishSuivi(**entry_data)
+            db.session.add(entry)
+            db.session.flush() 
 
-        elif section == "fin":
-            active_tab_after_submit = "fin"
-            data_to_save["fin_zone"] = request.form.getlist("fin_zone[]")[0] if request.form.getlist("fin_zone[]") else None
-            data_to_save["fin_string"] = request.form.getlist("fin_string[]")[0] if request.form.getlist("fin_string[]") else None
-            data_to_save["fin_tension_dc"] = request.form.getlist("fin_tension_dc[]")[0] if request.form.getlist("fin_tension_dc[]") else None
-            data_to_save["fin_courant_dc"] = request.form.getlist("fin_courant_dc[]")[0] if request.form.getlist("fin_courant_dc[]") else None
-            data_to_save["fin_tension_ac"] = request.form.getlist("fin_tension_ac[]")[0] if request.form.getlist("fin_tension_ac[]") else None
-            data_to_save["fin_puissance"] = request.form.getlist("fin_puissance[]")[0] if request.form.getlist("fin_puissance[]") else None
-            data_to_save["fin_date"] = request.form.getlist("fin_date[]")[0] if request.form.getlist("fin_date[]") else None
-            data_to_save["fin_technicien"] = request.form.getlist("fin_technicien[]")[0] if request.form.getlist("fin_technicien[]") else None
-            data_to_save["fin_status"] = request.form.getlist("fin_status[]")[0] if request.form.getlist("fin_status[]") else None
-
-        # --- MODIFIED TO USE VinishSuivi ---
-        entry = VinishSuivi(**data_to_save)
-        db.session.add(entry)
-        db.session.flush() # Get the entry.id for the image
-
-        if section == "equipements":
             photos = request.files.getlist('photo_chantier[]')
             for photo in photos:
                 if photo and photo.filename:
-                    # --- MODIFIED TO USE VinishSuiviImage ---
                     img = VinishSuiviImage(
-                        suivi_entry_id=entry.id, # Link to the VinishSuivi entry
+                        suivi_entry_id=entry.id,
                         filename=photo.filename,
                         content_type=photo.content_type,
                         data=photo.read()
                     )
                     db.session.add(img)
+
+        elif section == "avancement":
+            active_tab_after_submit = "avancement"
+            entry_data["nom_du_chantier"] = request.form.get("nom_du_chantier_avancement")
+            entry_data.update({
+                "cables_dctires": request.form.get("cables_dctires"),
+                "cables_actires": request.form.get("cables_actires"),
+                "cables_terretires": request.form.get("cables_terretires"),
+                "problems": request.form.get("problems"),
+                "equipe": request.form.get("equipe_avancement"),
+                "onduleur_details_avancement": request.form.get("onduleur_avancement"),
+                "heure_de_travail": request.form.get("heure_travail_avancement"),
+            })
+            current_chantier_type = session.get('chantier_type')
+            if current_chantier_type in ['centrale-sol', 'ombriere']:
+                entry_data["interconnexion"] = request.form.get("interconnexion")
+            elif current_chantier_type == 'toiture':
+                entry_data["nombre_panneaux"] = request.form.get("nombre_panneaux", type=int) if request.form.get("nombre_panneaux") else None
+                entry_data["nombre_rail"] = request.form.get("nombre_rail", type=int) if request.form.get("nombre_rail") else None
+            
+            entry = VinishSuivi(**entry_data)
+            db.session.add(entry)
+
+        elif section == "fin":
+            active_tab_after_submit = "fin"
+            entry_data["nom_du_chantier"] = request.form.get("nom_du_chantier_fin")
+            entry_data.update({
+                "fin_zone": request.form.getlist("fin_zone[]")[0] if request.form.getlist("fin_zone[]") and request.form.getlist("fin_zone[]")[0] else None,
+                "fin_string": request.form.getlist("fin_string[]")[0] if request.form.getlist("fin_string[]") and request.form.getlist("fin_string[]")[0] else None,
+                "fin_tension_dc": request.form.getlist("fin_tension_dc[]")[0] if request.form.getlist("fin_tension_dc[]") and request.form.getlist("fin_tension_dc[]")[0] else None,
+                "fin_courant_dc": request.form.getlist("fin_courant_dc[]")[0] if request.form.getlist("fin_courant_dc[]") and request.form.getlist("fin_courant_dc[]")[0] else None,
+                "fin_tension_ac": request.form.getlist("fin_tension_ac[]")[0] if request.form.getlist("fin_tension_ac[]") and request.form.getlist("fin_tension_ac[]")[0] else None,
+                "fin_puissance": request.form.getlist("fin_puissance[]")[0] if request.form.getlist("fin_puissance[]") and request.form.getlist("fin_puissance[]")[0] else None,
+                "fin_date": request.form.getlist("fin_date[]")[0] if request.form.getlist("fin_date[]") and request.form.getlist("fin_date[]")[0] else None,
+                "fin_technicien": request.form.getlist("fin_technicien[]")[0] if request.form.getlist("fin_technicien[]") and request.form.getlist("fin_technicien[]")[0] else None,
+                "fin_status": request.form.getlist("fin_status[]")[0] if request.form.getlist("fin_status[]") and request.form.getlist("fin_status[]")[0] else None,
+            })
+            entry = VinishSuivi(**entry_data)
+            db.session.add(entry)
         
+        else:
+            app.logger.warning(f"Received submission for unhandled section: {section}")
+            flash("Action non reconnue ou section invalide.", "warning")
+            return redirect(url_for('index', active_tab=active_tab_after_submit))
+
         db.session.commit()
         flash("Entrée enregistrée avec succès.", "success")
 
     except Exception as e:
         db.session.rollback()
-        app.logger.error(f"Error in suivi_journalier: {str(e)}")
+        app.logger.error(f"Error in suivi_journalier (section: {section}): {str(e)}")
         flash(f"❌ Erreur Serveur lors de l'enregistrement: {str(e)}", "danger")
     
     return redirect(url_for('index', active_tab=active_tab_after_submit))
@@ -316,7 +336,6 @@ def suivi_journalier():
 @app.route('/modify-history/<int:entry_id>', methods=['GET', 'POST'])
 @login_required
 def modify_history(entry_id):
-    # --- MODIFIED TO USE VinishSuivi ---
     entry = VinishSuivi.query.get_or_404(entry_id)
     if current_user.role != "admin" and entry.utilisateur != current_user.id:
         flash("Droits insuffisants pour modifier cette entrée.", "danger")
@@ -324,46 +343,33 @@ def modify_history(entry_id):
 
     if request.method == 'POST':
         try:
-            # --- MODIFIED TO USE VinishSuivi columns ---
             for column in VinishSuivi.__table__.columns:
                 col_name = column.name
                 if col_name in request.form:
-                    if col_name in ['id', 'date', 'utilisateur', 'chantier_type']: # Keep these unchanged by form
+                    if col_name in ['id', 'date', 'utilisateur', 'chantier_type']:
                         continue
                     
                     value = request.form.get(col_name)
-                    # Ensure correct type conversion for integer fields
                     if col_name in ["shelter_nombre", "nombre_panneaux", "nombre_rail", "onduleur_nombre"]:
                         value = int(value) if value and value.strip() else None
+                    elif isinstance(getattr(entry, col_name), int) and not value: # Handle empty string for int field
+                         value = None
                     setattr(entry, col_name, value)
             
-            # Handle type-specific fields (if they exist for VinishSuivi, adjust if needed)
-            if entry.chantier_type in ['centrale-sol', 'ombriere']:
-                if 'interconnexion' in request.form:
-                    entry.interconnexion = request.form.get('interconnexion')
-            elif entry.chantier_type == 'toiture':
-                if 'nombre_panneaux' in request.form:
-                    entry.nombre_panneaux = request.form.get('nombre_panneaux', type=int) if request.form.get('nombre_panneaux') else None
-                if 'nombre_rail' in request.form:
-                    entry.nombre_rail = request.form.get('nombre_rail', type=int) if request.form.get('nombre_rail') else None
-
             # Handle image deletion
             delete_ids_str = request.form.get('delete_images', '')
             if delete_ids_str:
                 delete_ids = [int(img_id) for img_id in delete_ids_str.split(',') if img_id.strip().isdigit()]
                 for img_id_to_delete in delete_ids:
-                    # --- MODIFIED TO USE VinishSuiviImage ---
                     img_to_delete = VinishSuiviImage.query.get(img_id_to_delete)
-                    if img_to_delete and img_to_delete.suivi_entry_id == entry.id: # Check if image belongs to this entry
+                    if img_to_delete and img_to_delete.suivi_entry_id == entry.id:
                         db.session.delete(img_to_delete)
             
-            # Handle new image uploads
             photos = request.files.getlist('photo_chantier[]')
             for photo in photos:
                 if photo and photo.filename:
-                    # --- MODIFIED TO USE VinishSuiviImage ---
                     img = VinishSuiviImage(
-                        suivi_entry_id=entry.id, # Link to the VinishSuivi entry
+                        suivi_entry_id=entry.id,
                         filename=photo.filename,
                         content_type=photo.content_type,
                         data=photo.read()
@@ -378,7 +384,8 @@ def modify_history(entry_id):
             app.logger.error(f"Error modifying history entry {entry_id}: {str(e)}")
             flash(f"Erreur lors de la modification : {str(e)}", "danger")
             
-    return render_template('modify_history.html', entry=entry) # Ensure modify_history.html can handle the 'entry' object
+    # You'll need to create/update modify_history.html to handle all fields of VinishSuivi
+    return render_template('modify_history.html', entry=entry, current_user=current_user)
 
 
 @app.route('/delete-history/<int:entry_id>', methods=['POST'])
@@ -388,9 +395,8 @@ def delete_history(entry_id):
         flash("Accès refusé : Administrateur seulement.", "danger")
         return redirect(url_for('index'))
     try:
-        # --- MODIFIED TO USE VinishSuivi ---
         entry_to_delete = VinishSuivi.query.get_or_404(entry_id)
-        db.session.delete(entry_to_delete) # Cascade delete should handle VinishSuiviImage entries
+        db.session.delete(entry_to_delete)
         db.session.commit()
         flash("Entrée supprimée avec succès.", "success")
     except Exception as e:
@@ -402,15 +408,12 @@ def delete_history(entry_id):
 @app.route('/image/<int:image_id>')
 @login_required
 def get_image(image_id):
-    # --- MODIFIED TO USE VinishSuiviImage ---
     image = VinishSuiviImage.query.get_or_404(image_id)
-    # Check ownership or admin role (suivi_entry is the backref from VinishSuiviImage to VinishSuivi)
     if current_user.role != 'admin' and (not image.suivi_entry or image.suivi_entry.utilisateur != current_user.id):
         abort(403)
     return send_file(BytesIO(image.data), mimetype=image.content_type)
 
 def _get_filtered_rows():
-    # --- MODIFIED TO USE VinishSuivi ---
     base_query = VinishSuivi.query
     filter_utilisateur_req = request.args.get('filter_utilisateur')
     filter_nom_chantier_req = request.args.get('filter_nom_chantier')
@@ -428,19 +431,17 @@ def _get_filtered_rows():
 @app.route('/telecharger-historique')
 @login_required
 def telecharger_historique():
-    rows = _get_filtered_rows() # This now returns VinishSuivi objects
-    # --- MODIFIED TO USE VinishSuivi columns ---
+    rows = _get_filtered_rows()
     fieldnames = [col.name for col in VinishSuivi.__table__.columns if col.name not in ['id']] + ['images_filenames']
     
     csv_buffer = StringIO()
     writer = csv.writer(csv_buffer, delimiter=';')
     writer.writerow(fieldnames)
 
-    for row in rows: # row is a VinishSuivi object
+    for row in rows:
         row_data = []
         for field in fieldnames:
             if field == 'images_filenames':
-                # 'images' is the relationship name in VinishSuivi model
                 photo_filenames = ";".join([img.filename for img in row.images]) 
                 row_data.append(photo_filenames)
             elif hasattr(row, field):
@@ -450,7 +451,6 @@ def telecharger_historique():
         writer.writerow(row_data)
         
     csv_buffer.seek(0)
-    # ... (rest of filename logic remains the same)
     filename_parts = [current_user.id if current_user.role != "admin" else "admin"]
     filter_utilisateur_req = request.args.get('filter_utilisateur')
     filter_nom_chantier_req = request.args.get('filter_nom_chantier')
@@ -458,7 +458,7 @@ def telecharger_historique():
         filename_parts.append(f"user_{filter_utilisateur_req.replace(' ','_')}")
     if filter_nom_chantier_req:
         filename_parts.append(f"chantier_{filter_nom_chantier_req.replace(' ','_')}")
-    filename_parts.append("historique_suivi.csv")
+    filename_parts.append(f"historique_suivi_{datetime.now().strftime('%Y%m%d')}.csv")
     download_filename = "_".join(filename_parts)
 
     return Response(
@@ -474,10 +474,9 @@ def telecharger_historique_pdf():
         flash("Accès refusé. Le PDF global est pour les administrateurs.", "danger")
         return redirect(url_for('index', active_tab='history'))
 
-    rows = _get_filtered_rows() # This now returns VinishSuivi objects
+    rows = _get_filtered_rows()
     
     pdf_buffer = BytesIO()
-    # ... (ReportLab setup as before) ...
     doc = SimpleDocTemplate(pdf_buffer, pagesize=landscape(letter), topMargin=0.4*inch, bottomMargin=0.4*inch, leftMargin=0.05*inch, rightMargin=0.05*inch)
     elements = []
     styles = getSampleStyleSheet()
@@ -497,7 +496,6 @@ def telecharger_historique_pdf():
     elements.append(Paragraph(title_text, title_style))
     elements.append(Spacer(1, 0.15*inch))
     
-    # These fieldnames are for the PDF, map them to VinishSuivi attributes
     pdf_fieldnames = [
         "date", "util", "nom_chantier", "type_chantier",
         "equipe", "onduleur_avanc", "heure_travail", 
@@ -521,12 +519,12 @@ def telecharger_historique_pdf():
     header_paragraphs = [Paragraph(f"<b>{pdf_headers.get(fn, fn.replace('_', ' ').title())}</b>", small_bold_style) for fn in pdf_fieldnames]
     data_for_table = [header_paragraphs]
 
-    for row in rows: # row is a VinishSuivi object
+    for row in rows:
         row_data_paragraphs = []
         for field_key in pdf_fieldnames:
             cell_content_str = ""
-            actual_attr = "" # This will be the attribute name in VinishSuivi model
-            if field_key == 'img_count': cell_content_str = str(len(row.images)) # 'images' is the relationship
+            actual_attr = "" 
+            if field_key == 'img_count': cell_content_str = str(len(row.images))
             elif field_key == 'util': actual_attr = "utilisateur"
             elif field_key == 'nom_chantier': actual_attr = "nom_du_chantier"
             elif field_key == 'type_chantier': actual_attr = "chantier_type"
@@ -565,7 +563,6 @@ def telecharger_historique_pdf():
         data_for_table.append(row_data_paragraphs)
 
     if len(data_for_table) > 1:
-        # ... (ReportLab table styling and building as before) ...
         col_widths = [
             0.5*inch, 0.35*inch, 0.5*inch, 0.4*inch, 
             0.5*inch, 0.6*inch, 0.4*inch,            
@@ -596,11 +593,10 @@ def telecharger_historique_pdf():
 
     doc.build(elements)
     pdf_buffer.seek(0)
-    # ... (rest of PDF filename logic as before) ...
     filename_parts_pdf = ["historique_suivi"]
     if filter_utilisateur_req: filename_parts_pdf.append(f"user_{filter_utilisateur_req.replace(' ','_')}")
     if filter_nom_chantier_req: filename_parts_pdf.append(f"chantier_{filter_nom_chantier_req.replace(' ','_')}")
-    filename_parts_pdf.append(".pdf")
+    filename_parts_pdf.append(f"{datetime.now().strftime('%Y%m%d')}.pdf")
     pdf_download_filename = "_".join(filename_parts_pdf)
 
     return send_file(pdf_buffer, mimetype='application/pdf', as_attachment=True, download_name=pdf_download_filename)
@@ -643,10 +639,9 @@ def admin_panel():
         return redirect(url_for('admin_panel'))
 
     users = DBUser.query.all()
+    # You'll need to create admin.html
     return render_template('admin.html', utilisateurs=users, current_user=current_user)
 
 
 if __name__ == '__main__':
-    # For local development, Render uses its own port settings
-    # The hardcoded YOUR_DATABASE_LINK will be used here.
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)), debug=False) # debug=True for local dev is fine
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)), debug=True) # Set debug=False for production
