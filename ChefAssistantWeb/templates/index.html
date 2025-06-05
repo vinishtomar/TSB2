@@ -663,8 +663,6 @@
             </div>
           </div>
           
-          <!-- The history tables will now show consolidated rows for Réception items -->
-          <!-- The fields displayed are from the VinishSuivi model (which mirrors SuiviJournalier) -->
           <h5 class="mt-4 mb-2">Réception du Chantier</h5>
           <div class="table-responsive history-table mb-4">
             <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes.</p>
@@ -699,7 +697,9 @@
               </thead>
               <tbody>
                 {% for row in all_lignes|default([]) %}
-                  {% if row.equipement_type or row.connecteur_type or row.chemin_cable_type or row.terre_longueur or row.cableac_section or row.cabledc_section or row.onduleur_nombre or row.shelter_nombre or row.nom_du_chantier %}
+                  {# --- REFINED IF CONDITION FOR RECEPTION TABLE --- #}
+                  {% set has_reception_data = row.equipement_type or row.equipement_reference or row.equipement_etat or row.equipement_date_reception or row.equipement_nombre_1 or row.connecteur_type or row.connecteur_quantite or row.connecteur_etat or row.chemin_cable_type or row.chemin_cable_longueur or row.chemin_cable_section or row.chemin_cable_profondeur or row.terre_longueur or row.cableac_section or row.cableac_longueur or row.cabledc_section or row.cabledc_longueur or row.onduleur_nombre or row.shelter_nombre %}
+                  {% if row.nom_du_chantier and (has_reception_data or (not row.cables_dctires and not row.cables_actires and not row.cables_terretires and not row.fin_zone and not row.fin_string)) %}
                   <tr>
                     <td>{{ row.date|default('') }}</td>
                     <td>{{ row.utilisateur|default('') }}</td>
@@ -770,7 +770,8 @@
               </thead>
               <tbody>
                 {% for row in all_lignes|default([]) %}
-                {% if row.cables_dctires or row.cables_actires or row.cables_terretires or row.problems or row.interconnexion or row.nombre_panneaux or row.nombre_rail or row.equipe or row.onduleur_details_avancement or row.heure_de_travail or row.nom_du_chantier %}
+                {# --- REFINED IF CONDITION FOR AVANCEMENT TABLE --- #}
+                {% if row.nom_du_chantier and (row.cables_dctires or row.cables_actires or row.cables_terretires or row.problems or row.interconnexion or row.nombre_panneaux or row.nombre_rail or row.equipe or row.onduleur_details_avancement or row.heure_de_travail) %}
                 <tr>
                   <td>{{ row.date|default('') }}</td>
                   <td>{{ row.utilisateur|default('') }}</td>
@@ -840,7 +841,8 @@
               </thead>
               <tbody>
                 {% for row in all_lignes|default([]) %}
-                {% if row.fin_zone or row.fin_string or row.nom_du_chantier %}
+                {# --- REFINED IF CONDITION FOR FIN TABLE --- #}
+                {% if row.nom_du_chantier and (row.fin_zone or row.fin_string or row.fin_tension_dc or row.fin_courant_dc or row.fin_tension_ac or row.fin_puissance or row.fin_date or row.fin_technicien or row.fin_status) %}
                 <tr>
                   <td>{{ row.date|default('') }}</td>
                   <td>{{ row.utilisateur|default('') }}</td>
@@ -877,7 +879,6 @@
       document.addEventListener('DOMContentLoaded', function() {
           const mainNomChantierInput = document.getElementById('nom_du_chantier_reception'); // From Equipements tab
 
-          // IDs of the hidden nom_du_chantier fields in other Reception sub-tabs
           const hiddenNomChantierIds = [
               'nom_du_chantier_connecteur_hidden',
               'nom_du_chantier_chemin_cable_hidden',
@@ -889,22 +890,34 @@
           ];
 
           if (mainNomChantierInput) {
-              mainNomChantierInput.addEventListener('input', function() { // 'input' event for real-time update
+              mainNomChantierInput.addEventListener('input', function() {
                   const nomChantierValue = this.value;
                   hiddenNomChantierIds.forEach(function(id) {
                       const hiddenInput = document.getElementById(id);
                       if (hiddenInput) {
                           hiddenInput.value = nomChantierValue;
                       } else {
-                          console.warn('Hidden input with id ' + id + ' not found for nom_du_chantier sync.');
+                          // console.warn('Hidden input with id ' + id + ' not found for nom_du_chantier sync.');
                       }
                   });
               });
-              // Trigger it once on load in case the field is pre-filled (e.g. by browser)
-              // Not strictly necessary if we guide users to always type it first
-              // mainNomChantierInput.dispatchEvent(new Event('input')); 
           } else {
-              console.warn('Main nom_du_chantier input (nom_du_chantier_reception) not found.');
+              // console.warn('Main nom_du_chantier input (nom_du_chantier_reception) not found.');
+          }
+
+          // Also sync nom_du_chantier to Avancement and Fin tabs if a reception name is entered
+          const avancementNomChantierInput = document.getElementById('nom_du_chantier_avancement');
+          const finNomChantierInput = document.getElementById('nom_du_chantier_fin');
+
+          if (mainNomChantierInput && avancementNomChantierInput) {
+              mainNomChantierInput.addEventListener('input', function() {
+                  avancementNomChantierInput.value = this.value;
+              });
+          }
+          if (mainNomChantierInput && finNomChantierInput) {
+              mainNomChantierInput.addEventListener('input', function() {
+                  finNomChantierInput.value = this.value;
+              });
           }
       });
     </script>
