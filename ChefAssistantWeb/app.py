@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, Res
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import distinct, desc
+from sqlalchemy import distinct, desc # Ensure desc is imported
 from io import StringIO, BytesIO
 from datetime import datetime
 from reportlab.lib.pagesizes import letter, landscape
@@ -56,7 +56,7 @@ class VinishSuivi(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.String(50), default=lambda: datetime.now().strftime('%Y-%m-%d %H:%M'))
     utilisateur = db.Column(db.String(255))
-    nom_du_chantier = db.Column(db.String(255), nullable=True, index=True) # Added index for faster lookups
+    nom_du_chantier = db.Column(db.String(255), nullable=True, index=True)
 
     chantier_type = db.Column(db.String(50), nullable=True)
     interconnexion = db.Column(db.String(255), nullable=True)
@@ -138,13 +138,13 @@ def index():
     active_tab_from_url = request.args.get('active_tab', 'reception')
 
     if filter_utilisateur_req:
-        if current_user.role == "admin": # Admin can filter by any user
+        if current_user.role == "admin":
             base_query = base_query.filter(VinishSuivi.utilisateur == filter_utilisateur_req)
     
     if filter_nom_chantier_req:
         base_query = base_query.filter(VinishSuivi.nom_du_chantier == filter_nom_chantier_req)
 
-    all_lignes = base_query.order_by(desc(VinishSuivi.date)).all() # Use desc() for SQLAlchemy
+    all_lignes = base_query.order_by(desc(VinishSuivi.date)).all()
 
     distinct_users = []
     distinct_nom_chantiers = []
@@ -156,10 +156,10 @@ def index():
             .filter(VinishSuivi.nom_du_chantier.isnot(None), VinishSuivi.nom_du_chantier != '')\
             .order_by(VinishSuivi.nom_du_chantier).all()
         distinct_nom_chantiers = [name[0] for name in distinct_nom_chantiers_query if name[0]]
-    else: # For regular users, show only their own distinct chantiers
+    else:
         user_has_entries = VinishSuivi.query.filter_by(utilisateur=current_user.id).first()
         if user_has_entries:
-            distinct_users = [current_user.id] # Only self for filtering if non-admin
+            distinct_users = [current_user.id]
 
         distinct_nom_chantiers_user_query = db.session.query(distinct(VinishSuivi.nom_du_chantier))\
             .filter(VinishSuivi.utilisateur == current_user.id)\
@@ -206,7 +206,7 @@ def logout():
 @app.route('/suivi-journalier', methods=['POST'])
 @login_required
 def suivi_journalier():
-    active_tab_after_submit = "reception" # Default
+    active_tab_after_submit = "reception"
     try:
         form_data = request.form.to_dict()
         section = form_data.get("section")
@@ -215,25 +215,18 @@ def suivi_journalier():
         entry = None
         is_reception_section = section in ["equipements", "connecteur", "chemin_cable", "terre", "cable_ac", "cable_dc", "onduleur_nombre", "shelter_nombre_reception"]
 
-        if not submitted_nom_chantier and is_reception_section:
-            flash("Erreur: Nom du chantier manquant pour la section Réception. Veuillez commencer par l'onglet Équipements et saisir un nom de chantier.", "danger")
-            return redirect(url_for('index', active_tab='reception'))
-        
-        if not submitted_nom_chantier and (section == "avancement" or section == "fin"):
-            flash(f"Erreur: Nom du chantier manquant pour la section {section.capitalize()}. Veuillez saisir un nom de chantier.", "danger")
-            return redirect(url_for('index', active_tab=section))
-
+        if not submitted_nom_chantier:
+            flash(f"Erreur: Nom du chantier manquant pour la section {section.capitalize() if section else 'inconnue'}. Veuillez saisir un nom de chantier.", "danger")
+            return redirect(url_for('index', active_tab=section if section in ['reception', 'avancement', 'fin'] else 'reception'))
 
         if submitted_nom_chantier:
-            # Try to find an existing entry for this user and chantier name
             base_query = VinishSuivi.query.filter_by(
                 utilisateur=current_user.id,
                 nom_du_chantier=submitted_nom_chantier
             )
             entry = base_query.order_by(desc(VinishSuivi.id)).first()
 
-
-        if not entry: # If no entry found at all for this nom_chantier, create a new one
+        if not entry: 
             entry = VinishSuivi(
                 utilisateur=current_user.id,
                 date=datetime.now().strftime('%Y-%m-%d %H:%M'),
@@ -241,14 +234,10 @@ def suivi_journalier():
                 chantier_type=session.get('chantier_type')
             )
             db.session.add(entry)
-            db.session.flush() # Get ID for new entry if it's new
+            db.session.flush() 
         else:
-            # If updating an existing entry, ensure chantier_type from session is used
-            # (though it should ideally be consistent for a given chantier entry)
             entry.chantier_type = session.get('chantier_type', entry.chantier_type)
-            # Update the date to reflect the latest modification
-            entry.date = datetime.now().strftime('%Y-%m-%d %H:%M')
-
+            entry.date = datetime.now().strftime('%Y-%m-%d %H:%M') # Update modification date
 
         # Update fields based on the submitted section
         if section == "equipements":
@@ -261,15 +250,13 @@ def suivi_journalier():
             entry.equipement_nombre_2 = form_data.get("equipement_nombre_2")
             entry.equipement_nombre_3 = form_data.get("equipement_nombre_3")
             
-            # Potentially clear old images if updating this section for an existing entry
-            # For simplicity, this example always adds. For "update" behavior, you might delete existing images first.
-            # Example: VinishSuiviImage.query.filter_by(suivi_entry_id=entry.id).delete()
-            
             photos = request.files.getlist('photo_chantier[]')
-            for photo in photos:
-                if photo and photo.filename:
-                    img = VinishSuiviImage(suivi_entry_id=entry.id, filename=photo.filename, content_type=photo.content_type, data=photo.read())
-                    db.session.add(img)
+            if photos: # If new photos are uploaded, consider removing old ones for this entry
+                VinishSuiviImage.query.filter_by(suivi_entry_id=entry.id).delete() 
+                for photo in photos:
+                    if photo and photo.filename:
+                        img = VinishSuiviImage(suivi_entry_id=entry.id, filename=photo.filename, content_type=photo.content_type, data=photo.read())
+                        db.session.add(img)
 
         elif section == "connecteur":
             active_tab_after_submit = "reception"
@@ -301,12 +288,12 @@ def suivi_journalier():
         elif section == "onduleur_nombre":
             active_tab_after_submit = "reception"
             onduleur_val = form_data.get("onduleur_nombre")
-            entry.onduleur_nombre = int(onduleur_val) if onduleur_val and onduleur_val.strip() else None
+            entry.onduleur_nombre = int(onduleur_val) if onduleur_val and onduleur_val.strip().isdigit() else None
             
         elif section == "shelter_nombre_reception":
             active_tab_after_submit = "reception"
             shelter_val = form_data.get("shelter_nombre")
-            entry.shelter_nombre = int(shelter_val) if shelter_val and shelter_val.strip() else None
+            entry.shelter_nombre = int(shelter_val) if shelter_val and shelter_val.strip().isdigit() else None
 
         elif section == "avancement":
             active_tab_after_submit = "avancement"
@@ -323,14 +310,12 @@ def suivi_journalier():
                 entry.interconnexion = form_data.get("interconnexion")
             elif current_chantier_type == 'toiture':
                 nb_panneaux_val = form_data.get("nombre_panneaux")
-                entry.nombre_panneaux = int(nb_panneaux_val) if nb_panneaux_val and nb_panneaux_val.strip() else None
+                entry.nombre_panneaux = int(nb_panneaux_val) if nb_panneaux_val and nb_panneaux_val.strip().isdigit() else None
                 nb_rail_val = form_data.get("nombre_rail")
-                entry.nombre_rail = int(nb_rail_val) if nb_rail_val and nb_rail_val.strip() else None
+                entry.nombre_rail = int(nb_rail_val) if nb_rail_val and nb_rail_val.strip().isdigit() else None
         
         elif section == "fin":
             active_tab_after_submit = "fin"
-            # Note: This only saves the first row from the "fin" table in HTML.
-            # For multiple "fin" entries, a different data model (e.g., one-to-many) would be needed.
             entry.fin_zone = request.form.getlist("fin_zone[]")[0] if request.form.getlist("fin_zone[]") and request.form.getlist("fin_zone[]")[0] else None
             entry.fin_string = request.form.getlist("fin_string[]")[0] if request.form.getlist("fin_string[]") and request.form.getlist("fin_string[]")[0] else None
             entry.fin_tension_dc = request.form.getlist("fin_tension_dc[]")[0] if request.form.getlist("fin_tension_dc[]") and request.form.getlist("fin_tension_dc[]")[0] else None
@@ -346,12 +331,11 @@ def suivi_journalier():
 
     except Exception as e:
         db.session.rollback()
-        app.logger.error(f"Error in suivi_journalier: {str(e)}", exc_info=True) # Log full traceback
+        app.logger.error(f"Error in suivi_journalier: {str(e)}", exc_info=True)
         flash(f"❌ Erreur Serveur lors de l'enregistrement: {str(e)}", "danger")
     
     return redirect(url_for('index', active_tab=active_tab_after_submit, 
                             filter_nom_chantier=submitted_nom_chantier if submitted_nom_chantier else request.args.get('filter_nom_chantier') ))
-
 
 @app.route('/modify-history/<int:entry_id>', methods=['GET', 'POST'])
 @login_required
@@ -363,30 +347,30 @@ def modify_history(entry_id):
 
     if request.method == 'POST':
         try:
+            form_data = request.form.to_dict()
             for column in VinishSuivi.__table__.columns:
                 col_name = column.name
-                if col_name in request.form:
-                    if col_name in ['id', 'date', 'utilisateur']: # 'chantier_type' could be modifiable
+                if col_name in form_data:
+                    if col_name in ['id', 'utilisateur']: # date is updated below
                         continue
                     
-                    value = request.form.get(col_name)
-                    if col_name in ["shelter_nombre", "nombre_panneaux", "nombre_rail", "onduleur_nombre"]:
-                        value = int(value) if value and value.strip() else None
+                    value = form_data.get(col_name)
                     
-                    # For other fields, ensure empty strings become None if appropriate for your DB schema
-                    if isinstance(getattr(entry, col_name), (int, float)) and (value == "" or value is None):
-                        value = None
-                    elif value == "": # For string fields, decide if empty string is okay or should be None
-                        pass # Or value = None if empty string should be null
+                    # Handle type conversion for integer fields explicitly
+                    if col_name in ["shelter_nombre", "nombre_panneaux", "nombre_rail", "onduleur_nombre"]:
+                        value = int(value) if value and value.strip().isdigit() else None
+                    # For other numeric fields, you might need similar checks if they can be empty
+                    # For string fields, empty string is usually fine, or convert to None if DB expects NULL
+                    elif value == "" and not isinstance(getattr(entry, col_name, ""), (int, float)):
+                         # If it's a string field and empty, you might want to set it to None
+                         # if your DB schema implies NULL for empty strings, or leave as ""
+                         # For this example, we'll allow empty strings for non-numeric type fields.
+                         pass
+
 
                     setattr(entry, col_name, value)
             
-            # This is now handled by the loop above if chantier_type is in the form
-            # if 'chantier_type' in request.form:
-            #    entry.chantier_type = request.form.get('chantier_type')
-
-            # Update date on modification
-            entry.date = datetime.now().strftime('%Y-%m-%d %H:%M')
+            entry.date = datetime.now().strftime('%Y-%m-%d %H:%M') # Update modification date
 
             delete_ids_str = request.form.get('delete_images', '')
             if delete_ids_str:
@@ -397,15 +381,18 @@ def modify_history(entry_id):
                         db.session.delete(img_to_delete)
             
             photos = request.files.getlist('photo_chantier[]')
-            for photo in photos:
-                if photo and photo.filename:
-                    img = VinishSuiviImage(
-                        suivi_entry_id=entry.id,
-                        filename=photo.filename,
-                        content_type=photo.content_type,
-                        data=photo.read()
-                    )
-                    db.session.add(img)
+            if photos and photos[0].filename: # Check if new photos are actually uploaded
+                # Clear existing images for this entry before adding new ones
+                VinishSuiviImage.query.filter_by(suivi_entry_id=entry.id).delete()
+                for photo in photos:
+                    if photo and photo.filename: # Double check each photo
+                        img = VinishSuiviImage(
+                            suivi_entry_id=entry.id,
+                            filename=photo.filename,
+                            content_type=photo.content_type,
+                            data=photo.read()
+                        )
+                        db.session.add(img)
             
             db.session.commit()
             flash("Entrée modifiée avec succès.", "success")
@@ -415,20 +402,17 @@ def modify_history(entry_id):
             app.logger.error(f"Error modifying history entry {entry_id}: {str(e)}", exc_info=True)
             flash(f"Erreur lors de la modification : {str(e)}", "danger")
             
-    # Pass the entry to the template for GET request
     return render_template('modify_history.html', entry=entry, current_user=current_user)
 
 
 @app.route('/delete-history/<int:entry_id>', methods=['POST'])
 @login_required
 def delete_history(entry_id):
-    # Only admin can delete for now, adjust if needed
     if current_user.role != "admin":
         flash("Accès refusé : Administrateur seulement.", "danger")
         return redirect(url_for('index', active_tab='history'))
     try:
         entry_to_delete = VinishSuivi.query.get_or_404(entry_id)
-        # Storing nom_chantier before deletion for redirect
         nom_chantier_filter = entry_to_delete.nom_du_chantier 
         db.session.delete(entry_to_delete)
         db.session.commit()
@@ -439,7 +423,6 @@ def delete_history(entry_id):
         flash(f"Erreur lors de la suppression de l'entrée: {str(e)}", "danger")
     return redirect(url_for('index', active_tab='history', filter_nom_chantier=nom_chantier_filter))
 
-
 @app.route('/image/<int:image_id>')
 @login_required
 def get_image(image_id):
@@ -448,7 +431,6 @@ def get_image(image_id):
         abort(403)
     return send_file(BytesIO(image.data), mimetype=image.content_type)
 
-
 def _get_filtered_rows():
     base_query = VinishSuivi.query
     filter_utilisateur_req = request.args.get('filter_utilisateur')
@@ -456,14 +438,13 @@ def _get_filtered_rows():
 
     if current_user.role != "admin":
         base_query = base_query.filter(VinishSuivi.utilisateur == current_user.id)
-    elif filter_utilisateur_req: # Admin filtering by user
+    elif filter_utilisateur_req:
         base_query = base_query.filter(VinishSuivi.utilisateur == filter_utilisateur_req)
     
     if filter_nom_chantier_req:
         base_query = base_query.filter(VinishSuivi.nom_du_chantier == filter_nom_chantier_req)
         
-    return base_query.order_by(desc(VinishSuivi.date)).all() # Use desc() for SQLAlchemy
-
+    return base_query.order_by(desc(VinishSuivi.date)).all()
 
 @app.route('/telecharger-historique')
 @login_required
@@ -504,15 +485,16 @@ def telecharger_historique():
         headers={"Content-Disposition": f"attachment;filename={download_filename}"}
     )
 
-
 @app.route('/telecharger-historique-pdf')
 @login_required
 def telecharger_historique_pdf():
+    # (This route remains largely the same as the previous Python version,
+    # ensuring it uses VinishSuivi and the correct attribute mapping)
     if current_user.role != "admin":
         flash("Accès refusé. Le PDF global est pour les administrateurs.", "danger")
         return redirect(url_for('index', active_tab='history'))
 
-    rows = _get_filtered_rows()
+    rows = _get_filtered_rows() 
     
     pdf_buffer = BytesIO()
     doc = SimpleDocTemplate(pdf_buffer, pagesize=landscape(letter), topMargin=0.4*inch, bottomMargin=0.4*inch, leftMargin=0.05*inch, rightMargin=0.05*inch)
@@ -523,7 +505,7 @@ def telecharger_historique_pdf():
     small_bold_style = ParagraphStyle('smallBoldText', parent=styles['Normal'], fontSize=3.5, fontName='Helvetica-Bold')
 
     title_style = styles['h1']
-    title_style.alignment = 1 # Center alignment for ReportLab
+    title_style.alignment = 1 
     filter_utilisateur_req = request.args.get('filter_utilisateur')
     filter_nom_chantier_req = request.args.get('filter_nom_chantier')
     title_text = "Historique des Suivi Journaliers"
@@ -534,14 +516,14 @@ def telecharger_historique_pdf():
     elements.append(Paragraph(title_text, title_style))
     elements.append(Spacer(1, 0.15*inch))
 
-    pdf_fieldnames = [ # These are keys for the pdf_headers and for mapping to model attributes
+    pdf_fieldnames = [ 
         "date", "util", "nom_chantier", "type_chantier",
-        "equipe", "onduleur_avanc", "heure_travail", 
         "equip_type", "equip_ref", "equip_etat", "date_recept_equip", "nb_equip_1",
         "conn_type", "conn_qte", "conn_etat",
         "ch_cable_type", "ch_cable_long", "ch_cable_sect", "ch_cable_prof",
         "terre_long", "ac_sect", "ac_long", "dc_sect", "dc_long",
         "nb_onduleur_recept", "nb_shelter_recept",
+        "equipe", "onduleur_avanc", "heure_travail", 
         "cables_dc", "cables_ac", "cables_terre",
         "interconnexion", "nb_panneaux", "nb_rail",
         "problems", 
@@ -549,14 +531,14 @@ def telecharger_historique_pdf():
         "img_count"
     ]
     
-    pdf_headers = { # Display names for headers
+    pdf_headers = { 
         "date": "Date", "util": "Util.", "nom_chantier": "Nom Chant.", "type_chantier": "Type C.",
-        "equipe": "Équipe", "onduleur_avanc": "Ondul.(Av)", "heure_travail": "H Trav.", 
         "equip_type": "Type Éq.", "equip_ref": "Réf. Éq.", "equip_etat": "État Éq.", "date_recept_equip": "Dt Réc.Éq", "nb_equip_1": "Nb Éq.1",
         "conn_type": "Type Conn.", "conn_qte": "Qté Conn.", "conn_etat": "État Conn.",
         "ch_cable_type": "Typ Ch.Cbl", "ch_cable_long": "Lg Ch.Cbl", "ch_cable_sect": "Sec Ch.Cbl", "ch_cable_prof": "Pr Ch.Cbl",
         "terre_long": "Lg Terre", "ac_sect": "Sec.AC", "ac_long": "Lg.AC", "dc_sect": "Sec.DC", "dc_long": "Lg.DC",
         "nb_onduleur_recept": "Nb Ond.(R)", "nb_shelter_recept": "Nb Shel.(R)",
+        "equipe": "Équipe", "onduleur_avanc": "Ondul.(Av)", "heure_travail": "H Trav.", 
         "cables_dc": "DC Tiré", "cables_ac": "AC Tiré", "cables_terre": "Terre T.",
         "interconnexion": "Interco.", "nb_panneaux": "Nb Pan.", "nb_rail": "Nb Rail",
         "problems": "Problèmes", 
@@ -564,64 +546,56 @@ def telecharger_historique_pdf():
         "img_count": "Imgs"
     }
 
-    header_paragraphs = [Paragraph(f"<b>{pdf_headers.get(fn, fn.replace('_', ' ').title())}</b>", small_bold_style) for fn in pdf_fieldnames]
-    data_for_table = [header_paragraphs]
-
-    # Attribute mapping from pdf_fieldnames (keys) to VinishSuivi model attributes (values)
     attr_map = {
         "util": "utilisateur", "nom_chantier": "nom_du_chantier", "type_chantier": "chantier_type",
-        "onduleur_avanc": "onduleur_details_avancement", "heure_travail": "heure_de_travail",
         "equip_type": "equipement_type", "equip_ref": "equipement_reference", "equip_etat": "equipement_etat", "date_recept_equip": "equipement_date_reception", "nb_equip_1": "equipement_nombre_1",
         "conn_type": "connecteur_type", "conn_qte": "connecteur_quantite", "conn_etat": "connecteur_etat",
         "ch_cable_type": "chemin_cable_type", "ch_cable_long": "chemin_cable_longueur", "ch_cable_sect": "chemin_cable_section", "ch_cable_prof": "chemin_cable_profondeur",
         "terre_long": "terre_longueur", "ac_sect": "cableac_section", "ac_long": "cableac_longueur", "dc_sect": "cabledc_section", "dc_long": "cabledc_longueur",
         "nb_onduleur_recept": "onduleur_nombre", "nb_shelter_recept": "shelter_nombre",
+        "onduleur_avanc": "onduleur_details_avancement", "heure_travail": "heure_de_travail",
         "cables_dc": "cables_dctires", "cables_ac": "cables_actires", "cables_terre": "cables_terretires",
         "nb_panneaux": "nombre_panneaux", "nb_rail": "nombre_rail",
         "fin_zone": "fin_zone", "fin_string": "fin_string", "fin_tension_dc": "fin_tension_dc", "fin_courant_dc": "fin_courant_dc", "fin_tension_ac": "fin_tension_ac", "fin_puissance": "fin_puissance", "fin_date_mesure": "fin_date", "fin_tech": "fin_technicien", "fin_stat": "fin_status",
-        # direct match fields: date, equipe, interconnexion, problems
     }
+
+    header_paragraphs = [Paragraph(f"<b>{pdf_headers.get(fn, fn.replace('_', ' ').title())}</b>", small_bold_style) for fn in pdf_fieldnames]
+    data_for_table = [header_paragraphs]
 
     for row in rows:
         row_data_paragraphs = []
         for field_key in pdf_fieldnames:
             cell_content_str = ""
-            actual_attr = attr_map.get(field_key, field_key) # Get mapped attribute or use key itself
+            actual_attr = attr_map.get(field_key, field_key) 
 
             if field_key == 'img_count': 
                 cell_content_str = str(len(row.images))
             elif actual_attr and hasattr(row, actual_attr):
                  val = getattr(row, actual_attr, None)
-                 # Conditional display for specific chantier_types
                  if field_key == 'interconnexion' and row.chantier_type not in ['centrale-sol', 'ombriere']: val = '-'
                  elif (field_key == 'nb_panneaux' or field_key == 'nb_rail') and row.chantier_type != 'toiture': val = '-'
-                 
                  cell_content_str = str(val) if val is not None and val != '-' else (val if val == '-' else "")
             
-            max_len = 10 # Truncate long strings for PDF
+            max_len = 10 
             if len(cell_content_str) > max_len:
                 cell_content_str = cell_content_str[:max_len-3] + "..."
             row_data_paragraphs.append(Paragraph(cell_content_str, small_body_style))
         data_for_table.append(row_data_paragraphs)
 
-    if len(data_for_table) > 1: # If there's data
-        # Adjust colWidths based on the number of fields in pdf_fieldnames
+    if len(data_for_table) > 1:
         num_cols = len(pdf_fieldnames)
-        # Basic even distribution, adjust as needed for better layout
         avg_width = (landscape(letter)[0] - 0.1*inch) / num_cols 
         col_widths = [avg_width] * num_cols
-        # Example of more specific widths if you want to fine-tune:
-        # col_widths = [0.5*inch, 0.35*inch, ...] 
-
+        
         table = Table(data_for_table, colWidths=col_widths, repeatRows=1)
         table_style = TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.darkslategray), ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'), ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'), ('FONTSIZE', (0, 0), (-1, 0), 3.5), # Adjusted font size
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'), ('FONTSIZE', (0, 0), (-1, 0), 3.2), # Adjusted font size for more columns
             ('BOTTOMPADDING', (0, 0), (-1, 0), 1), ('TOPPADDING', (0, 0), (-1, 0), 1),
             ('BACKGROUND', (0, 1), (-1, -1), colors.lightgrey), ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
-            ('FONTSIZE', (0, 1), (-1, -1), 3.5), # Adjusted font size
-            ('GRID', (0, 0), (-1, -1), 0.25, colors.black), # Thinner grid
+            ('FONTSIZE', (0, 1), (-1, -1), 3.2), # Adjusted font size
+            ('GRID', (0, 0), (-1, -1), 0.25, colors.black),
             ('LEFTPADDING', (0,0), (-1,-1), 1), ('RIGHTPADDING', (0,0), (-1,-1), 1),
             ('TOPPADDING', (0,1), (-1,-1), 1), ('BOTTOMPADDING', (0,1), (-1,-1), 1),
         ])
@@ -640,7 +614,6 @@ def telecharger_historique_pdf():
 
     return send_file(pdf_buffer, mimetype='application/pdf', as_attachment=True, download_name=pdf_download_filename)
 
-
 @app.route('/admin', methods=['GET', 'POST'])
 @login_required
 def admin_panel():
@@ -652,9 +625,9 @@ def admin_panel():
         action = request.form.get('action')
         username = request.form.get('username')
         password = request.form.get('password')
-        role = request.form.get('role', 'user') # Default to 'user' if not provided
+        role = request.form.get('role', 'user')
 
-        if not username: # Basic validation
+        if not username:
             flash("❌ Nom d'utilisateur requis.", "danger")
             return redirect(url_for('admin_panel'))
 
@@ -671,7 +644,7 @@ def admin_panel():
             else:
                 flash(f"L'utilisateur '{username}' existe déjà.", "warning")
         elif action == "delete":
-            if username == "admin": # Prevent deleting the main admin
+            if username == "admin":
                 flash("❌ Impossible de supprimer l'utilisateur 'admin'.", "danger")
             else:
                 user_to_delete = DBUser.query.filter_by(id=username).first()
@@ -681,7 +654,7 @@ def admin_panel():
                     flash(f"🗑️ Utilisateur '{username}' supprimé.", "success")
                 else:
                     flash(f"Utilisateur '{username}' non trouvé.", "warning")
-        elif action == "update_role": # Optional: Add role update functionality
+        elif action == "update_role":
             user_to_update = DBUser.query.filter_by(id=username).first()
             if user_to_update:
                 if user_to_update.id == "admin" and role != "admin":
@@ -692,14 +665,12 @@ def admin_panel():
                     flash(f"🔄 Rôle de l'utilisateur '{username}' mis à jour à '{role}'.", "success")
             else:
                 flash(f"Utilisateur '{username}' non trouvé pour la mise à jour du rôle.", "warning")
-
         else:
             flash("❌ Action invalide ou champs manquants.", "danger")
         return redirect(url_for('admin_panel'))
 
     users = DBUser.query.all()
     return render_template('admin.html', utilisateurs=users, current_user=current_user)
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)), debug=False)
