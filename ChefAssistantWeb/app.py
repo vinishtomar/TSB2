@@ -23,15 +23,19 @@ login_manager.login_message_category = "info"
 
 app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-    'DATABASE_URL',
-    'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), 'site.db')
-)
+# --- !!! HARDCODED DATABASE URI - NOT RECOMMENDED FOR PRODUCTION !!! ---
+# If you later set DATABASE_URL in Render, it will override this if you change the code back.
+# For now, we are directly using your provided link.
+YOUR_DATABASE_LINK = "postgresql://tsb_jilz_user:WQuuirqxSdknwZjsvldYzD0DbhcOBzQ7@dpg-d0jjegmmcj7s73836lp0-a/tsb_jilz"
+app.config['SQLALCHEMY_DATABASE_URI'] = YOUR_DATABASE_LINK
+print(f"INFO: Using HARDCODED DATABASE_URL: {app.config['SQLALCHEMY_DATABASE_URI']}") # For confirmation
+# --- END OF HARDCODED DATABASE URI ---
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 # --- END OF TOP LEVEL CONFIGURATION ---
 
-class DBUser(db.Model):
+class DBUser(db.Model): # This model remains the same, for user authentication
     __tablename__ = 'db_user'
     id = db.Column(db.String(255), primary_key=True)
     password_hash = db.Column(db.String(255), nullable=False)
@@ -49,8 +53,9 @@ def load_user(user_id):
         return User(user_from_db.id, user_from_db.role)
     return None
 
-class SuiviJournalier(db.Model):
-    __tablename__ = 'new_suivi_journalier'
+# --- NEW DATABASE MODEL: VinishSuivi ---
+class VinishSuivi(db.Model):
+    __tablename__ = 'vinish_database' # Your requested table name
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.String(50), default=lambda: datetime.now().strftime('%Y-%m-%d %H:%M'))
     utilisateur = db.Column(db.String(255))
@@ -98,18 +103,23 @@ class SuiviJournalier(db.Model):
     fin_courant_dc = db.Column(db.String(255), nullable=True)
     fin_tension_ac = db.Column(db.String(255), nullable=True)
     fin_puissance = db.Column(db.String(255), nullable=True)
-    fin_date = db.Column(db.String(255), nullable=True) # This was the line with the previous SyntaxError
+    fin_date = db.Column(db.String(255), nullable=True)
     fin_technicien = db.Column(db.String(255), nullable=True)
     fin_status = db.Column(db.String(255), nullable=True)
-    images = db.relationship('SuiviJournalierImage', backref='suivi', lazy=True, cascade="all, delete-orphan")
+    
+    # Relationship to the new image table
+    images = db.relationship('VinishSuiviImage', backref='suivi_entry', lazy=True, cascade="all, delete-orphan")
 
-class SuiviJournalierImage(db.Model):
-    __tablename__ = 'new_suivi_journalier_image'
+# --- NEW IMAGE TABLE: VinishSuiviImage ---
+class VinishSuiviImage(db.Model):
+    __tablename__ = 'vinish_database_image' # New image table name
     id = db.Column(db.Integer, primary_key=True)
-    suivi_id = db.Column(db.Integer, db.ForeignKey('new_suivi_journalier.id'), nullable=False)
+    # Foreign key to the 'vinish_database' table
+    suivi_entry_id = db.Column(db.Integer, db.ForeignKey('vinish_database.id'), nullable=False)
     filename = db.Column(db.String(255), nullable=False)
     content_type = db.Column(db.String(255), nullable=False)
     data = db.Column(db.LargeBinary, nullable=False)
+
 
 def create_admin_user_if_not_exists():
     if not DBUser.query.filter_by(id="admin").first():
@@ -120,47 +130,50 @@ def create_admin_user_if_not_exists():
         app.logger.info("Default admin user created.")
 
 with app.app_context():
-    db.create_all()
+    db.create_all() # This will create 'db_user', 'vinish_database', and 'vinish_database_image' if they don't exist
     create_admin_user_if_not_exists()
+
+# --- IMPORTANT: YOU NOW NEED TO MODIFY ALL YOUR ROUTES ---
+# --- TO USE VinishSuivi and VinishSuiviImage INSTEAD OF SuiviJournalier and SuiviJournalierImage ---
 
 @app.route('/')
 @login_required
 def index():
-    base_query = SuiviJournalier.query
+    # --- MODIFIED TO USE VinishSuivi ---
+    base_query = VinishSuivi.query 
     if current_user.role != "admin":
-        base_query = base_query.filter(SuiviJournalier.utilisateur == current_user.id)
+        base_query = base_query.filter(VinishSuivi.utilisateur == current_user.id)
 
     filter_utilisateur_req = request.args.get('filter_utilisateur')
-    filter_nom_chantier_req = request.args.get('filter_nom_chantier') # Variable defined here
+    filter_nom_chantier_req = request.args.get('filter_nom_chantier')
     active_tab_from_url = request.args.get('active_tab', 'reception')
 
-    # Filtering logic correctly indented inside the index() function
     if filter_utilisateur_req:
         if current_user.role == "admin":
-            base_query = base_query.filter(SuiviJournalier.utilisateur == filter_utilisateur_req)
+            base_query = base_query.filter(VinishSuivi.utilisateur == filter_utilisateur_req)
     
-    if filter_nom_chantier_req: # This 'if' block uses the variable defined above
-        base_query = base_query.filter(SuiviJournalier.nom_du_chantier == filter_nom_chantier_req)
+    if filter_nom_chantier_req:
+        base_query = base_query.filter(VinishSuivi.nom_du_chantier == filter_nom_chantier_req)
 
-    all_lignes = base_query.order_by(SuiviJournalier.date.desc()).all()
+    all_lignes = base_query.order_by(VinishSuivi.date.desc()).all()
 
     distinct_users = []
     distinct_nom_chantiers = []
     if current_user.role == "admin":
-        distinct_users_query = db.session.query(distinct(SuiviJournalier.utilisateur)).order_by(SuiviJournalier.utilisateur).all()
+        distinct_users_query = db.session.query(distinct(VinishSuivi.utilisateur)).order_by(VinishSuivi.utilisateur).all()
         distinct_users = [user[0] for user in distinct_users_query if user[0]]
-        distinct_nom_chantiers_query = db.session.query(distinct(SuiviJournalier.nom_du_chantier))\
-            .filter(SuiviJournalier.nom_du_chantier.isnot(None), SuiviJournalier.nom_du_chantier != '')\
-            .order_by(SuiviJournalier.nom_du_chantier).all()
+        distinct_nom_chantiers_query = db.session.query(distinct(VinishSuivi.nom_du_chantier))\
+            .filter(VinishSuivi.nom_du_chantier.isnot(None), VinishSuivi.nom_du_chantier != '')\
+            .order_by(VinishSuivi.nom_du_chantier).all()
         distinct_nom_chantiers = [name[0] for name in distinct_nom_chantiers_query if name[0]]
     else:
-        user_has_entries = SuiviJournalier.query.filter_by(utilisateur=current_user.id).first()
+        user_has_entries = VinishSuivi.query.filter_by(utilisateur=current_user.id).first()
         if user_has_entries:
             distinct_users = [current_user.id]
-        distinct_nom_chantiers_user_query = db.session.query(distinct(SuiviJournalier.nom_du_chantier))\
-            .filter(SuiviJournalier.utilisateur == current_user.id)\
-            .filter(SuiviJournalier.nom_du_chantier.isnot(None), SuiviJournalier.nom_du_chantier != '')\
-            .order_by(SuiviJournalier.nom_du_chantier).all()
+        distinct_nom_chantiers_user_query = db.session.query(distinct(VinishSuivi.nom_du_chantier))\
+            .filter(VinishSuivi.utilisateur == current_user.id)\
+            .filter(VinishSuivi.nom_du_chantier.isnot(None), VinishSuivi.nom_du_chantier != '')\
+            .order_by(VinishSuivi.nom_du_chantier).all()
         distinct_nom_chantiers = [name[0] for name in distinct_nom_chantiers_user_query if name[0]]
 
     return render_template('index.html',
@@ -208,6 +221,7 @@ def suivi_journalier():
             "utilisateur": current_user.id,
             "date": datetime.now().strftime('%Y-%m-%d %H:%M'),
             "chantier_type": session.get('chantier_type'),
+            # ... (all other fields from request.form as before)
             "equipement_type": request.form.get("equipement_type_1"),
             "equipement_reference": request.form.get("equipement_reference_1"),
             "equipement_etat": request.form.get("equipement_etat_1"),
@@ -270,16 +284,18 @@ def suivi_journalier():
             data_to_save["fin_technicien"] = request.form.getlist("fin_technicien[]")[0] if request.form.getlist("fin_technicien[]") else None
             data_to_save["fin_status"] = request.form.getlist("fin_status[]")[0] if request.form.getlist("fin_status[]") else None
 
-        entry = SuiviJournalier(**data_to_save)
+        # --- MODIFIED TO USE VinishSuivi ---
+        entry = VinishSuivi(**data_to_save)
         db.session.add(entry)
-        db.session.flush()
+        db.session.flush() # Get the entry.id for the image
 
         if section == "equipements":
             photos = request.files.getlist('photo_chantier[]')
             for photo in photos:
                 if photo and photo.filename:
-                    img = SuiviJournalierImage(
-                        suivi_id=entry.id,
+                    # --- MODIFIED TO USE VinishSuiviImage ---
+                    img = VinishSuiviImage(
+                        suivi_entry_id=entry.id, # Link to the VinishSuivi entry
                         filename=photo.filename,
                         content_type=photo.content_type,
                         data=photo.read()
@@ -296,27 +312,32 @@ def suivi_journalier():
     
     return redirect(url_for('index', active_tab=active_tab_after_submit))
 
+
 @app.route('/modify-history/<int:entry_id>', methods=['GET', 'POST'])
 @login_required
 def modify_history(entry_id):
-    entry = SuiviJournalier.query.get_or_404(entry_id)
+    # --- MODIFIED TO USE VinishSuivi ---
+    entry = VinishSuivi.query.get_or_404(entry_id)
     if current_user.role != "admin" and entry.utilisateur != current_user.id:
         flash("Droits insuffisants pour modifier cette entrée.", "danger")
         return redirect(url_for('index', active_tab='history'))
 
     if request.method == 'POST':
         try:
-            for column in SuiviJournalier.__table__.columns:
+            # --- MODIFIED TO USE VinishSuivi columns ---
+            for column in VinishSuivi.__table__.columns:
                 col_name = column.name
                 if col_name in request.form:
-                    if col_name in ['id', 'date', 'utilisateur', 'chantier_type']:
+                    if col_name in ['id', 'date', 'utilisateur', 'chantier_type']: # Keep these unchanged by form
                         continue
                     
                     value = request.form.get(col_name)
+                    # Ensure correct type conversion for integer fields
                     if col_name in ["shelter_nombre", "nombre_panneaux", "nombre_rail", "onduleur_nombre"]:
                         value = int(value) if value and value.strip() else None
                     setattr(entry, col_name, value)
             
+            # Handle type-specific fields (if they exist for VinishSuivi, adjust if needed)
             if entry.chantier_type in ['centrale-sol', 'ombriere']:
                 if 'interconnexion' in request.form:
                     entry.interconnexion = request.form.get('interconnexion')
@@ -326,19 +347,23 @@ def modify_history(entry_id):
                 if 'nombre_rail' in request.form:
                     entry.nombre_rail = request.form.get('nombre_rail', type=int) if request.form.get('nombre_rail') else None
 
+            # Handle image deletion
             delete_ids_str = request.form.get('delete_images', '')
             if delete_ids_str:
                 delete_ids = [int(img_id) for img_id in delete_ids_str.split(',') if img_id.strip().isdigit()]
                 for img_id_to_delete in delete_ids:
-                    img_to_delete = SuiviJournalierImage.query.get(img_id_to_delete)
-                    if img_to_delete and img_to_delete.suivi_id == entry.id:
+                    # --- MODIFIED TO USE VinishSuiviImage ---
+                    img_to_delete = VinishSuiviImage.query.get(img_id_to_delete)
+                    if img_to_delete and img_to_delete.suivi_entry_id == entry.id: # Check if image belongs to this entry
                         db.session.delete(img_to_delete)
             
+            # Handle new image uploads
             photos = request.files.getlist('photo_chantier[]')
             for photo in photos:
                 if photo and photo.filename:
-                    img = SuiviJournalierImage(
-                        suivi_id=entry.id,
+                    # --- MODIFIED TO USE VinishSuiviImage ---
+                    img = VinishSuiviImage(
+                        suivi_entry_id=entry.id, # Link to the VinishSuivi entry
                         filename=photo.filename,
                         content_type=photo.content_type,
                         data=photo.read()
@@ -353,7 +378,8 @@ def modify_history(entry_id):
             app.logger.error(f"Error modifying history entry {entry_id}: {str(e)}")
             flash(f"Erreur lors de la modification : {str(e)}", "danger")
             
-    return render_template('modify_history.html', entry=entry)
+    return render_template('modify_history.html', entry=entry) # Ensure modify_history.html can handle the 'entry' object
+
 
 @app.route('/delete-history/<int:entry_id>', methods=['POST'])
 @login_required
@@ -362,8 +388,9 @@ def delete_history(entry_id):
         flash("Accès refusé : Administrateur seulement.", "danger")
         return redirect(url_for('index'))
     try:
-        entry_to_delete = SuiviJournalier.query.get_or_404(entry_id)
-        db.session.delete(entry_to_delete)
+        # --- MODIFIED TO USE VinishSuivi ---
+        entry_to_delete = VinishSuivi.query.get_or_404(entry_id)
+        db.session.delete(entry_to_delete) # Cascade delete should handle VinishSuiviImage entries
         db.session.commit()
         flash("Entrée supprimée avec succès.", "success")
     except Exception as e:
@@ -375,41 +402,46 @@ def delete_history(entry_id):
 @app.route('/image/<int:image_id>')
 @login_required
 def get_image(image_id):
-    image = SuiviJournalierImage.query.get_or_404(image_id)
-    if current_user.role != 'admin' and (not image.suivi or image.suivi.utilisateur != current_user.id):
+    # --- MODIFIED TO USE VinishSuiviImage ---
+    image = VinishSuiviImage.query.get_or_404(image_id)
+    # Check ownership or admin role (suivi_entry is the backref from VinishSuiviImage to VinishSuivi)
+    if current_user.role != 'admin' and (not image.suivi_entry or image.suivi_entry.utilisateur != current_user.id):
         abort(403)
     return send_file(BytesIO(image.data), mimetype=image.content_type)
 
 def _get_filtered_rows():
-    base_query = SuiviJournalier.query
+    # --- MODIFIED TO USE VinishSuivi ---
+    base_query = VinishSuivi.query
     filter_utilisateur_req = request.args.get('filter_utilisateur')
     filter_nom_chantier_req = request.args.get('filter_nom_chantier')
 
     if current_user.role != "admin":
-        base_query = base_query.filter(SuiviJournalier.utilisateur == current_user.id)
+        base_query = base_query.filter(VinishSuivi.utilisateur == current_user.id)
     elif filter_utilisateur_req:
-        base_query = base_query.filter(SuiviJournalier.utilisateur == filter_utilisateur_req)
+        base_query = base_query.filter(VinishSuivi.utilisateur == filter_utilisateur_req)
     
     if filter_nom_chantier_req:
-        base_query = base_query.filter(SuiviJournalier.nom_du_chantier == filter_nom_chantier_req)
+        base_query = base_query.filter(VinishSuivi.nom_du_chantier == filter_nom_chantier_req)
         
-    return base_query.order_by(SuiviJournalier.date.desc()).all()
+    return base_query.order_by(VinishSuivi.date.desc()).all()
 
 @app.route('/telecharger-historique')
 @login_required
 def telecharger_historique():
-    rows = _get_filtered_rows()
-    fieldnames = [col.name for col in SuiviJournalier.__table__.columns if col.name not in ['id']] + ['images_filenames']
+    rows = _get_filtered_rows() # This now returns VinishSuivi objects
+    # --- MODIFIED TO USE VinishSuivi columns ---
+    fieldnames = [col.name for col in VinishSuivi.__table__.columns if col.name not in ['id']] + ['images_filenames']
     
     csv_buffer = StringIO()
     writer = csv.writer(csv_buffer, delimiter=';')
     writer.writerow(fieldnames)
 
-    for row in rows:
+    for row in rows: # row is a VinishSuivi object
         row_data = []
         for field in fieldnames:
             if field == 'images_filenames':
-                photo_filenames = ";".join([img.filename for img in row.images])
+                # 'images' is the relationship name in VinishSuivi model
+                photo_filenames = ";".join([img.filename for img in row.images]) 
                 row_data.append(photo_filenames)
             elif hasattr(row, field):
                 row_data.append(getattr(row, field, ""))
@@ -418,6 +450,7 @@ def telecharger_historique():
         writer.writerow(row_data)
         
     csv_buffer.seek(0)
+    # ... (rest of filename logic remains the same)
     filename_parts = [current_user.id if current_user.role != "admin" else "admin"]
     filter_utilisateur_req = request.args.get('filter_utilisateur')
     filter_nom_chantier_req = request.args.get('filter_nom_chantier')
@@ -441,9 +474,10 @@ def telecharger_historique_pdf():
         flash("Accès refusé. Le PDF global est pour les administrateurs.", "danger")
         return redirect(url_for('index', active_tab='history'))
 
-    rows = _get_filtered_rows()
+    rows = _get_filtered_rows() # This now returns VinishSuivi objects
     
     pdf_buffer = BytesIO()
+    # ... (ReportLab setup as before) ...
     doc = SimpleDocTemplate(pdf_buffer, pagesize=landscape(letter), topMargin=0.4*inch, bottomMargin=0.4*inch, leftMargin=0.05*inch, rightMargin=0.05*inch)
     elements = []
     styles = getSampleStyleSheet()
@@ -462,7 +496,8 @@ def telecharger_historique_pdf():
         if filter_nom_chantier_req: title_text += f" - Chantier: {filter_nom_chantier_req}"
     elements.append(Paragraph(title_text, title_style))
     elements.append(Spacer(1, 0.15*inch))
-
+    
+    # These fieldnames are for the PDF, map them to VinishSuivi attributes
     pdf_fieldnames = [
         "date", "util", "nom_chantier", "type_chantier",
         "equipe", "onduleur_avanc", "heure_travail", 
@@ -486,12 +521,12 @@ def telecharger_historique_pdf():
     header_paragraphs = [Paragraph(f"<b>{pdf_headers.get(fn, fn.replace('_', ' ').title())}</b>", small_bold_style) for fn in pdf_fieldnames]
     data_for_table = [header_paragraphs]
 
-    for row in rows:
+    for row in rows: # row is a VinishSuivi object
         row_data_paragraphs = []
         for field_key in pdf_fieldnames:
             cell_content_str = ""
-            actual_attr = ""
-            if field_key == 'img_count': cell_content_str = str(len(row.images))
+            actual_attr = "" # This will be the attribute name in VinishSuivi model
+            if field_key == 'img_count': cell_content_str = str(len(row.images)) # 'images' is the relationship
             elif field_key == 'util': actual_attr = "utilisateur"
             elif field_key == 'nom_chantier': actual_attr = "nom_du_chantier"
             elif field_key == 'type_chantier': actual_attr = "chantier_type"
@@ -530,6 +565,7 @@ def telecharger_historique_pdf():
         data_for_table.append(row_data_paragraphs)
 
     if len(data_for_table) > 1:
+        # ... (ReportLab table styling and building as before) ...
         col_widths = [
             0.5*inch, 0.35*inch, 0.5*inch, 0.4*inch, 
             0.5*inch, 0.6*inch, 0.4*inch,            
@@ -554,11 +590,13 @@ def telecharger_historique_pdf():
         ])
         table.setStyle(table_style)
         elements.append(table)
+
     else:
         elements.append(Paragraph("Aucune donnée à afficher pour les filtres sélectionnés.", styles['Normal']))
 
     doc.build(elements)
     pdf_buffer.seek(0)
+    # ... (rest of PDF filename logic as before) ...
     filename_parts_pdf = ["historique_suivi"]
     if filter_utilisateur_req: filename_parts_pdf.append(f"user_{filter_utilisateur_req.replace(' ','_')}")
     if filter_nom_chantier_req: filename_parts_pdf.append(f"chantier_{filter_nom_chantier_req.replace(' ','_')}")
@@ -607,5 +645,8 @@ def admin_panel():
     users = DBUser.query.all()
     return render_template('admin.html', utilisateurs=users, current_user=current_user)
 
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)), debug=False)
+    # For local development, Render uses its own port settings
+    # The hardcoded YOUR_DATABASE_LINK will be used here.
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)), debug=False) # debug=True for local dev is fine
