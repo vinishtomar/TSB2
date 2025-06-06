@@ -88,12 +88,12 @@
     <header class="main-header">
         <div class="header-title">
            <img src="{{ url_for('static', filename='tsb-logo.png') }}" alt="TSB Énergie Logo" style="height: 55px; margin-right: 15px; vertical-align: middle;">
-           Suivi de Chantier -
-           {% if session.chantier_type == 'centrale-sol' %}Centrale au Sol
-           {% elif session.chantier_type == 'ombriere' %}Ombrière
-           {% elif session.chantier_type == 'toiture' %}Toiture
-           {% else %}Général
-           {% endif %}
+            Suivi de Chantier -
+            {% if session.chantier_type == 'centrale-sol' %}Centrale au Sol
+            {% elif session.chantier_type == 'ombriere' %}Ombrière
+            {% elif session.chantier_type == 'toiture' %}Toiture
+            {% else %}Général
+            {% endif %}
         </div>
         <a href="{{ url_for('logout') }}"><button class="logout-btn">Déconnexion</button></a>
     </header>
@@ -130,9 +130,7 @@
     </ul>
 
     <div class="tab-content container-fluid pt-4" id="mainTabContent">
-      <!-- Réception du Chantier Tab Pane -->
       <div class="tab-pane fade {% if not is_filtering and active_tab == 'reception' %}show active{% endif %}" id="reception" role="tabpanel" aria-labelledby="reception-tab">
-        <!-- SINGLE FORM FOR THE ENTIRE RECEPTION SECTION -->
         <form method="POST" action="{{ url_for('suivi_journalier') }}" enctype="multipart/form-data">
           <input type="hidden" name="section" value="reception_complete">
 
@@ -166,7 +164,6 @@
                 </li>
               </ul>
               <div class="tab-content" id="receptionSubTabContent">
-                <!-- Équipements Sub-Tab Content -->
                 <div class="tab-pane fade show active" id="equipements" role="tabpanel" aria-labelledby="equipements-tab">
                   <div class="row mb-3">
                     <div class="col-md-12">
@@ -249,54 +246,16 @@
                     <div class="col-md-2"><input type="number" class="form-control" name="equipement_nombre_3" min="0" value="1"></div>
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Photos du chantier</label>
-                    <div id="photos-container">
+                    <label class="form-label">Photos du chantier (Réception)</label>
+                    <div class="photos-container">
                       <div class="input-group mb-2">
-                        <input type="file" class="form-control" name="photo_chantier[]" accept="image/*">
+                        <input type="file" class="form-control" name="photo_chantier_reception[]" accept="image/*" multiple>
                         <button class="btn btn-danger remove-photo-btn" type="button" style="display:none;">Supprimer</button>
                       </div>
                     </div>
-                    <button type="button" class="btn btn-secondary btn-sm" id="add-photo-btn">Ajouter une photo</button>
+                    <button type="button" class="btn btn-secondary btn-sm add-photo-btn">Ajouter une photo</button>
                   </div>
-                  <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                      const photosContainer = document.getElementById('photos-container');
-                      const addPhotoBtn = document.getElementById('add-photo-btn');
-                      function updateRemoveButtonsVisibility() {
-                        const allPhotoInputs = photosContainer.querySelectorAll('.input-group');
-                        allPhotoInputs.forEach((group, index) => {
-                          const removeBtn = group.querySelector('.remove-photo-btn');
-                          if (removeBtn) {
-                            removeBtn.style.display = allPhotoInputs.length > 1 ? '' : 'none';
-                          }
-                        });
-                      }
-                      if (addPhotoBtn) { // Check if button exists
-                        addPhotoBtn.addEventListener('click', function() {
-                          const newInputGroup = document.createElement('div');
-                          newInputGroup.className = 'input-group mb-2';
-                          newInputGroup.innerHTML = `
-                            <input type="file" class="form-control" name="photo_chantier[]" accept="image/*">
-                            <button class="btn btn-danger remove-photo-btn" type="button">Supprimer</button>`;
-                          photosContainer.appendChild(newInputGroup);
-                          newInputGroup.querySelector('.remove-photo-btn').addEventListener('click', function() {
-                            this.parentElement.remove();
-                            updateRemoveButtonsVisibility();
-                          });
-                          updateRemoveButtonsVisibility();
-                        });
-                      }
-                      photosContainer.querySelectorAll('.remove-photo-btn').forEach(btn => {
-                        btn.addEventListener('click', function() {
-                          this.parentElement.remove();
-                          updateRemoveButtonsVisibility();
-                        });
-                      });
-                      updateRemoveButtonsVisibility();
-                    });
-                  </script>
                 </div>
-                <!-- Connecteur Sub-Tab Content -->
                 <div class="tab-pane fade" id="connecteur" role="tabpanel" aria-labelledby="connecteur-tab">
                   <div class="row mb-3">
                     <div class="col-md-4">
@@ -317,7 +276,6 @@
                     </div>
                   </div>
                 </div>
-                <!-- Chemin de Câble Sub-Tab Content -->
                 <div class="tab-pane fade" id="chemin-cable" role="tabpanel" aria-labelledby="chemin-cable-tab">
                   <div class="row mb-3">
                     <div class="col-md-3">
@@ -338,7 +296,6 @@
                     </div>
                   </div>
                 </div>
-                <!-- Terre Sub-Tab Content -->
                 <div class="tab-pane fade" id="terre" role="tabpanel" aria-labelledby="terre-tab">
                   <div class="row mb-3">
                     <div class="col-md-6">
@@ -347,7 +304,6 @@
                     </div>
                   </div>
                 </div>
-                <!-- Câble AC Sub-Tab Content -->
                 <div class="tab-pane fade" id="cable-ac" role="tabpanel" aria-labelledby="cable-ac-tab">
                   <div class="row mb-3">
                     <div class="col-md-6">
@@ -360,7 +316,6 @@
                     </div>
                   </div>
                 </div>
-                <!-- Câble DC Sub-Tab Content -->
                 <div class="tab-pane fade" id="cable-dc" role="tabpanel" aria-labelledby="cable-dc-tab">
                   <div class="row mb-3">
                     <div class="col-md-6">
@@ -373,7 +328,6 @@
                     </div>
                   </div>
                 </div>
-                <!-- Onduleur Nombre Sub-Tab Content -->
                 <div class="tab-pane fade" id="onduleur-nombre-reception-pane" role="tabpanel" aria-labelledby="onduleur-nombre-reception-tab">
                   <div class="row mb-3">
                     <div class="col-md-6">
@@ -382,7 +336,6 @@
                     </div>
                   </div>
                 </div>
-                <!-- Shelter Nombre Sub-Tab Content -->
                 <div class="tab-pane fade" id="shelter-nombre-reception-pane" role="tabpanel" aria-labelledby="shelter-nombre-reception-nav-tab">
                   <div class="row mb-3">
                     <div class="col-md-6">
@@ -390,23 +343,18 @@
                       <input type="number" class="form-control" id="shelter_nombre_reception_input" name="shelter_nombre_reception" min="0">
                     </div>
                   </div>
-                  <!-- SINGLE SUBMIT BUTTON FOR THE ENTIRE RECEPTION FORM -->
-                  <div class="mt-4 pt-3 border-top">
-                    <button type="submit" class="btn btn-primary btn-lg">Enregistrer Toute la Réception</button>
-                  </div>
                 </div>
-              </div> <!-- End receptionSubTabContent -->
+              </div> <div class="mt-4 pt-3 border-top">
+                <button type="submit" class="btn btn-primary btn-lg">Enregistrer Toute la Réception</button>
+              </div>
+
             </div>
           </div>
-        </form> <!-- END OF THE SINGLE FORM FOR RECEPTION -->
-      </div> <!-- End reception tab-pane -->
-
-      <!-- Avancement du Chantier Tab Pane -->
-      <div class="tab-pane fade {% if not is_filtering and active_tab == 'avancement' %}show active{% endif %}" id="avancement" role="tabpanel" aria-labelledby="avancement-tab">
+        </form> </div> <div class="tab-pane fade {% if not is_filtering and active_tab == 'avancement' %}show active{% endif %}" id="avancement" role="tabpanel" aria-labelledby="avancement-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Avancement du Chantier</div>
-            <form method="POST" action="{{ url_for('suivi_journalier') }}">
+            <form method="POST" action="{{ url_for('suivi_journalier') }}" enctype="multipart/form-data">
               <input type="hidden" name="section" value="avancement">
               <div class="row mb-3">
                 <div class="col-md-12">
@@ -467,6 +415,18 @@
                   <textarea class="form-control" id="problems" name="problems" rows="3" placeholder="Décrivez les problèmes ou observations (si applicable)"></textarea>
                 </div>
               </div>
+
+              <div class="mb-3">
+                  <label class="form-label">Photos du chantier (Avancement)</label>
+                  <div class="photos-container">
+                      <div class="input-group mb-2">
+                          <input type="file" class="form-control" name="photo_chantier_avancement[]" accept="image/*" multiple>
+                          <button class="btn btn-danger remove-photo-btn" type="button" style="display:none;">Supprimer</button>
+                      </div>
+                  </div>
+                  <button type="button" class="btn btn-secondary btn-sm add-photo-btn">Ajouter une photo</button>
+              </div>
+
               <div class="mt-3">
                 <button type="submit" class="btn btn-primary">Enregistrer Avancement</button>
               </div>
@@ -475,12 +435,11 @@
         </div>
       </div>
 
-      <!-- Fin du Chantier Tab Pane -->
       <div class="tab-pane fade {% if not is_filtering and active_tab == 'fin' %}show active{% endif %}" id="fin" role="tabpanel" aria-labelledby="fin-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Fin du Chantier - Tableau des Tensions</div>
-            <form method="POST" action="{{ url_for('suivi_journalier') }}">
+            <form method="POST" action="{{ url_for('suivi_journalier') }}" enctype="multipart/form-data">
               <input type="hidden" name="section" value="fin">
               <div class="row mb-3">
                 <div class="col-md-12">
@@ -529,164 +488,215 @@
                   </tbody>
                 </table>
               </div>
-              <div class="mt-3">
-                <button type="button" class="btn btn-secondary btn-sm" id="addRowFinBtn">Ajouter ligne</button>
+
+              <div class="mt-2">
+                  <button type="button" class="btn btn-secondary btn-sm" id="addRowFinBtn">Ajouter une ligne au tableau</button>
+              </div>
+
+              <div class="my-4">
+                  <label class="form-label">Photos du chantier (Fin)</label>
+                  <div class="photos-container">
+                      <div class="input-group mb-2">
+                          <input type="file" class="form-control" name="photo_chantier_fin[]" accept="image/*" multiple>
+                          <button class="btn btn-danger remove-photo-btn" type="button" style="display:none;">Supprimer</button>
+                      </div>
+                  </div>
+                  <button type="button" class="btn btn-secondary btn-sm add-photo-btn">Ajouter une photo</button>
+              </div>
+
+              <div class="mt-3 border-top pt-3">
                 <button type="submit" class="btn btn-primary">Enregistrer Fin de Chantier</button>
               </div>
             </form>
-             <script>
-              document.addEventListener('DOMContentLoaded', function() {
-                const addRowBtnFin = document.getElementById('addRowFinBtn');
-                const tbodyFin = document.getElementById('finalTensionsBody');
-                function updateRemoveButtonsFinVisibility() {
-                  const rows = tbodyFin.querySelectorAll('tr');
-                  rows.forEach((row, index) => {
-                    const removeBtn = row.querySelector('.remove-row-fin');
-                    if (removeBtn) removeBtn.style.display = rows.length > 1 ? '' : 'none';
-                  });
-                }
-                if(addRowBtnFin) { // Check if button exists
-                    addRowBtnFin.addEventListener('click', function() {
-                    const newRowHTML = `
-                        <td><input type="text" class="form-control form-control-sm" name="fin_zone[]"></td>
-                        <td><input type="text" class="form-control form-control-sm" name="fin_string[]"></td>
-                        <td><input type="number" class="form-control form-control-sm" name="fin_tension_dc[]" step="any"></td>
-                        <td><input type="number" class="form-control form-control-sm" name="fin_courant_dc[]" step="any"></td>
-                        <td><input type="number" class="form-control form-control-sm" name="fin_tension_ac[]" step="any"></td>
-                        <td><input type="number" class="form-control form-control-sm" name="fin_puissance[]" step="any"></td>
-                        <td><input type="date" class="form-control form-control-sm" name="fin_date[]"></td>
-                        <td><input type="text" class="form-control form-control-sm" name="fin_technicien[]"></td>
-                        <td>
-                        <select class="form-select form-select-sm" name="fin_status[]">
-                            <option value="Validé">Validé</option><option value="Non Validé">Non Validé</option><option value="En attente">En attente</option>
-                        </select>
-                        </td>
-                        <td><button type="button" class="btn btn-danger btn-sm remove-row-fin" title="Supprimer">✕</button></td>`;
-                    const tr = tbodyFin.insertRow();
-                    tr.innerHTML = newRowHTML;
-                    tr.querySelector('.remove-row-fin').addEventListener('click', function() {
-                        this.closest('tr').remove();
-                        updateRemoveButtonsFinVisibility();
-                    });
-                    updateRemoveButtonsFinVisibility();
-                    });
-                }
-                tbodyFin.querySelectorAll('.remove-row-fin').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        this.closest('tr').remove();
-                        updateRemoveButtonsFinVisibility();
-                    });
-                });
-                updateRemoveButtonsFinVisibility();
-              });
-            </script>
           </div>
         </div>
       </div>
 
       {% if current_user and current_user.role == "admin" %}
       <div class="tab-pane fade {% if is_filtering or active_tab == 'history' %}show active{% endif %}" id="history" role="tabpanel" aria-labelledby="history-tab">
-      <div class="card rounded-card mb-3">
-        <div class="card-body">
-          <form method="GET" action="{{ url_for('index') }}" class="mb-4 p-3 border rounded bg-light">
-            <input type="hidden" name="active_tab" value="history">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <label for="filter_utilisateur" class="form-label">Filtrer par Utilisateur</label>
-                    <select name="filter_utilisateur" id="filter_utilisateur" class="form-select form-select-sm">
-                        <option value="">Tous les utilisateurs</option>
-                        {% for user_opt in distinct_users %}
-                        <option value="{{ user_opt }}" {% if current_filter_utilisateur == user_opt %}selected{% endif %}>{{ user_opt }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label for="filter_nom_chantier" class="form-label">Filtrer par Nom Chantier</label>
-                    <select name="filter_nom_chantier" id="filter_nom_chantier" class="form-select form-select-sm">
-                        <option value="">Tous les chantiers</option>
-                        {% for chantier_opt in distinct_nom_chantiers %}
-                        <option value="{{ chantier_opt }}" {% if current_filter_nom_chantier == chantier_opt %}selected{% endif %}>{{ chantier_opt }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-auto">
-                    <button type="submit" class="btn btn-sm btn-primary">Filtrer</button>
-                </div>
-                <div class="col-md-auto">
-                    <a href="{{ url_for('index', active_tab='history') }}" class="btn btn-sm btn-secondary">Réinitialiser</a>
-                </div>
+        <div class="card rounded-card mb-3">
+          <div class="card-body">
+            <form method="GET" action="{{ url_for('index') }}" class="mb-4 p-3 border rounded bg-light">
+              <input type="hidden" name="active_tab" value="history">
+              <div class="row g-3 align-items-end">
+                  <div class="col-md-4">
+                      <label for="filter_utilisateur" class="form-label">Filtrer par Utilisateur</label>
+                      <select name="filter_utilisateur" id="filter_utilisateur" class="form-select form-select-sm">
+                          <option value="">Tous les utilisateurs</option>
+                          {% for user_opt in distinct_users %}
+                          <option value="{{ user_opt }}" {% if current_filter_utilisateur == user_opt %}selected{% endif %}>{{ user_opt }}</option>
+                          {% endfor %}
+                      </select>
+                  </div>
+                  <div class="col-md-4">
+                      <label for="filter_nom_chantier" class="form-label">Filtrer par Nom Chantier</label>
+                      <select name="filter_nom_chantier" id="filter_nom_chantier" class="form-select form-select-sm">
+                          <option value="">Tous les chantiers</option>
+                          {% for chantier_opt in distinct_nom_chantiers %}
+                          <option value="{{ chantier_opt }}" {% if current_filter_nom_chantier == chantier_opt %}selected{% endif %}>{{ chantier_opt }}</option>
+                          {% endfor %}
+                      </select>
+                  </div>
+                  <div class="col-md-auto">
+                      <button type="submit" class="btn btn-sm btn-primary">Filtrer</button>
+                  </div>
+                  <div class="col-md-auto">
+                      <a href="{{ url_for('index', active_tab='history') }}" class="btn btn-sm btn-secondary">Réinitialiser</a>
+                  </div>
+              </div>
+            </form>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="card-title mb-0">Historique des Entrées</div>
+              <div>
+                  <a href="{{ url_for('telecharger_historique', filter_utilisateur=current_filter_utilisateur, filter_nom_chantier=current_filter_nom_chantier) }}" class="btn btn-sm btn-primary">Télécharger CSV Filtré</a>
+                  <a href="{{ url_for('telecharger_historique_pdf', filter_utilisateur=current_filter_utilisateur, filter_nom_chantier=current_filter_nom_chantier) }}" class="btn btn-sm btn-success">Télécharger PDF Filtré</a>
+              </div>
             </div>
-          </form>
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="card-title mb-0">Historique des Entrées</div>
-            <div>
-                <a href="{{ url_for('telecharger_historique', filter_utilisateur=current_filter_utilisateur, filter_nom_chantier=current_filter_nom_chantier) }}" class="btn btn-sm btn-primary">Télécharger CSV Filtré</a>
-                <a href="{{ url_for('telecharger_historique_pdf', filter_utilisateur=current_filter_utilisateur, filter_nom_chantier=current_filter_nom_chantier) }}" class="btn btn-sm btn-success">Télécharger PDF Filtré</a>
-            </div>
-          </div>
 
-          <h5 class="mt-4 mb-2">Réception du Chantier</h5>
-          <div class="table-responsive history-table mb-4">
-            <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes.</p>
-            <table class="table align-middle table-bordered table-striped">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Utilisateur</th>
-                  <th>Nom Chantier</th>
-                  <th>Type Équip.</th>
-                  <th>Réf. Équip.</th>
-                  <th>État Équip.</th>
-                  <th>Date Récept. Équip.</th>
-                  <th>Nb Équip. 1</th>
-                  <th>Type Conn.</th>
-                  <th>Qté Conn.</th>
-                  <th>État Conn.</th>
-                  <th>Type Ch. Câble</th>
-                  <th>Long. Ch. Câble</th>
-                  <th>Sect. Ch. Câble</th>
-                  <th>Prof. Ch. Câble</th>
-                  <th>Long. Terre</th>
-                  <th>Sect. AC</th>
-                  <th>Long. AC</th>
-                  <th>Sect. DC</th>
-                  <th>Long. DC</th>
-                  <th>Nb Ondul. (R)</th>
-                  <th>Nb Shelter (R)</th>
-                  <th>Images</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for row in all_lignes|default([]) %}
-                  {% if row.equipement_type or row.connecteur_type or row.chemin_cable_type or row.terre_longueur or row.cableac_section or row.cabledc_section or row.onduleur_nombre or row.shelter_nombre %}
+            <h5 class="mt-4 mb-2">Réception du Chantier</h5>
+            <div class="table-responsive history-table mb-4">
+              <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes.</p>
+              <table class="table align-middle table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Utilisateur</th>
+                    <th>Nom Chantier</th>
+                    <th>Type Équip.</th>
+                    <th>Réf. Équip.</th>
+                    <th>État Équip.</th>
+                    <th>Date Récept. Équip.</th>
+                    <th>Nb Équip. 1</th>
+                    <th>Type Conn.</th>
+                    <th>Qté Conn.</th>
+                    <th>État Conn.</th>
+                    <th>Type Ch. Câble</th>
+                    <th>Long. Ch. Câble</th>
+                    <th>Sect. Ch. Câble</th>
+                    <th>Prof. Ch. Câble</th>
+                    <th>Long. Terre</th>
+                    <th>Sect. AC</th>
+                    <th>Long. AC</th>
+                    <th>Sect. DC</th>
+                    <th>Long. DC</th>
+                    <th>Nb Ondul. (R)</th>
+                    <th>Nb Shelter (R)</th>
+                    <th>Images</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in all_lignes|default([]) %}
+                    {% if row.equipement_type or row.connecteur_type or row.chemin_cable_type or row.terre_longueur or row.cableac_section or row.cabledc_section or row.onduleur_nombre or row.shelter_nombre %}
+                    <tr>
+                      <td>{{ row.date|default('') }}</td>
+                      <td>{{ row.utilisateur|default('') }}</td>
+                      <td>{{ row.nom_du_chantier|default('') }}</td>
+                      <td>{{ row.equipement_type|default('') }}</td>
+                      <td>{{ row.equipement_reference|default('') }}</td>
+                      <td>{{ row.equipement_etat|default('') }}</td>
+                      <td>{{ row.equipement_date_reception|default('') }}</td>
+                      <td>{{ row.equipement_nombre_1|default('') }}</td>
+                      <td>{{ row.connecteur_type|default('') }}</td>
+                      <td>{{ row.connecteur_quantite|default('') }}</td>
+                      <td>{{ row.connecteur_etat|default('') }}</td>
+                      <td>{{ row.chemin_cable_type|default('') }}</td>
+                      <td>{{ row.chemin_cable_longueur|default('') }}</td>
+                      <td>{{ row.chemin_cable_section|default('') }}</td>
+                      <td>{{ row.chemin_cable_profondeur|default('') }}</td>
+                      <td>{{ row.terre_longueur|default('') }}</td>
+                      <td>{{ row.cableac_section|default('') }}</td>
+                      <td>{{ row.cableac_longueur|default('') }}</td>
+                      <td>{{ row.cabledc_section|default('') }}</td>
+                      <td>{{ row.cabledc_longueur|default('') }}</td>
+                      <td>{{ row.onduleur_nombre|default('') }}</td>
+                      <td>{{ row.shelter_nombre|default('') }}</td>
+                      <td>
+                        {% if row.images %}
+                          {% for img in row.images %}
+                            <a href="{{ url_for('get_image', image_id=img.id) }}" target="_blank" class="badge bg-info text-dark">{{ img.filename|truncate(15) }}</a>
+                          {% endfor %}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </td>
+                      <td class="nowrap">
+                        <a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a>
+                        <form action="{{ url_for('delete_history', entry_id=row.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Supprimer cette entrée ?');">
+                            <button type="submit" class="btn btn-danger delete-btn">Supprimer</button>
+                        </form>
+                      </td>
+                    </tr>
+                    {% endif %}
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <h5 class="mt-4 mb-2">Avancement du Chantier</h5>
+            <div class="table-responsive history-table mb-4">
+              <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes.</p>
+              <table class="table align-middle table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Utilisateur</th>
+                    <th>Nom Chantier</th>
+                    <th>Type Chantier</th>
+                    <th>Équipe</th>
+                    <th>Onduleur (Avanc.)</th>
+                    <th>Heures Travail</th>
+                    <th>Câble DC (m)</th>
+                    <th>Câble AC (m)</th>
+                    <th>Câble Terre (m)</th>
+                    <th>Interconnexion</th>
+                    <th>Nb Panneaux</th>
+                    <th>Nb Rails (m)</th>
+                    <th>Problèmes</th>
+                    <th>Images</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in all_lignes|default([]) %}
+                  {% if row.cables_dctires or row.cables_actires or row.cables_terretires or row.problems or row.interconnexion or row.nombre_panneaux or row.nombre_rail or row.equipe or row.onduleur_details_avancement or row.heure_de_travail %}
                   <tr>
                     <td>{{ row.date|default('') }}</td>
                     <td>{{ row.utilisateur|default('') }}</td>
                     <td>{{ row.nom_du_chantier|default('') }}</td>
-                    <td>{{ row.equipement_type|default('') }}</td>
-                    <td>{{ row.equipement_reference|default('') }}</td>
-                    <td>{{ row.equipement_etat|default('') }}</td>
-                    <td>{{ row.equipement_date_reception|default('') }}</td>
-                    <td>{{ row.equipement_nombre_1|default('') }}</td>
-                    <td>{{ row.connecteur_type|default('') }}</td>
-                    <td>{{ row.connecteur_quantite|default('') }}</td>
-                    <td>{{ row.connecteur_etat|default('') }}</td>
-                    <td>{{ row.chemin_cable_type|default('') }}</td>
-                    <td>{{ row.chemin_cable_longueur|default('') }}</td>
-                    <td>{{ row.chemin_cable_section|default('') }}</td>
-                    <td>{{ row.chemin_cable_profondeur|default('') }}</td>
-                    <td>{{ row.terre_longueur|default('') }}</td>
-                    <td>{{ row.cableac_section|default('') }}</td>
-                    <td>{{ row.cableac_longueur|default('') }}</td>
-                    <td>{{ row.cabledc_section|default('') }}</td>
-                    <td>{{ row.cabledc_longueur|default('') }}</td>
-                    <td>{{ row.onduleur_nombre|default('') }}</td>
-                    <td>{{ row.shelter_nombre|default('') }}</td>
+                    <td>{{ row.chantier_type|default('N/A') }}</td>
+                    <td>{{ row.equipe|default('') }}</td>
+                    <td>{{ row.onduleur_details_avancement|default('') }}</td>
+                    <td>{{ row.heure_de_travail|default('') }}</td>
+                    <td>{{ row.cables_dctires|default('') }}</td>
+                    <td>{{ row.cables_actires|default('') }}</td>
+                    <td>{{ row.cables_terretires|default('') }}</td>
+                    <td>
+                      {% if row.chantier_type == 'centrale-sol' or row.chantier_type == 'ombriere' %}
+                        {{ row.interconnexion|default('-') }}
+                      {% else %}
+                        -
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if row.chantier_type == 'toiture' %}
+                        {{ row.nombre_panneaux|default('-') }}
+                      {% else %}
+                        -
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if row.chantier_type == 'toiture' %}
+                        {{ row.nombre_rail|default('-') }}
+                      {% else %}
+                        -
+                      {% endif %}
+                    </td>
+                    <td>{{ row.problems|default('') }}</td>
                     <td>
                       {% if row.images %}
                         {% for img in row.images %}
-                          <a href="{{ url_for('get_image', image_id=img.id) }}" target="_blank" class="badge bg-info text-dark">{{ img.filename|truncate(15) }}</a>
+                           <a href="{{ url_for('get_image', image_id=img.id) }}" target="_blank" class="badge bg-info text-dark">{{ img.filename|truncate(15) }}</a>
                         {% endfor %}
                       {% else %}
                         -
@@ -700,138 +710,146 @@
                     </td>
                   </tr>
                   {% endif %}
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
 
-          <h5 class="mt-4 mb-2">Avancement du Chantier</h5>
-          <div class="table-responsive history-table mb-4">
-            <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes.</p>
-            <table class="table align-middle table-bordered table-striped">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Utilisateur</th>
-                  <th>Nom Chantier</th>
-                  <th>Type Chantier</th>
-                  <th>Équipe</th>
-                  <th>Onduleur (Avanc.)</th>
-                  <th>Heures Travail</th>
-                  <th>Câble DC (m)</th>
-                  <th>Câble AC (m)</th>
-                  <th>Câble Terre (m)</th>
-                  <th>Interconnexion</th>
-                  <th>Nb Panneaux</th>
-                  <th>Nb Rails (m)</th>
-                  <th>Problèmes</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for row in all_lignes|default([]) %}
-                {% if row.cables_dctires or row.cables_actires or row.cables_terretires or row.problems or row.interconnexion or row.nombre_panneaux or row.nombre_rail or row.equipe or row.onduleur_details_avancement or row.heure_de_travail %}
-                <tr>
-                  <td>{{ row.date|default('') }}</td>
-                  <td>{{ row.utilisateur|default('') }}</td>
-                  <td>{{ row.nom_du_chantier|default('') }}</td>
-                  <td>{{ row.chantier_type|default('N/A') }}</td>
-                  <td>{{ row.equipe|default('') }}</td>
-                  <td>{{ row.onduleur_details_avancement|default('') }}</td>
-                  <td>{{ row.heure_de_travail|default('') }}</td>
-                  <td>{{ row.cables_dctires|default('') }}</td>
-                  <td>{{ row.cables_actires|default('') }}</td>
-                  <td>{{ row.cables_terretires|default('') }}</td>
-                  <td>
-                    {% if row.chantier_type == 'centrale-sol' or row.chantier_type == 'ombriere' %}
-                      {{ row.interconnexion|default('-') }}
-                    {% else %}
-                      -
+            <h5 class="mt-4 mb-2">Fin du Chantier</h5>
+            <div class="table-responsive history-table mb-4">
+              <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes.</p>
+              <table class="table align-middle table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <th>Date Entrée</th>
+                    <th>Utilisateur</th>
+                    <th>Nom Chantier</th>
+                    <th>Zone</th>
+                    <th>String</th>
+                    <th>Tension DC (V)</th>
+                    <th>Courant DC (A)</th>
+                    <th>Tension AC (V)</th>
+                    <th>Puissance (W)</th>
+                    <th>Date Mesure</th>
+                    <th>Technicien</th>
+                    <th>Statut</th>
+                    <th>Images</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in all_lignes|default([]) %}
+                    {% if row.fin_zone or row.fin_string %}
+                    <tr>
+                      <td>{{ row.date|default('') }}</td>
+                      <td>{{ row.utilisateur|default('') }}</td>
+                      <td>{{ row.nom_du_chantier|default('') }}</td>
+                      <td>{{ row.fin_zone|default('') }}</td>
+                      <td>{{ row.fin_string|default('') }}</td>
+                      <td>{{ row.fin_tension_dc|default('') }}</td>
+                      <td>{{ row.fin_courant_dc|default('') }}</td>
+                      <td>{{ row.fin_tension_ac|default('') }}</td>
+                      <td>{{ row.fin_puissance|default('') }}</td>
+                      <td>{{ row.fin_date|default('') }}</td>
+                      <td>{{ row.fin_technicien|default('') }}</td>
+                      <td>{{ row.fin_status|default('') }}</td>
+                      <td>
+                        {% if row.images %}
+                          {% for img in row.images %}
+                            <a href="{{ url_for('get_image', image_id=img.id) }}" target="_blank" class="badge bg-info text-dark">{{ img.filename|truncate(15) }}</a>
+                          {% endfor %}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </td>
+                      <td class="nowrap">
+                        <a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a>
+                        <form action="{{ url_for('delete_history', entry_id=row.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Supprimer cette entrée ?');">
+                          <button type="submit" class="btn btn-danger delete-btn">Supprimer</button>
+                        </form>
+                      </td>
+                    </tr>
                     {% endif %}
-                  </td>
-                  <td>
-                    {% if row.chantier_type == 'toiture' %}
-                      {{ row.nombre_panneaux|default('-') }}
-                    {% else %}
-                      -
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if row.chantier_type == 'toiture' %}
-                      {{ row.nombre_rail|default('-') }}
-                    {% else %}
-                      -
-                    {% endif %}
-                  </td>
-                  <td>{{ row.problems|default('') }}</td>
-                  <td class="nowrap">
-                    <a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a>
-                    <form action="{{ url_for('delete_history', entry_id=row.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Supprimer cette entrée ?');">
-                      <button type="submit" class="btn btn-danger delete-btn">Supprimer</button>
-                    </form>
-                  </td>
-                </tr>
-                {% endif %}
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-
-          <h5 class="mt-4 mb-2">Fin du Chantier</h5>
-          <div class="table-responsive history-table mb-4">
-            <p class="text-muted small">Faites défiler horizontalement pour voir toutes les colonnes.</p>
-            <table class="table align-middle table-bordered table-striped">
-              <thead>
-                <tr>
-                  <th>Date Entrée</th>
-                  <th>Utilisateur</th>
-                  <th>Nom Chantier</th>
-                  <th>Zone</th>
-                  <th>String</th>
-                  <th>Tension DC (V)</th>
-                  <th>Courant DC (A)</th>
-                  <th>Tension AC (V)</th>
-                  <th>Puissance (W)</th>
-                  <th>Date Mesure</th>
-                  <th>Technicien</th>
-                  <th>Statut</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for row in all_lignes|default([]) %}
-                {% if row.fin_zone or row.fin_string %}
-                <tr>
-                  <td>{{ row.date|default('') }}</td>
-                  <td>{{ row.utilisateur|default('') }}</td>
-                  <td>{{ row.nom_du_chantier|default('') }}</td>
-                  <td>{{ row.fin_zone|default('') }}</td>
-                  <td>{{ row.fin_string|default('') }}</td>
-                  <td>{{ row.fin_tension_dc|default('') }}</td>
-                  <td>{{ row.fin_courant_dc|default('') }}</td>
-                  <td>{{ row.fin_tension_ac|default('') }}</td>
-                  <td>{{ row.fin_puissance|default('') }}</td>
-                  <td>{{ row.fin_date|default('') }}</td>
-                  <td>{{ row.fin_technicien|default('') }}</td>
-                  <td>{{ row.fin_status|default('') }}</td>
-                  <td class="nowrap">
-                    <a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a>
-                    <form action="{{ url_for('delete_history', entry_id=row.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Supprimer cette entrée ?');">
-                      <button type="submit" class="btn btn-danger delete-btn">Supprimer</button>
-                    </form>
-                  </td>
-                </tr>
-                {% endif %}
-                {% endfor %}
-              </tbody>
-            </table>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    {% endif %}
+      {% endif %}
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- REUSABLE PHOTO UPLOAD SCRIPT ---
+        document.querySelectorAll('.add-photo-btn').forEach(addBtn => {
+            addBtn.addEventListener('click', function() {
+                const container = this.previousElementSibling; // The .photos-container
+                const formName = container.querySelector('input[type=file]').name;
+
+                const newInputGroup = document.createElement('div');
+                newInputGroup.className = 'input-group mb-2';
+                newInputGroup.innerHTML = `
+                    <input type="file" class="form-control" name="${formName}" accept="image/*" multiple>
+                    <button class="btn btn-danger remove-photo-btn" type="button">Supprimer</button>`;
+                container.appendChild(newInputGroup);
+                updateRemoveButtonsVisibility(container);
+            });
+        });
+
+        document.querySelectorAll('.photos-container').forEach(container => {
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-photo-btn')) {
+                    e.target.parentElement.remove();
+                    updateRemoveButtonsVisibility(this);
+                }
+            });
+            updateRemoveButtonsVisibility(container); // Initial check
+        });
+
+        function updateRemoveButtonsVisibility(container) {
+            const allPhotoInputs = container.querySelectorAll('.input-group');
+            allPhotoInputs.forEach(group => {
+                const removeBtn = group.querySelector('.remove-photo-btn');
+                if (removeBtn) {
+                    removeBtn.style.display = allPhotoInputs.length > 1 ? '' : 'none';
+                }
+            });
+        }
+
+        // --- DYNAMIC TABLE FOR 'FIN DU CHANTIER' ---
+        const addRowBtnFin = document.getElementById('addRowFinBtn');
+        const tbodyFin = document.getElementById('finalTensionsBody');
+
+        if (addRowBtnFin && tbodyFin) {
+            addRowBtnFin.addEventListener('click', function() {
+                const newRow = tbodyFin.rows[0].cloneNode(true);
+                newRow.querySelectorAll('input').forEach(input => input.value = '');
+                tbodyFin.appendChild(newRow);
+                updateRemoveButtonsFinVisibility();
+            });
+
+            tbodyFin.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-row-fin')) {
+                    e.target.closest('tr').remove();
+                    updateRemoveButtonsFinVisibility();
+                }
+            });
+
+            function updateRemoveButtonsFinVisibility() {
+                const rows = tbodyFin.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const removeBtn = row.querySelector('.remove-row-fin');
+                    if (removeBtn) {
+                        removeBtn.style.display = rows.length > 1 ? '' : 'none';
+                    }
+                });
+            }
+            updateRemoveButtonsFinVisibility(); // Initial check
+        }
+    });
+    </script>
 </body>
 </html>
