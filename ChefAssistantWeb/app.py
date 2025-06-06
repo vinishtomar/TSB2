@@ -551,14 +551,14 @@ def telecharger_historique_pdf():
         elements.append(table)
         elements.append(Spacer(1, 0.4*inch))
 
-    # --- 1. Reception Table ---
-    reception_headers = ["Date", "Utilisateur", "Nom Chantier", "Type Équip.", "Réf. Équip.", "État Équip.", "Type Conn.", "Qté Conn.", "Sect. AC", "Long. AC", "Sect. DC", "Long. DC", "Images"]
-    reception_attrs = ["date", "utilisateur", "nom_du_chantier", "equipement_type", "equipement_reference", "equipement_etat", "connecteur_type", "connecteur_quantite", "cableac_section", "cableac_longueur", "cabledc_section", "cabledc_longueur"]
+    # --- 1. Reception Table (CODE MODIFIED HERE) ---
+    reception_headers = ["Date", "Utilisateur", "Nom Chantier", "Type Équip.", "Réf. Équip.", "État Équip.", "Date Récept.", "Nb Équip.", "Type Conn.", "Qté Conn.", "État Conn.", "Type Ch.Câble", "Long. Ch.Câble", "Sect. Ch.Câble", "Prof. Ch.Câble", "Long. Terre", "Sect. AC", "Long. AC", "Sect. DC", "Long. DC", "Nb Ondul.", "Nb Shelter", "Images"]
+    reception_attrs = ["date", "utilisateur", "nom_du_chantier", "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception", "equipement_nombre_1", "connecteur_type", "connecteur_quantite", "connecteur_etat", "chemin_cable_type", "chemin_cable_longueur", "chemin_cable_section", "chemin_cable_profondeur", "terre_longueur", "cableac_section", "cableac_longueur", "cabledc_section", "cabledc_longueur", "onduleur_nombre", "shelter_nombre"]
     build_section_table("Réception du Chantier", reception_headers, reception_rows, reception_attrs)
 
-    # --- 2. Avancement Table ---
-    avancement_headers = ["Date", "Utilisateur", "Nom Chantier", "Équipe", "Heures", "DC Tiré (m)", "AC Tiré (m)", "Terre Tiré (m)", "Nb Panneaux", "Nb Rails (m)", "Problèmes", "Images"]
-    avancement_attrs = ["date", "utilisateur", "nom_du_chantier", "equipe", "heure_de_travail", "cables_dctires", "cables_actires", "cables_terretires", "nombre_panneaux", "nombre_rail", "problems"]
+    # --- 2. Avancement Table (CODE MODIFIED HERE) ---
+    avancement_headers = ["Date", "Utilisateur", "Nom Chantier", "Type Chantier", "Équipe", "Onduleur", "Heures", "DC Tiré (m)", "AC Tiré (m)", "Terre Tiré(m)", "Interconnexion", "Nb Panneaux", "Nb Rails (m)", "Problèmes", "Images"]
+    avancement_attrs = ["date", "utilisateur", "nom_du_chantier", "chantier_type", "equipe", "onduleur_details_avancement", "heure_de_travail", "cables_dctires", "cables_actires", "cables_terretires", "interconnexion", "nombre_panneaux", "nombre_rail", "problems"]
     build_section_table("Avancement du Chantier", avancement_headers, avancement_rows, avancement_attrs)
 
     # --- 3. Fin Table ---
