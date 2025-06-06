@@ -1,14 +1,17 @@
 import os
 import csv
-from flask import Flask, render_template, request, redirect, url_for, flash, Response, send_file, session, abort
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask import (Flask, render_template, request, redirect, url_for, flash, 
+                   Response, send_file, session, abort)
+from flask_login import (LoginManager, UserMixin, login_user, login_required, 
+                         logout_user, current_user)
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import distinct
 from io import StringIO, BytesIO
 from datetime import datetime
 from reportlab.lib.pagesizes import letter, landscape
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+from reportlab.platypus import (SimpleDocTemplate, Table, TableStyle, 
+                              Paragraph, Spacer)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from reportlab.lib.units import inch
@@ -115,12 +118,13 @@ class VinishSuiviImage(db.Model):
     data = db.Column(db.LargeBinary, nullable=False)
 
 def create_admin_user_if_not_exists():
-    if not DBUser.query.filter_by(id="admin").first():
-        hashed_password = bcrypt.generate_password_hash("admin").decode('utf-8')
-        admin_user = DBUser(id="admin", password_hash=hashed_password, role="admin")
-        db.session.add(admin_user)
-        db.session.commit()
-        app.logger.info("Default admin user created.")
+    with app.app_context():
+        if not DBUser.query.filter_by(id="admin").first():
+            hashed_password = bcrypt.generate_password_hash("admin").decode('utf-8')
+            admin_user = DBUser(id="admin", password_hash=hashed_password, role="admin")
+            db.session.add(admin_user)
+            db.session.commit()
+            app.logger.info("Default admin user created.")
 
 with app.app_context():
     db.create_all()
@@ -238,7 +242,7 @@ def suivi_journalier():
                 shelter_nombre=request.form.get("shelter_nombre_reception", type=int) if request.form.get("shelter_nombre_reception") else None,
             )
             db.session.add(entry)
-            db.session.flush() # Flush to get the entry.id for the images
+            db.session.flush()
 
             photos = request.files.getlist('photo_chantier_reception[]')
             for photo in photos:
@@ -273,7 +277,7 @@ def suivi_journalier():
                 entry.nombre_rail = request.form.get("nombre_rail", type=int) if request.form.get("nombre_rail") else None
             
             db.session.add(entry)
-            db.session.flush() # Get ID for photos
+            db.session.flush()
 
             photos = request.files.getlist('photo_chantier_avancement[]')
             for photo in photos:
@@ -288,7 +292,6 @@ def suivi_journalier():
 
         elif section == "fin":
             active_tab_after_submit = "fin"
-            # Get lists of all data from the table rows
             zones = request.form.getlist("fin_zone[]")
             strings = request.form.getlist("fin_string[]")
             tensions_dc = request.form.getlist("fin_tension_dc[]")
@@ -299,7 +302,6 @@ def suivi_journalier():
             techniciens = request.form.getlist("fin_technicien[]")
             statuses = request.form.getlist("fin_status[]")
             
-            # Read photo data once
             photos_data = []
             photos = request.files.getlist('photo_chantier_fin[]')
             for photo in photos:
@@ -310,9 +312,7 @@ def suivi_journalier():
                         "data": photo.read()
                     })
 
-            # Create a new DB entry for each row in the table
             for i in range(len(zones)):
-                # Only create an entry if the row has some data
                 if zones[i] or strings[i]:
                     entry = VinishSuivi(
                         utilisateur=current_user.id,
@@ -329,9 +329,8 @@ def suivi_journalier():
                         fin_status=statuses[i],
                     )
                     db.session.add(entry)
-                    db.session.flush() # Get ID before adding photos
+                    db.session.flush()
 
-                    # Add all uploaded photos to this entry
                     for p_data in photos_data:
                         img = VinishSuiviImage(
                             suivi_entry_id=entry.id,
@@ -380,7 +379,6 @@ def modify_history(entry_id):
                         value = None
                     setattr(entry, col_name, value)
             
-            # Handle image deletion
             delete_ids_str = request.form.get('delete_images', '')
             if delete_ids_str:
                 delete_ids = [int(img_id) for img_id in delete_ids_str.split(',') if img_id.strip().isdigit()]
@@ -389,7 +387,7 @@ def modify_history(entry_id):
                     if img_to_delete and img_to_delete.suivi_entry_id == entry.id:
                         db.session.delete(img_to_delete)
             
-            photos = request.files.getlist('photo_chantier[]') # Assumes name is 'photo_chantier[]' on modify form
+            photos = request.files.getlist('photo_chantier[]')
             for photo in photos:
                 if photo and photo.filename:
                     img = VinishSuiviImage(
@@ -408,7 +406,6 @@ def modify_history(entry_id):
             app.logger.error(f"Error modifying history entry {entry_id}: {str(e)}")
             flash(f"Erreur lors de la modification : {str(e)}", "danger")
             
-    # You'll need to create/update modify_history.html to handle all fields
     return render_template('modify_history.html', entry=entry, current_user=current_user)
 
 
@@ -456,7 +453,6 @@ def _get_filtered_rows():
 @login_required
 def telecharger_historique():
     rows = _get_filtered_rows()
-    # Exclude complex fields and add a field for image filenames
     fieldnames = [col.name for col in VinishSuivi.__table__.columns if col.name != 'id'] + ['images_filenames']
     
     csv_buffer = StringIO()
@@ -501,7 +497,6 @@ def telecharger_historique_pdf():
 
     all_rows = _get_filtered_rows()
     
-    # --- Separate rows by section ---
     reception_rows = []
     avancement_rows = []
     fin_rows = []
@@ -520,51 +515,58 @@ def telecharger_historique_pdf():
     styles = getSampleStyleSheet()
     styles.add(ParagraphStyle(name='SectionTitle', fontSize=14, fontName='Helvetica-Bold', spaceAfter=12))
 
-    # --- Title ---
     title_text = "Historique des Suivi Journaliers"
     elements.append(Paragraph(title_text, styles['h1']))
     elements.append(Spacer(1, 0.2*inch))
 
-    # --- Helper function to build a table ---
-    def build_section_table(title, headers, data_rows, attributes):
+    def build_section_table(title, headers, data_rows, attributes, col_widths):
         if not data_rows:
             return
 
         elements.append(Paragraph(title, styles['SectionTitle']))
+        
         table_data = [headers]
+        paragraph_style = styles['Normal']
+        paragraph_style.fontSize = 7
         for row in data_rows:
-            row_data = [getattr(row, attr, "") for attr in attributes]
-            # Add image count
+            row_data = [Paragraph(str(getattr(row, attr, "")), paragraph_style) for attr in attributes]
             row_data.append(str(len(row.images)))
             table_data.append(row_data)
 
-        table = Table(table_data, repeatRows=1)
+        table = Table(table_data, repeatRows=1, colWidths=col_widths)
+        
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.darkslategray),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('FONTSIZE', (0, 0), (-1, 0), 7.5),
             ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
         ]))
         elements.append(table)
         elements.append(Spacer(1, 0.4*inch))
 
-    # --- 1. Reception Table (CODE MODIFIED HERE) ---
-    reception_headers = ["Date", "Utilisateur", "Nom Chantier", "Type Équip.", "Réf. Équip.", "État Équip.", "Date Récept.", "Nb Équip.", "Type Conn.", "Qté Conn.", "État Conn.", "Type Ch.Câble", "Long. Ch.Câble", "Sect. Ch.Câble", "Prof. Ch.Câble", "Long. Terre", "Sect. AC", "Long. AC", "Sect. DC", "Long. DC", "Nb Ondul.", "Nb Shelter", "Images"]
+    # Reception Table
+    reception_headers = ["Date", "User", "Nom Chantier", "Type Équip.", "Réf.", "État", "Date Récept.", "Nb", "Type Conn.", "Qté", "État", "Type Ch.Câble", "Long.", "Sect.", "Prof.", "L. Terre", "Sect. AC", "L. AC", "Sect. DC", "L. DC", "Nb Ondul.", "Nb Shelter", "Img"]
     reception_attrs = ["date", "utilisateur", "nom_du_chantier", "equipement_type", "equipement_reference", "equipement_etat", "equipement_date_reception", "equipement_nombre_1", "connecteur_type", "connecteur_quantite", "connecteur_etat", "chemin_cable_type", "chemin_cable_longueur", "chemin_cable_section", "chemin_cable_profondeur", "terre_longueur", "cableac_section", "cableac_longueur", "cabledc_section", "cabledc_longueur", "onduleur_nombre", "shelter_nombre"]
-    build_section_table("Réception du Chantier", reception_headers, reception_rows, reception_attrs)
+    reception_col_widths = [0.5*inch, 0.4*inch, 0.7*inch, 0.55*inch, 0.4*inch, 0.4*inch, 0.5*inch, 0.2*inch, 0.45*inch, 0.25*inch, 0.4*inch, 0.5*inch, 0.3*inch, 0.35*inch, 0.3*inch, 0.4*inch, 0.4*inch, 0.4*inch, 0.4*inch, 0.4*inch, 0.4*inch, 0.4*inch, 0.2*inch]
+    build_section_table("Réception du Chantier", reception_headers, reception_rows, reception_attrs, reception_col_widths)
 
-    # --- 2. Avancement Table (CODE MODIFIED HERE) ---
-    avancement_headers = ["Date", "Utilisateur", "Nom Chantier", "Type Chantier", "Équipe", "Onduleur", "Heures", "DC Tiré (m)", "AC Tiré (m)", "Terre Tiré(m)", "Interconnexion", "Nb Panneaux", "Nb Rails (m)", "Problèmes", "Images"]
+    # Avancement Table
+    avancement_headers = ["Date", "User", "Nom Chantier", "Type", "Équipe", "Onduleur", "Heures", "DC (m)", "AC (m)", "Terre (m)", "Interco.", "Panneaux", "Rails (m)", "Problèmes", "Img"]
     avancement_attrs = ["date", "utilisateur", "nom_du_chantier", "chantier_type", "equipe", "onduleur_details_avancement", "heure_de_travail", "cables_dctires", "cables_actires", "cables_terretires", "interconnexion", "nombre_panneaux", "nombre_rail", "problems"]
-    build_section_table("Avancement du Chantier", avancement_headers, avancement_rows, avancement_attrs)
+    avancement_col_widths = [0.6*inch, 0.5*inch, 0.9*inch, 0.6*inch, 0.8*inch, 0.8*inch, 0.4*inch, 0.4*inch, 0.4*inch, 0.4*inch, 0.8*inch, 0.5*inch, 0.5*inch, 1.3*inch, 0.2*inch]
+    build_section_table("Avancement du Chantier", avancement_headers, avancement_rows, avancement_attrs, avancement_col_widths)
 
-    # --- 3. Fin Table ---
-    fin_headers = ["Date Entrée", "Utilisateur", "Nom Chantier", "Zone", "String", "Tension DC", "Courant DC", "Tension AC", "Puissance", "Date Mesure", "Technicien", "Statut", "Images"]
+    # Fin Table
+    fin_headers = ["Date Entrée", "User", "Nom Chantier", "Zone", "String", "Tension DC", "Courant DC", "Tension AC", "Puissance", "Date Mesure", "Technicien", "Statut", "Img"]
     fin_attrs = ["date", "utilisateur", "nom_du_chantier", "fin_zone", "fin_string", "fin_tension_dc", "fin_courant_dc", "fin_tension_ac", "fin_puissance", "fin_date", "fin_technicien", "fin_status"]
-    build_section_table("Fin du Chantier", fin_headers, fin_rows, fin_attrs)
+    fin_col_widths = [0.7*inch, 0.6*inch, 1.1*inch, 0.7*inch, 0.7*inch, 0.7*inch, 0.7*inch, 0.7*inch, 0.7*inch, 0.7*inch, 0.8*inch, 0.8*inch, 0.2*inch]
+    build_section_table("Fin du Chantier", fin_headers, fin_rows, fin_attrs, fin_col_widths)
     
     if not elements:
         elements.append(Paragraph("Aucune donnée à afficher pour les filtres sélectionnés.", styles['Normal']))
@@ -613,7 +615,6 @@ def admin_panel():
         return redirect(url_for('admin_panel'))
 
     users = DBUser.query.all()
-    # You'll need to create admin.html
     return render_template('admin.html', utilisateurs=users, current_user=current_user)
 
 
