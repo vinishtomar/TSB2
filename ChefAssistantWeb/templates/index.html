@@ -122,11 +122,9 @@
       <li class="nav-item" role="presentation">
         <button class="nav-link {% if not is_filtering and active_tab == 'fin' %}active{% endif %}" id="fin-tab" data-bs-toggle="tab" data-bs-target="#fin" type="button" role="tab" aria-controls="fin" aria-selected="{% if not is_filtering and active_tab == 'fin' %}true{% else %}false{% endif %}">Fin du Chantier</button>
       </li>
-      {% if current_user and current_user.role == "admin" %}
       <li class="nav-item" role="presentation">
         <button class="nav-link {% if is_filtering or active_tab == 'history' %}active{% endif %}" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="{% if is_filtering or active_tab == 'history' %}true{% else %}false{% endif %}">Historique</button>
       </li>
-      {% endif %}
     </ul>
 
     <div class="tab-content container-fluid pt-4" id="mainTabContent">
@@ -148,19 +146,19 @@
                   <button class="nav-link" id="chemin-cable-tab" data-bs-toggle="pill" data-bs-target="#chemin-cable" type="button" role="tab" aria-controls="chemin-cable" aria-selected="false">Chemin de Câble</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link" id="terre-tab" data-bs-toggle="pill" data-bs-target="#terre" type="button" role="tab" aria-controls="terre" aria-selected="false">Terre</button>
+                    <button class="nav-link" id="terre-tab" data-bs-toggle="pill" data-bs-target="#terre" type="button" role="tab" aria-controls="terre" aria-selected="false">Terre</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link" id="cable-ac-tab" data-bs-toggle="pill" data-bs-target="#cable-ac" type="button" role="tab" aria-controls="cable-ac" aria-selected="false">Câble AC</button>
+                    <button class="nav-link" id="cable-ac-tab" data-bs-toggle="pill" data-bs-target="#cable-ac" type="button" role="tab" aria-controls="cable-ac" aria-selected="false">Câble AC</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link" id="cable-dc-tab" data-bs-toggle="pill" data-bs-target="#cable-dc" type="button" role="tab" aria-controls="cable-dc" aria-selected="false">Câble DC</button>
+                    <button class="nav-link" id="cable-dc-tab" data-bs-toggle="pill" data-bs-target="#cable-dc" type="button" role="tab" aria-controls="cable-dc" aria-selected="false">Câble DC</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link" id="onduleur-nombre-reception-tab" data-bs-toggle="pill" data-bs-target="#onduleur-nombre-reception-pane" type="button" role="tab" aria-controls="onduleur-nombre-reception-pane" aria-selected="false">Onduleur Nombre</button>
+                    <button class="nav-link" id="onduleur-nombre-reception-tab" data-bs-toggle="pill" data-bs-target="#onduleur-nombre-reception-pane" type="button" role="tab" aria-controls="onduleur-nombre-reception-pane" aria-selected="false">Onduleur Nombre</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link" id="shelter-nombre-reception-nav-tab" data-bs-toggle="pill" data-bs-target="#shelter-nombre-reception-pane" type="button" role="tab" aria-controls="shelter-nombre-reception-pane" aria-selected="false">Shelter Nombre</button>
+                    <button class="nav-link" id="shelter-nombre-reception-nav-tab" data-bs-toggle="pill" data-bs-target="#shelter-nombre-reception-pane" type="button" role="tab" aria-controls="shelter-nombre-reception-pane" aria-selected="false">Shelter Nombre</button>
                 </li>
               </ul>
               <div class="tab-content" id="receptionSubTabContent">
@@ -189,168 +187,171 @@
                       </select>
                     </div>
                     <div class="col-md-3">
-                      <label for="equipement_reference_1" class="form-label visually-hidden">Référence 1</label>
-                      <input type="text" class="form-control" id="equipement_reference_1" name="equipement_reference_1" placeholder="Numéro de série">
+                        <label for="equipement_reference_1" class="form-label visually-hidden">Référence 1</label>
+                        <input type="text" class="form-control" id="equipement_reference_1" name="equipement_reference_1" placeholder="Numéro de série">
                     </div>
                     <div class="col-md-2">
-                      <label for="equipement_etat_1" class="form-label visually-hidden">État 1</label>
-                      <select class="form-select" id="equipement_etat_1" name="equipement_etat_1">
-                        <option value="Bon état">Bon état</option>
-                        <option value="À vérifier">À vérifier</option>
-                        <option value="Défaillant">Défaillant</option>
-                      </select>
+                        <label for="equipement_etat_1" class="form-label visually-hidden">État 1</label>
+                        <select class="form-select" id="equipement_etat_1" name="equipement_etat_1">
+                            <option value="Bon état">Bon état</option>
+                            <option value="À vérifier">À vérifier</option>
+                            <option value="Défaillant">Défaillant</option>
+                        </select>
                     </div>
                     <div class="col-md-2">
-                      <label for="equipement_date_reception_1" class="form-label visually-hidden">Date de réception 1</label>
-                      <input type="date" class="form-control" id="equipement_date_reception_1" name="equipement_date_reception_1">
+                        <label for="equipement_date_reception_1" class="form-label visually-hidden">Date de réception 1</label>
+                        <input type="date" class="form-control" id="equipement_date_reception_1" name="equipement_date_reception_1">
                     </div>
                     <div class="col-md-2">
-                      <label for="equipement_nombre_1" class="form-label visually-hidden">Nombre de Machines 1</label>
-                      <input type="number" class="form-control" id="equipement_nombre_1" name="equipement_nombre_1" min="0" value="1">
+                        <label for="equipement_nombre_1" class="form-label visually-hidden">Nombre de Machines 1</label>
+                        <input type="number" class="form-control" id="equipement_nombre_1" name="equipement_nombre_1" min="0" value="1">
                     </div>
                   </div>
                   <div class="row mb-2">
                     <div class="col-md-3">
-                      <select class="form-select" name="equipement_type_2">
-                        <option value="">Sélectionner...</option>
-                        <option value="Nacelle ciseau">Nacelle ciseau</option>
-                        <option value="Nacelle à bras">Nacelle à bras</option>
-                        <option value="Manitou">Manitou</option>
-                      </select>
+                        <select class="form-select" name="equipement_type_2">
+                            <option value="">Sélectionner...</option>
+                            <option value="Nacelle ciseau">Nacelle ciseau</option>
+                            <option value="Nacelle à bras">Nacelle à bras</option>
+                            <option value="Manitou">Manitou</option>
+                        </select>
                     </div>
                     <div class="col-md-3"><input type="text" class="form-control" name="equipement_reference_2" placeholder="Numéro de série"></div>
                     <div class="col-md-2">
-                      <select class="form-select" name="equipement_etat_2">
-                        <option value="Bon état">Bon état</option><option value="À vérifier">À vérifier</option><option value="Défaillant">Défaillant</option>
-                      </select>
+                        <select class="form-select" name="equipement_etat_2">
+                            <option value="Bon état">Bon état</option><option value="À vérifier">À vérifier</option><option value="Défaillant">Défaillant</option>
+                        </select>
                     </div>
                     <div class="col-md-2"><input type="date" class="form-control" name="equipement_date_reception_2"></div>
                     <div class="col-md-2"><input type="number" class="form-control" name="equipement_nombre_2" min="0" value="1"></div>
                   </div>
                   <div class="row mb-3">
                     <div class="col-md-3">
-                      <select class="form-select" name="equipement_type_3">
-                        <option value="">Sélectionner...</option>
-                        <option value="Nacelle ciseau">Nacelle ciseau</option>
-                        <option value="Nacelle à bras">Nacelle à bras</option>
-                        <option value="Manitou">Manitou</option>
-                      </select>
+                        <select class="form-select" name="equipement_type_3">
+                            <option value="">Sélectionner...</option>
+                            <option value="Nacelle ciseau">Nacelle ciseau</option>
+                            <option value="Nacelle à bras">Nacelle à bras</option>
+                            <option value="Manitou">Manitou</option>
+                        </select>
                     </div>
                     <div class="col-md-3"><input type="text" class="form-control" name="equipement_reference_3" placeholder="Numéro de série"></div>
                     <div class="col-md-2">
-                      <select class="form-select" name="equipement_etat_3">
-                        <option value="Bon état">Bon état</option><option value="À vérifier">À vérifier</option><option value="Défaillant">Défaillant</option>
-                      </select>
+                        <select class="form-select" name="equipement_etat_3">
+                            <option value="Bon état">Bon état</option><option value="À vérifier">À vérifier</option><option value="Défaillant">Défaillant</option>
+                        </select>
                     </div>
                     <div class="col-md-2"><input type="date" class="form-control" name="equipement_date_reception_3"></div>
                     <div class="col-md-2"><input type="number" class="form-control" name="equipement_nombre_3" min="0" value="1"></div>
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Photos du chantier (Réception)</label>
-                    <div class="photos-container">
-                      <div class="input-group mb-2">
-                        <input type="file" class="form-control" name="photo_chantier_reception[]" accept="image/*" multiple>
-                        <button class="btn btn-danger remove-photo-btn" type="button" style="display:none;">Supprimer</button>
+                      <label class="form-label">Photos du chantier (Réception)</label>
+                      <div class="photos-container">
+                          <div class="input-group mb-2">
+                              <input type="file" class="form-control" name="photo_chantier_reception[]" accept="image/*" multiple>
+                              <button class="btn btn-danger remove-photo-btn" type="button" style="display:none;">Supprimer</button>
+                          </div>
                       </div>
-                    </div>
-                    <button type="button" class="btn btn-secondary btn-sm add-photo-btn">Ajouter une photo</button>
+                      <button type="button" class="btn btn-secondary btn-sm add-photo-btn">Ajouter une photo</button>
                   </div>
                 </div>
                 <div class="tab-pane fade" id="connecteur" role="tabpanel" aria-labelledby="connecteur-tab">
                   <div class="row mb-3">
                     <div class="col-md-4">
-                      <label for="connecteur_type" class="form-label">Type de connecteur</label>
-                      <input type="text" class="form-control" id="connecteur_type" name="connecteur_type">
+                        <label for="connecteur_type" class="form-label">Type de connecteur</label>
+                        <input type="text" class="form-control" id="connecteur_type" name="connecteur_type">
                     </div>
                     <div class="col-md-4">
-                      <label for="connecteur_quantite" class="form-label">Quantité</label>
-                      <input type="number" class="form-control" id="connecteur_quantite" name="connecteur_quantite" min="0">
+                        <label for="connecteur_quantite" class="form-label">Quantité</label>
+                        <input type="number" class="form-control" id="connecteur_quantite" name="connecteur_quantite" min="0">
                     </div>
                     <div class="col-md-4">
-                      <label for="connecteur_etat" class="form-label">État</label>
-                      <select class="form-select" id="connecteur_etat" name="connecteur_etat">
-                        <option value="Bon état">Bon état</option>
-                        <option value="À vérifier">À vérifier</option>
-                        <option value="Défaillant">Défaillant</option>
-                      </select>
+                        <label for="connecteur_etat" class="form-label">État</label>
+                        <select class="form-select" id="connecteur_etat" name="connecteur_etat">
+                            <option value="Bon état">Bon état</option>
+                            <option value="À vérifier">À vérifier</option>
+                            <option value="Défaillant">Défaillant</option>
+                        </select>
                     </div>
                   </div>
                 </div>
                 <div class="tab-pane fade" id="chemin-cable" role="tabpanel" aria-labelledby="chemin-cable-tab">
                   <div class="row mb-3">
                     <div class="col-md-3">
-                      <label for="chemin_cable_type" class="form-label">Type de chemin</label>
-                      <input type="text" class="form-control" id="chemin_cable_type" name="chemin_cable_type" placeholder="Ex: Fourreau, Caniveau">
+                        <label for="chemin_cable_type" class="form-label">Type de chemin</label>
+                        <input type="text" class="form-control" id="chemin_cable_type" name="chemin_cable_type" placeholder="Ex: Fourreau, Caniveau">
                     </div>
                     <div class="col-md-3">
-                      <label for="chemin_cable_longueur" class="form-label">Longueur (m)</label>
-                      <input type="number" class="form-control" id="chemin_cable_longueur" name="chemin_cable_longueur" min="0" step="any">
+                        <label for="chemin_cable_longueur" class="form-label">Longueur (m)</label>
+                        <input type="number" class="form-control" id="chemin_cable_longueur" name="chemin_cable_longueur" min="0" step="any">
                     </div>
                     <div class="col-md-3">
-                      <label for="chemin_cable_section" class="form-label">Section (mm² ou dim.)</label>
-                      <input type="text" class="form-control" id="chemin_cable_section" name="chemin_cable_section" placeholder="Ex: 50mm² ou 100x50">
+                        <label for="chemin_cable_section" class="form-label">Section (mm² ou dim.)</label>
+                        <input type="text" class="form-control" id="chemin_cable_section" name="chemin_cable_section" placeholder="Ex: 50mm² ou 100x50">
                     </div>
                     <div class="col-md-3">
-                      <label for="chemin_cable_profondeur" class="form-label">Profondeur enfoui. (cm)</label>
-                      <input type="number" class="form-control" id="chemin_cable_profondeur" name="chemin_cable_profondeur" min="0" step="any">
+                        <label for="chemin_cable_profondeur" class="form-label">Profondeur enfoui. (cm)</label>
+                        <input type="number" class="form-control" id="chemin_cable_profondeur" name="chemin_cable_profondeur" min="0" step="any">
                     </div>
                   </div>
                 </div>
                 <div class="tab-pane fade" id="terre" role="tabpanel" aria-labelledby="terre-tab">
-                  <div class="row mb-3">
-                    <div class="col-md-6">
-                      <label for="terre_longueur" class="form-label">Longueur Terre (m)</label>
-                      <input type="number" class="form-control" id="terre_longueur" name="terre_longueur" min="0" step="any">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="terre_longueur" class="form-label">Longueur Terre (m)</label>
+                            <input type="number" class="form-control" id="terre_longueur" name="terre_longueur" min="0" step="any">
+                        </div>
                     </div>
-                  </div>
                 </div>
                 <div class="tab-pane fade" id="cable-ac" role="tabpanel" aria-labelledby="cable-ac-tab">
-                  <div class="row mb-3">
-                    <div class="col-md-6">
-                      <label for="cableac_section" class="form-label">Section Câble AC (mm²)</label>
-                      <input type="text" class="form-control" id="cableac_section" name="cableac_section">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="cableac_section" class="form-label">Section Câble AC (mm²)</label>
+                            <input type="text" class="form-control" id="cableac_section" name="cableac_section">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="cableac_longueur" class="form-label">Longueur Câble AC (m)</label>
+                            <input type="number" class="form-control" id="cableac_longueur" name="cableac_longueur" min="0" step="any">
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                      <label for="cableac_longueur" class="form-label">Longueur Câble AC (m)</label>
-                      <input type="number" class="form-control" id="cableac_longueur" name="cableac_longueur" min="0" step="any">
-                    </div>
-                  </div>
                 </div>
                 <div class="tab-pane fade" id="cable-dc" role="tabpanel" aria-labelledby="cable-dc-tab">
-                  <div class="row mb-3">
-                    <div class="col-md-6">
-                      <label for="cabledc_section" class="form-label">Section Câble DC (mm²)</label>
-                      <input type="text" class="form-control" id="cabledc_section" name="cabledc_section">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="cabledc_section" class="form-label">Section Câble DC (mm²)</label>
+                            <input type="text" class="form-control" id="cabledc_section" name="cabledc_section">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="cabledc_longueur" class="form-label">Longueur Câble DC (m)</label>
+                            <input type="number" class="form-control" id="cabledc_longueur" name="cabledc_longueur" min="0" step="any">
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                      <label for="cabledc_longueur" class="form-label">Longueur Câble DC (m)</label>
-                      <input type="number" class="form-control" id="cabledc_longueur" name="cabledc_longueur" min="0" step="any">
-                    </div>
-                  </div>
                 </div>
                 <div class="tab-pane fade" id="onduleur-nombre-reception-pane" role="tabpanel" aria-labelledby="onduleur-nombre-reception-tab">
-                  <div class="row mb-3">
-                    <div class="col-md-6">
-                      <label for="onduleur_nombre_reception_input" class="form-label">Nombre d'Onduleurs</label>
-                      <input type="number" class="form-control" id="onduleur_nombre_reception_input" name="onduleur_nombre_reception" min="0">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="onduleur_nombre_reception_input" class="form-label">Nombre d'Onduleurs</label>
+                            <input type="number" class="form-control" id="onduleur_nombre_reception_input" name="onduleur_nombre_reception" min="0">
+                        </div>
                     </div>
-                  </div>
                 </div>
                 <div class="tab-pane fade" id="shelter-nombre-reception-pane" role="tabpanel" aria-labelledby="shelter-nombre-reception-nav-tab">
-                  <div class="row mb-3">
-                    <div class="col-md-6">
-                      <label for="shelter_nombre_reception_input" class="form-label">Shelter nombre</label>
-                      <input type="number" class="form-control" id="shelter_nombre_reception_input" name="shelter_nombre_reception" min="0">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="shelter_nombre_reception_input" class="form-label">Shelter nombre</label>
+                            <input type="number" class="form-control" id="shelter_nombre_reception_input" name="shelter_nombre_reception" min="0">
+                        </div>
                     </div>
-                  </div>
                 </div>
-              </div> <div class="mt-4 pt-3 border-top">
+              </div>
+              <div class="mt-4 pt-3 border-top">
                 <button type="submit" class="btn btn-primary btn-lg">Enregistrer Toute la Réception</button>
               </div>
-
             </div>
           </div>
-        </form> </div> <div class="tab-pane fade {% if not is_filtering and active_tab == 'avancement' %}show active{% endif %}" id="avancement" role="tabpanel" aria-labelledby="avancement-tab">
+        </form>
+      </div>
+
+      <div class="tab-pane fade {% if not is_filtering and active_tab == 'avancement' %}show active{% endif %}" id="avancement" role="tabpanel" aria-labelledby="avancement-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <div class="card-title mb-4">Avancement du Chantier</div>
@@ -392,21 +393,21 @@
               </div>
               {% if session.chantier_type == 'centrale-sol' or session.chantier_type == 'ombriere' %}
               <div class="row mb-3">
-                <div class="col-md-12">
-                  <label for="interconnexion" class="form-label">Interconnexion (ex: status, détails)</label>
-                  <input type="text" class="form-control" id="interconnexion" name="interconnexion" placeholder="Détails de l'interconnexion">
-                </div>
+                  <div class="col-md-12">
+                      <label for="interconnexion" class="form-label">Interconnexion (ex: status, détails)</label>
+                      <input type="text" class="form-control" id="interconnexion" name="interconnexion" placeholder="Détails de l'interconnexion">
+                  </div>
               </div>
               {% elif session.chantier_type == 'toiture' %}
               <div class="row mb-3">
-                <div class="col-md-6">
-                  <label for="nombre_panneaux" class="form-label">Nombre panneaux posés</label>
-                  <input type="number" class="form-control" id="nombre_panneaux" name="nombre_panneaux" min="0" placeholder="Quantité">
-                </div>
-                <div class="col-md-6">
-                  <label for="nombre_rail" class="form-label">Nombre rail posé (m)</label>
-                  <input type="number" class="form-control" id="nombre_rail" name="nombre_rail" min="0" step="any" placeholder="Longueur totale en mètres">
-                </div>
+                  <div class="col-md-6">
+                      <label for="nombre_panneaux" class="form-label">Nombre panneaux posés</label>
+                      <input type="number" class="form-control" id="nombre_panneaux" name="nombre_panneaux" min="0" placeholder="Quantité">
+                  </div>
+                  <div class="col-md-6">
+                      <label for="nombre_rail" class="form-label">Nombre rail posé (m)</label>
+                      <input type="number" class="form-control" id="nombre_rail" name="nombre_rail" min="0" step="any" placeholder="Longueur totale en mètres">
+                  </div>
               </div>
               {% endif %}
               <div class="row mb-3">
@@ -512,44 +513,45 @@
         </div>
       </div>
 
-      {% if current_user and current_user.role == "admin" %}
       <div class="tab-pane fade {% if is_filtering or active_tab == 'history' %}show active{% endif %}" id="history" role="tabpanel" aria-labelledby="history-tab">
         <div class="card rounded-card mb-3">
           <div class="card-body">
             <form method="GET" action="{{ url_for('index') }}" class="mb-4 p-3 border rounded bg-light">
               <input type="hidden" name="active_tab" value="history">
               <div class="row g-3 align-items-end">
-                  <div class="col-md-4">
-                      <label for="filter_utilisateur" class="form-label">Filtrer par Utilisateur</label>
-                      <select name="filter_utilisateur" id="filter_utilisateur" class="form-select form-select-sm">
-                          <option value="">Tous les utilisateurs</option>
-                          {% for user_opt in distinct_users %}
-                          <option value="{{ user_opt }}" {% if current_filter_utilisateur == user_opt %}selected{% endif %}>{{ user_opt }}</option>
-                          {% endfor %}
-                      </select>
-                  </div>
-                  <div class="col-md-4">
-                      <label for="filter_nom_chantier" class="form-label">Filtrer par Nom Chantier</label>
-                      <select name="filter_nom_chantier" id="filter_nom_chantier" class="form-select form-select-sm">
-                          <option value="">Tous les chantiers</option>
-                          {% for chantier_opt in distinct_nom_chantiers %}
-                          <option value="{{ chantier_opt }}" {% if current_filter_nom_chantier == chantier_opt %}selected{% endif %}>{{ chantier_opt }}</option>
-                          {% endfor %}
-                      </select>
-                  </div>
-                  <div class="col-md-auto">
-                      <button type="submit" class="btn btn-sm btn-primary">Filtrer</button>
-                  </div>
-                  <div class="col-md-auto">
-                      <a href="{{ url_for('index', active_tab='history') }}" class="btn btn-sm btn-secondary">Réinitialiser</a>
-                  </div>
+                {% if current_user.role == "admin" %}
+                <div class="col-md-4">
+                  <label for="filter_utilisateur" class="form-label">Filtrer par Utilisateur</label>
+                  <select name="filter_utilisateur" id="filter_utilisateur" class="form-select form-select-sm">
+                    <option value="">Tous les utilisateurs</option>
+                    {% for user_opt in distinct_users %}
+                    <option value="{{ user_opt }}" {% if current_filter_utilisateur == user_opt %}selected{% endif %}>{{ user_opt }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                {% endif %}
+                <div class="col-md-4">
+                  <label for="filter_nom_chantier" class="form-label">Filtrer par Nom Chantier</label>
+                  <select name="filter_nom_chantier" id="filter_nom_chantier" class="form-select form-select-sm">
+                    <option value="">Tous les chantiers</option>
+                    {% for chantier_opt in distinct_nom_chantiers %}
+                    <option value="{{ chantier_opt }}" {% if current_filter_nom_chantier == chantier_opt %}selected{% endif %}>{{ chantier_opt }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-auto">
+                  <button type="submit" class="btn btn-sm btn-primary">Filtrer</button>
+                </div>
+                <div class="col-md-auto">
+                  <a href="{{ url_for('index', active_tab='history') }}" class="btn btn-sm btn-secondary">Réinitialiser</a>
+                </div>
               </div>
             </form>
             <div class="d-flex justify-content-between align-items-center mb-3">
               <div class="card-title mb-0">Historique des Entrées</div>
               <div>
-                  <a href="{{ url_for('telecharger_historique', filter_utilisateur=current_filter_utilisateur, filter_nom_chantier=current_filter_nom_chantier) }}" class="btn btn-sm btn-primary">Télécharger CSV Filtré</a>
-                  <a href="{{ url_for('telecharger_historique_pdf', filter_utilisateur=current_filter_utilisateur, filter_nom_chantier=current_filter_nom_chantier) }}" class="btn btn-sm btn-success">Télécharger PDF Filtré</a>
+                <a href="{{ url_for('telecharger_historique', filter_utilisateur=current_filter_utilisateur, filter_nom_chantier=current_filter_nom_chantier) }}" class="btn btn-sm btn-primary">Télécharger CSV Filtré</a>
+                <a href="{{ url_for('telecharger_historique_pdf', filter_utilisateur=current_filter_utilisateur, filter_nom_chantier=current_filter_nom_chantier) }}" class="btn btn-sm btn-success">Télécharger PDF Filtré</a>
               </div>
             </div>
 
@@ -622,9 +624,11 @@
                       </td>
                       <td class="nowrap">
                         <a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a>
+                        {% if current_user.role == "admin" %}
                         <form action="{{ url_for('delete_history', entry_id=row.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Supprimer cette entrée ?');">
-                            <button type="submit" class="btn btn-danger delete-btn">Supprimer</button>
+                          <button type="submit" class="btn btn-danger delete-btn">Supprimer</button>
                         </form>
+                        {% endif %}
                       </td>
                     </tr>
                     {% endif %}
@@ -704,9 +708,11 @@
                     </td>
                     <td class="nowrap">
                       <a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a>
+                      {% if current_user.role == "admin" %}
                       <form action="{{ url_for('delete_history', entry_id=row.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Supprimer cette entrée ?');">
                         <button type="submit" class="btn btn-danger delete-btn">Supprimer</button>
                       </form>
+                      {% endif %}
                     </td>
                   </tr>
                   {% endif %}
@@ -764,9 +770,11 @@
                       </td>
                       <td class="nowrap">
                         <a href="{{ url_for('modify_history', entry_id=row.id) }}" class="btn btn-warning modify-btn">Modifier</a>
+                        {% if current_user.role == "admin" %}
                         <form action="{{ url_for('delete_history', entry_id=row.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Supprimer cette entrée ?');">
                           <button type="submit" class="btn btn-danger delete-btn">Supprimer</button>
                         </form>
+                        {% endif %}
                       </td>
                     </tr>
                     {% endif %}
@@ -777,7 +785,6 @@
           </div>
         </div>
       </div>
-      {% endif %}
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
