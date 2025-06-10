@@ -11,7 +11,7 @@ from io import StringIO, BytesIO
 from datetime import datetime
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.platypus import (SimpleDocTemplate, Table, TableStyle, 
-                              Paragraph, Spacer)
+                                Paragraph, Spacer)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from reportlab.lib.units import inch
@@ -491,10 +491,7 @@ def telecharger_historique():
 @app.route('/telecharger-historique-pdf')
 @login_required
 def telecharger_historique_pdf():
-    if current_user.role != "admin":
-        flash("Accès refusé. Le PDF global est pour les administrateurs.", "danger")
-        return redirect(url_for('index', active_tab='history'))
-
+    # Role check removed to allow all users to download their own filtered PDF
     all_rows = _get_filtered_rows()
     
     reception_rows = []
