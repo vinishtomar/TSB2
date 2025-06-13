@@ -355,7 +355,9 @@ def suivi_journalier():
     
     return redirect(url_for('index', active_tab=active_tab_after_submit))
 
-
+# ==============================================================================
+# ===== START OF MODIFIED SECTION ==============================================
+# ==============================================================================
 @app.route('/modify-history/<int:entry_id>', methods=['GET', 'POST'])
 @login_required
 def modify_history(entry_id):
@@ -368,10 +370,11 @@ def modify_history(entry_id):
         try:
             for column in VinishSuivi.__table__.columns:
                 col_name = column.name
+                # CHANGE 1: 'date' has been removed from this list to allow updates.
+                if col_name in ['id', 'utilisateur', 'chantier_type']:
+                    continue
+                
                 if col_name in request.form:
-                    if col_name in ['id', 'date', 'utilisateur', 'chantier_type']:
-                        continue
-                    
                     value = request.form.get(col_name)
                     if col_name in ["shelter_nombre", "nombre_panneaux", "nombre_rail", "onduleur_nombre"]:
                         value = int(value) if value and value.strip() else None
@@ -406,7 +409,25 @@ def modify_history(entry_id):
             app.logger.error(f"Error modifying history entry {entry_id}: {str(e)}")
             flash(f"Erreur lors de la modification : {str(e)}", "danger")
             
-    return render_template('modify_history.html', entry=entry, current_user=current_user)
+    # CHANGE 2: Logic to format the date for the HTML 'datetime-local' input field.
+    # This runs for GET requests to display the form correctly.
+    entry_date_formatted = ""
+    if entry.date:
+        try:
+            # The HTML datetime-local input needs 'T' as a separator
+            dt_obj = datetime.strptime(entry.date, '%Y-%m-%d %H:%M')
+            entry_date_formatted = dt_obj.strftime('%Y-%m-%dT%H:%M')
+        except ValueError:
+            # Fallback if the date format is somehow different
+            entry_date_formatted = entry.date.replace(" ", "T")
+            
+    return render_template('modify_history.html', 
+                           entry=entry, 
+                           current_user=current_user, 
+                           entry_date_formatted=entry_date_formatted)
+# ==============================================================================
+# ===== END OF MODIFIED SECTION ================================================
+# ==============================================================================
 
 
 @app.route('/delete-history/<int:entry_id>', methods=['POST'])
